@@ -9,6 +9,7 @@ tek:binary "nanotekspice" {
 
 return {
     tek:make(),
+    epine.br,
     action "run" {
         prerequisites = {"$(NAME)"},
         quiet("./$(NAME)")

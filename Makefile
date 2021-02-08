@@ -53,6 +53,7 @@ fclean: clean
 
 re: fclean all
 .PHONY: re
+
 run: $(NAME)
 	@./$(NAME)
 .PHONY: run
