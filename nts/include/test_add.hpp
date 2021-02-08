@@ -8,6 +8,6 @@
 #ifndef TEST_HPP_
 #define TEST_HPP_
 
-int test(int, int);
+int add(int, int);
 
 #endif /* !TEST_HPP_ */

@@ -50,6 +50,30 @@ libnts.a: $(libnts_a_OBJS)
 	@$(AR) rc $@ $(libnts_a_OBJS)
 -include $(libnts_a_DEPS)
 
+unit_tests_SRCS := $(shell find -path './tests/*.cpp')
+unit_tests_OBJS := $(filter %.cpp,$(unit_tests_SRCS))
+unit_tests_OBJS := $(unit_tests_OBJS:.cpp=.o)
+unit_tests_DEPS := $(unit_tests_OBJS:.o=.d)
+unit_tests $(unit_tests_OBJS): libnts.a
+unit_tests: CPPFLAGS :=
+unit_tests: CPPFLAGS += -MD -MP
+unit_tests: CPPFLAGS += -I./include
+unit_tests: CPPFLAGS += -I./nts/include
+unit_tests: CXXFLAGS :=
+unit_tests: CXXFLAGS += -Wall
+unit_tests: CXXFLAGS += -Wextra
+unit_tests: CXXFLAGS += $(if DEBUG,-g3)
+unit_tests: LDLIBS :=
+unit_tests: LDLIBS += -lcriterion
+unit_tests: LDLIBS += -l:libnts.a
+unit_tests: LDFLAGS :=
+unit_tests: LDFLAGS += -L.
+unit_tests: LDFLAGS += -Wl,-rpath .
+unit_tests: $(unit_tests_OBJS)
+	@echo [binary] $@
+	@$(CXX) -o $@ $(unit_tests_OBJS) $(LDFLAGS) $(LDLIBS)
+-include $(unit_tests_DEPS)
+
 %.o: %.c
 	@echo [C] $@
 	@$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
@@ -62,11 +86,11 @@ tests_run: ./unit_tests
 .PHONY: tests_run
 
 clean:
-	$(RM) $(__NAME__DEPS) $(__NAME__OBJS) $(libnts_a_DEPS) $(libnts_a_OBJS)
+	$(RM) $(__NAME__DEPS) $(__NAME__OBJS) $(libnts_a_DEPS) $(libnts_a_OBJS) $(unit_tests_DEPS) $(unit_tests_OBJS)
 .PHONY: clean
 
 fclean: clean
-	$(RM) $(NAME) libnts.a
+	$(RM) $(NAME) libnts.a unit_tests
 	$(RM) ./unit_tests
 .PHONY: fclean
 

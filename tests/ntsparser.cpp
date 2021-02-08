@@ -2,14 +2,13 @@
 ** EPITECH PROJECT, 2021
 ** B-OOP-400-TLS-4-1-tekspice-nassim.gharbaoui [WSL: Ubuntu]
 ** File description:
-** main
+** ntsparser
 */
 
 #include "test_add.hpp"
-#include <iostream>
+#include <criterion/criterion.h>
 
-int main()
+Test(test, it_works)
 {
-    std::cout << "Hello, World!" << std::endl;
-    std::cout << "2 + 2 = " << add(2, 2) << std::endl;
+    cr_assert_eq(add(2, 2), 4);
 }

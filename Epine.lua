@@ -15,6 +15,12 @@ tek:static "libnts" {
     incdirs = {"./nts/include"}
 }
 
+tek:binary "unit_tests" {
+    language = "C++",
+    srcs = {find "./tests/*.cpp"},
+    libs = {"criterion", tek:ref "libnts"}
+}
+
 return {
     tek:make(),
     epine.br,

@@ -5,9 +5,9 @@
 ** test
 */
 
-#include "test.hpp"
+#include "test_add.hpp"
 
-int test(int a, int b)
+int add(int a, int b)
 {
     return a + b;
 }
