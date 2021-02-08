@@ -2,11 +2,12 @@
 ** EPITECH PROJECT, 2021
 ** B-OOP-400-TLS-4-1-tekspice-nassim.gharbaoui [WSL: Ubuntu]
 ** File description:
-** main
+** test
 */
 
-#include <iostream>
+#ifndef TEST_HPP_
+#define TEST_HPP_
 
-int main() {
-    std::cout << "Hello, World!" << std::endl;
-}
+int test(int, int);
+
+#endif /* !TEST_HPP_ */

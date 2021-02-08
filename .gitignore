@@ -1,4 +1,5 @@
-nanotekspice
+.vscode
 *.o
 *.d
-.vscode
+nanotekspice
+libnts.a

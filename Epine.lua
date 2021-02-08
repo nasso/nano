@@ -4,7 +4,15 @@ tek:project "NanoTekSpice" {"nanotekspice"}
 
 tek:binary "nanotekspice" {
     language = "C++",
-    srcs = {find "./src/*.cpp"}
+    srcs = {find "./cli/src/*.cpp"},
+    incdirs = {"./cli/include"},
+    libs = {tek:ref "libnts"}
+}
+
+tek:static "libnts" {
+    language = "C++",
+    srcs = {find "./nts/src/*.cpp"},
+    incdirs = {"./nts/include"}
 }
 
 return {
