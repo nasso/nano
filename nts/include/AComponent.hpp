@@ -9,6 +9,8 @@
 #define ACOMPONENT_HPP_
 
 #include "IComponent.hpp"
+#include "Pin.hpp"
+#include "Subscription.hpp"
 #include <unordered_map>
 #include <vector>
 
@@ -23,15 +25,12 @@ class AComponent : public IComponent {
 public:
     virtual ~AComponent() = default;
 
-    virtual nts::Tristate compute(std::size_t pin) override;
     virtual void setLink(std::size_t pin, nts::IComponent& other,
         std::size_t otherPin) override;
 
-    void set(std::size_t pin, Tristate value);
-
 private:
-    std::unordered_map<std::size_t, Tristate> m_inputs;
-    std::unordered_map<std::size_t, std::vector<ComponentInput>> m_outputs;
+    std::vector<Pin> m_pins;
+    std::unordered_map<std::size_t, rtk::Subscription> m_links;
 };
 
 }
