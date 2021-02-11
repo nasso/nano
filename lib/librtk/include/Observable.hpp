@@ -4,6 +4,7 @@
 #include <memory>
 #include <mutex>
 
+#include "Operator.hpp"
 #include "Subscribable.hpp"
 #include "Subscriber.hpp"
 
@@ -12,22 +13,29 @@ template <typename T>
 class Observable : public Subscribable<T> {
 public:
     Observable(
-        std::function<void(std::shared_ptr<Subscription>)> subscribe = nullptr)
+        std::function<void(std::shared_ptr<Subscriber<T>>)> subscribe = nullptr)
     {
         m_subscribe = subscribe;
         m_source = nullptr;
     };
 
-    Observable(const Observable& obs)
+    Observable(const Observable<T>& obs)
     {
         m_source = obs.m_source;
         m_subscribe = obs.m_subscribe;
     }
 
-    ~Observable() {};
+    Observable<T>& operator=(const Observable<T>& obs)
+    {
+        m_source = obs.m_source;
+        m_subscribe = obs.m_subscribe;
+        return *this;
+    }
+
+    virtual ~Observable() = default;
 
     std::shared_ptr<Subscription> subscribe(
-        std::function<void(T&)> onNext = nullptr,
+        std::function<void(T)> onNext = nullptr,
         std::function<void()> onError = nullptr,
         std::function<void()> onComplete = nullptr)
     {
@@ -36,6 +44,14 @@ public:
 
         subscriber->add(_subscribe(subscriber));
         return subscriber;
+    }
+
+    template <typename U>
+    Observable<U> operator>>(Operator<T, U> op)
+    {
+        if (op)
+            return op(*this);
+        return *this;
     }
 
 protected:
@@ -56,14 +72,14 @@ protected:
             return Subscription::empty();
         }
         if (m_source)
-            return m_source->subscribe([&, this, subscriber](T& value) { subscriber->next(value); }, [&, this, subscriber]() { subscriber->error(); },
+            return m_source->subscribe([&, this, subscriber](T value) { subscriber->next(value); }, [&, this, subscriber]() { subscriber->error(); },
                 [&, this, subscriber]() {
                     subscriber->complete();
                 });
         return Subscription::empty();
     };
     Observable<T>* m_source;
-    std::function<void(std::shared_ptr<Subscription>)> m_subscribe;
+    std::function<void(std::shared_ptr<Subscriber<T>>)> m_subscribe;
 
 private:
     mutable std::mutex _mtx;
