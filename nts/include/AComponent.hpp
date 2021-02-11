@@ -9,28 +9,38 @@
 #define ACOMPONENT_HPP_
 
 #include "IComponent.hpp"
-#include "Pin.hpp"
-#include "Subscription.hpp"
 #include <unordered_map>
-#include <vector>
 
 namespace nts {
-
-struct ComponentInput {
-    IComponent& component;
-    std::size_t input;
-};
 
 class AComponent : public IComponent {
 public:
     virtual ~AComponent() = default;
 
-    virtual void setLink(std::size_t pin, nts::IComponent& other,
+    nts::Tristate compute(std::size_t pin) const override;
+    void simulate(std::size_t tick) override;
+    void setLink(std::size_t pin, nts::IComponent& other,
         std::size_t otherPin) override;
 
+    virtual void dump() const override;
+
+protected:
+    void input(std::size_t pin);
+    void output(std::size_t pin);
+    void set(std::size_t output, nts::Tristate value);
+
+    virtual void _compute(std::size_t tick) = 0;
+
 private:
-    std::vector<Pin> m_pins;
-    std::unordered_map<std::size_t, rtk::Subscription> m_links;
+    struct ComponentInput {
+        IComponent& component;
+        std::size_t output;
+    };
+
+    std::size_t m_currentTick;
+    bool m_simulating = false;
+    std::unordered_map<std::size_t, ComponentInput> m_inputs;
+    std::unordered_map<std::size_t, nts::Tristate> m_outputs;
 };
 
 }

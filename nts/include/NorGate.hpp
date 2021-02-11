@@ -2,21 +2,21 @@
 ** EPITECH PROJECT, 2021
 ** Visual Studio Live Share (Workspace)
 ** File description:
-** AndGate
+** NorGate
 */
 
-#ifndef ANDGATE_HPP_
-#define ANDGATE_HPP_
+#ifndef NORGATE_HPP_
+#define NORGATE_HPP_
 
 #include "AComponent.hpp"
 
 namespace nts {
 
-class AndGate : public AComponent {
+class NorGate : public AComponent {
 protected:
     void _compute(std::size_t tick) override;
 };
 
 }
 
-#endif /* !ANDGATE_HPP_ */
+#endif /* !NORGATE_HPP_ */

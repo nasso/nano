@@ -6,24 +6,19 @@ tek:binary "nanotekspice" {
     language = "C++",
     srcs = {find "./cli/src/*.cpp"},
     incdirs = {"./cli/include"},
-    libs = {tek:ref "libnts", tek:ref "librtk"}
+    libs = {tek:ref "libnts"}
 }
 
 tek:static "libnts" {
     language = "C++",
     srcs = {find "./nts/src/*.cpp"},
-    incdirs = {"./nts/include"},
-    libs = {tek:ref "librtk"}
+    incdirs = {"./nts/include"}
 }
 
 tek:binary "unit_tests" {
     language = "C++",
     srcs = {find "./tests/*.cpp"},
-    libs = {"criterion", tek:ref "libnts", tek:ref "librtk"}
-}
-
-tek:pull "librtk" {
-    git = "git@github.com:Arcahub/librtk"
+    libs = {"criterion", tek:ref "libnts"}
 }
 
 return {
