@@ -8,19 +8,19 @@
 #ifndef PIN_HPP_
 #define PIN_HPP_
 
+#include "BehaviorSubject.hpp"
 #include "IComponent.hpp"
-#include "Subject.hpp"
 #include <memory>
 #include <vector>
 
 namespace nts {
 
-class Pin : rtk::Subject<Tristate> {
+class Pin : public rtk::BehaviorSubject<Tristate> {
 public:
     Pin();
-    ~Pin();
+    ~Pin() = default;
 
-    void connect(std::weak_ptr<Pin> pin);
+    void gt(std::weak_ptr<Pin> pin);
 
 private:
     std::weak_ptr<Pin> m_parent;

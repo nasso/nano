@@ -25,12 +25,26 @@ class AComponent : public IComponent {
 public:
     virtual ~AComponent() = default;
 
-    virtual void setLink(std::size_t pin, nts::IComponent& other,
-        std::size_t otherPin) override;
+    void simulate(size_t tick);
+
+    nts::Tristate compute(size_t pin);
+
+    void setLink(size_t pin, nts::IComponent& other,
+        size_t otherPin) override;
+
+    void dump() const override;
+
+protected:
+    virtual void _simulate() = 0;
+    void _init();
+    Pin& getPin(size_t pin);
+
+    std::vector<Pin> m_pins;
+    std::vector<size_t> m_inputPins;
+    std::unordered_map<size_t, std::shared_ptr<rtk::Subscription>> m_links;
 
 private:
-    std::vector<Pin> m_pins;
-    std::unordered_map<std::size_t, rtk::Subscription> m_links;
+    size_t m_currentTick;
 };
 
 }
