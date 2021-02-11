@@ -14,19 +14,18 @@ __NAME__SRCS := $(shell find -path './cli/src/*.cpp')
 __NAME__OBJS := $(filter %.cpp,$(__NAME__SRCS))
 __NAME__OBJS := $(__NAME__OBJS:.cpp=.o)
 __NAME__DEPS := $(__NAME__OBJS:.o=.d)
-$(NAME) $(__NAME__OBJS): libnts.a ./lib/librtk/librtk.a
+$(NAME) $(__NAME__OBJS): libnts.a
 $(NAME): CPPFLAGS :=
 $(NAME): CPPFLAGS += -MD -MP
 $(NAME): CPPFLAGS += -I./cli/include
-$(NAME): CPPFLAGS += -I./nts/include
 $(NAME): CPPFLAGS += -I./lib/librtk/include
+$(NAME): CPPFLAGS += -I./nts/include
 $(NAME): CXXFLAGS :=
 $(NAME): CXXFLAGS += -Wall
 $(NAME): CXXFLAGS += -Wextra
 $(NAME): CXXFLAGS += $(if DEBUG,-g3)
 $(NAME): LDLIBS :=
 $(NAME): LDLIBS += -l:libnts.a
-$(NAME): LDLIBS += -l:./lib/librtk/librtk.a
 $(NAME): LDFLAGS :=
 $(NAME): LDFLAGS += -L.
 $(NAME): LDFLAGS += -Wl,-rpath .
@@ -39,7 +38,7 @@ libnts_a_SRCS := $(shell find -path './nts/src/*.cpp')
 libnts_a_OBJS := $(filter %.cpp,$(libnts_a_SRCS))
 libnts_a_OBJS := $(libnts_a_OBJS:.cpp=.o)
 libnts_a_DEPS := $(libnts_a_OBJS:.o=.d)
-libnts.a $(libnts_a_OBJS): ./lib/librtk
+libnts.a $(libnts_a_OBJS):
 libnts.a: CPPFLAGS :=
 libnts.a: CPPFLAGS += -MD -MP
 libnts.a: CPPFLAGS += -I./nts/include
@@ -57,10 +56,9 @@ unit_tests_SRCS := $(shell find -path './tests/*.cpp')
 unit_tests_OBJS := $(filter %.cpp,$(unit_tests_SRCS))
 unit_tests_OBJS := $(unit_tests_OBJS:.cpp=.o)
 unit_tests_DEPS := $(unit_tests_OBJS:.o=.d)
-unit_tests $(unit_tests_OBJS): libnts.a ./lib/librtk/librtk.a
+unit_tests $(unit_tests_OBJS): libnts.a
 unit_tests: CPPFLAGS :=
 unit_tests: CPPFLAGS += -MD -MP
-unit_tests: CPPFLAGS += -I./include
 unit_tests: CPPFLAGS += -I./nts/include
 unit_tests: CPPFLAGS += -I./lib/librtk/include
 unit_tests: CXXFLAGS :=
@@ -70,7 +68,6 @@ unit_tests: CXXFLAGS += $(if DEBUG,-g3)
 unit_tests: LDLIBS :=
 unit_tests: LDLIBS += -lcriterion
 unit_tests: LDLIBS += -l:libnts.a
-unit_tests: LDLIBS += -l:./lib/librtk/librtk.a
 unit_tests: LDFLAGS :=
 unit_tests: LDFLAGS += -L.
 unit_tests: LDFLAGS += -Wl,-rpath .
