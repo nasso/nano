@@ -7,12 +7,13 @@
 
 #include "NTSCircuit.hpp"
 #include "BuiltInComponentFactory.hpp"
+#include "NTSComponentFactory.hpp"
 #include <iostream>
 #include <regex>
 
 nts::NTSCircuit::NTSCircuit(std::string filename)
     : m_file(filename)
-    , m_factory({ std::shared_ptr<IComponentFactory>(new BuiltInComponentFactory) })
+    , m_factory({ std::shared_ptr<IComponentFactory>(new BuiltInComponentFactory), std::shared_ptr<IComponentFactory>(new NTSComponentFactory("./components/")) })
 {
     if (!m_file.is_open())
         throw std::runtime_error("Error");
@@ -35,8 +36,8 @@ void nts::NTSCircuit::create_chip(std::string& str)
         res.push_back((*it)[0]);
     if (res.size() != 2)
         throw std::runtime_error("Error with parsing config file unreconized string: " + str);
-    name = res[1];
     type = res[0];
+    name = res[1];
     m_components[name] = m_factory.createComponent(type);
 }
 
@@ -57,10 +58,10 @@ void nts::NTSCircuit::create_link(std::string& str)
     }
     if (components.size() != 2 || components[0].size() != 2 || components[1].size() != 2)
         throw std::runtime_error("Error with parsing config file unreconized string: " + str);
-    link.name1 = components[1][0];
-    link.pin1 = stoi(components[1][1]);
-    link.name2 = components[0][0];
-    link.pin2 = stoi(components[0][1]);
+    link.name1 = components[0][0];
+    link.pin1 = stoi(components[0][1]);
+    link.name2 = components[1][0];
+    link.pin2 = stoi(components[1][1]);
     m_links.push_back(link);
 }
 

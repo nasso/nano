@@ -6,6 +6,7 @@
 */
 
 #include "InputComponent.hpp"
+#include "NTSCircuit.hpp"
 #include "NorGate.hpp"
 #include <iostream>
 
@@ -63,4 +64,10 @@ int main()
     a.dump();
     std::cout << "b: ";
     b.dump();
+
+    // try {
+    //     nts::NTSCircuit m("4081_and.nts");
+    // } catch (std::runtime_error e) {
+    //     std::cout << e.what() << std::endl;
+    // }
 }

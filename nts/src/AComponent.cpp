@@ -72,7 +72,7 @@ void AComponent::simulate(std::size_t tick)
                 }
             }
         } else {
-            throw new std::runtime_error("output not found: "
+            throw std::runtime_error("output not found: "
                 + std::to_string(output));
         }
     });
@@ -117,7 +117,7 @@ void AComponent::setLink(std::size_t pin, nts::IComponent& other,
             other.setLink(otherPin, *this, pin);
         }
     } else {
-        throw new std::runtime_error("pin not found: " + std::to_string(pin));
+        throw std::runtime_error("pin not found: " + std::to_string(pin));
     }
 }
 
@@ -147,7 +147,7 @@ void AComponent::unsetLink(std::size_t pin, nts::IComponent& other,
             other.unsetLink(otherPin, *this, pin);
         }
     } else {
-        throw new std::runtime_error("pin not found: " + std::to_string(pin));
+        throw std::runtime_error("pin not found: " + std::to_string(pin));
     }
 }
 
