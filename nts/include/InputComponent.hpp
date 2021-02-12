@@ -12,6 +12,9 @@
 
 namespace nts {
 
+/**
+ * @brief A component with a single configurable output.
+ */
 class InputComponent : public AComponent {
 public:
     InputComponent(nts::Tristate value = UNDEFINED);

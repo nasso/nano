@@ -19,9 +19,8 @@ Test(sr_latch, set_then_reset)
     nts::NorGate q;
 
     auto step = [&]() {
-        tick++;
-        is.simulate(tick);
-        ir.simulate(tick);
+        is.simulate(++tick);
+        ir.simulate(++tick);
     };
 
     cr_assert_eq(is.compute(1), nts::Tristate::UNDEFINED);
@@ -37,8 +36,8 @@ Test(sr_latch, set_then_reset)
     step();
     cr_assert_eq(is.compute(1), nts::Tristate::FALSE);
     cr_assert_eq(ir.compute(1), nts::Tristate::FALSE);
-    cr_assert_eq(b.compute(3), nts::Tristate::TRUE);
-    cr_assert_eq(q.compute(3), nts::Tristate::FALSE);
+    cr_assert_eq(b.compute(3), nts::Tristate::UNDEFINED);
+    cr_assert_eq(q.compute(3), nts::Tristate::UNDEFINED);
 
     is = nts::Tristate::TRUE;
     step();
