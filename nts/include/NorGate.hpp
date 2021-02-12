@@ -8,16 +8,19 @@
 #ifndef NORGATE_HPP_
 #define NORGATE_HPP_
 
-#include "AComponent.hpp"
+#include "AndGate.hpp"
+#include "Circuit.hpp"
+#include "NotGate.hpp"
 
 namespace nts {
 
-class NorGate : public AComponent {
+class NorGate : public Circuit {
 public:
     NorGate();
 
-protected:
-    void _compute(PinSetter set) override;
+private:
+    NotGate m_not[2];
+    AndGate m_and;
 };
 
 }

@@ -18,7 +18,7 @@ namespace nts {
 
 class AComponent : public IComponent {
 public:
-    virtual ~AComponent() = default;
+    virtual ~AComponent();
 
     nts::Tristate compute(std::size_t pin) const override;
     void simulate(std::size_t tick) override;
@@ -68,10 +68,7 @@ private:
         IComponent* comp = nullptr;
         std::size_t pin = 0;
 
-        inline bool operator<(const Link& other) const
-        {
-            return comp < other.comp && pin < other.pin;
-        }
+        bool operator<(const Link& other) const;
     };
 
     struct Output {
@@ -80,7 +77,7 @@ private:
         std::set<Link> newlinks;
     };
 
-    std::size_t m_currentTick;
+    std::size_t m_currentTick = 0;
     bool m_simulating = false;
     std::unordered_map<std::size_t, Output> m_outputs;
     std::unordered_map<std::size_t, Link> m_inputs;

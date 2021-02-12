@@ -6,29 +6,20 @@
 */
 
 #include "NorGate.hpp"
+#include "AndGate.hpp"
+#include "NotGate.hpp"
 #include <iostream>
 
 namespace nts {
 
 NorGate::NorGate()
 {
-    input(1);
-    input(2);
-    output(3);
-}
+    input(1).setLink(1, m_not[0], 1);
+    input(2).setLink(1, m_not[1], 1);
+    output(3).setLink(1, m_and, 3);
 
-void NorGate::_compute(PinSetter set)
-{
-    auto a = compute(1);
-    auto b = compute(2);
-
-    if (a == TRUE || b == TRUE) {
-        set(3, FALSE);
-    } else if (a == UNDEFINED || b == UNDEFINED) {
-        set(3, UNDEFINED);
-    } else {
-        set(3, TRUE);
-    }
+    m_and.setLink(1, m_not[0], 2);
+    m_and.setLink(2, m_not[1], 2);
 }
 
 }

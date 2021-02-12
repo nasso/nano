@@ -10,6 +10,17 @@
 
 namespace nts {
 
+AComponent::~AComponent()
+{
+    while (!m_inputs.empty()) {
+        remove((*m_inputs.begin()).first);
+    }
+
+    while (!m_outputs.empty()) {
+        remove((*m_outputs.begin()).first);
+    }
+}
+
 nts::Tristate AComponent::compute(std::size_t pin) const
 {
     if (m_inputs.find(pin) != m_inputs.end()) {
@@ -160,20 +171,26 @@ void AComponent::remove(std::size_t pin)
         while (!out.links.empty()) {
             auto& link = *out.links.begin();
 
-            unsetLink(pin, *link.comp, link.pin);
+            if (link.comp) {
+                unsetLink(pin, *link.comp, link.pin);
+            }
         }
 
         while (!out.newlinks.empty()) {
             auto& link = *out.newlinks.begin();
 
-            unsetLink(pin, *link.comp, link.pin);
+            if (link.comp) {
+                unsetLink(pin, *link.comp, link.pin);
+            }
         }
 
         m_outputs.erase(pin);
     } else if (m_inputs.find(pin) != m_inputs.end()) {
         auto& in = m_inputs.at(pin);
 
-        unsetLink(pin, *in.comp, in.pin);
+        if (in.comp) {
+            unsetLink(pin, *in.comp, in.pin);
+        }
 
         m_inputs.erase(pin);
     }
@@ -203,6 +220,11 @@ void AComponent::dump() const
         std::cout << out.first << ":" << compute(out.first);
     }
     std::cout << ")" << std::endl;
+}
+
+bool AComponent::Link::operator<(const Link& other) const
+{
+    return comp < other.comp && pin < other.pin;
 }
 
 }
