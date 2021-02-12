@@ -1,0 +1,66 @@
+# NOT logic gates (4069)
+#
+#           +----4069----+
+# in_01  -1-|>--+    ign-|-14-
+#           |  _|_       |
+#           |  \ /   +--<|-13- in_13
+#           |   v   _|_  |
+#           |   O   \ /  |
+#           |   |    v   |
+# out_02 -2-|<--+    O   |
+#           |        |   |
+# in_03  -3-|>--+    +-->|-12- out_12
+#           |  _|_       |
+#           |  \ /   +--<|-11- in_11
+#           |   v   _|_  |
+#           |   O   \ /  |
+#           |   |    v   |
+# out_04 -4-|<--+    O   |
+#           |        |   |
+# in_05  -5-|>--+    +-->|-10- out_10
+#           |  _|_       |
+#           |  \ /   +--<|-9-  in_09
+#           |   v   _|_  |
+#           |   O   \ /  |
+#           |   |    v   |
+# out_06 -6-|<--+    O   |
+#           |        |   |
+#        -7-|-ign    +-->|-8-  out_08
+#           +------------+
+
+.chipsets:
+input a
+output na
+input b
+output nb
+input c
+output nc
+ignored vss
+output nd
+input d
+output ne
+input e
+output nf
+input f
+ignored vdd
+
+not ga
+not gb
+not gc
+not gd
+not ge
+not gf
+
+.links:
+a:1 ga:1
+ga:2 na:1
+b:1 gb:1
+gb:2 nb:1
+c:1 gc:1
+gc:2 nc:1
+d:1 gd:1
+gd:2 nd:1
+e:1 ge:1
+ge:2 ne:1
+f:1 gf:1
+gf:2 nf:1
