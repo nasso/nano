@@ -127,6 +127,18 @@ void AComponent::unsetLink(std::size_t pin, nts::IComponent& other,
 
 void AComponent::input(std::size_t pin)
 {
+    remove(pin);
+    m_inputs[pin].comp = NULL;
+}
+
+void AComponent::output(std::size_t pin)
+{
+    remove(pin);
+    m_outputs[pin].value = UNDEFINED;
+}
+
+void AComponent::remove(std::size_t pin)
+{
     if (m_outputs.find(pin) != m_outputs.end()) {
         auto& out = m_outputs.at(pin);
 
@@ -137,22 +149,13 @@ void AComponent::input(std::size_t pin)
         }
 
         m_outputs.erase(pin);
-    }
-
-    m_inputs[pin].comp = NULL;
-}
-
-void AComponent::output(std::size_t pin)
-{
-    if (m_inputs.find(pin) != m_inputs.end()) {
+    } else if (m_inputs.find(pin) != m_inputs.end()) {
         auto& in = m_inputs.at(pin);
 
         unsetLink(pin, *in.comp, in.pin);
 
         m_inputs.erase(pin);
     }
-
-    m_outputs[pin].value = UNDEFINED;
 }
 
 void AComponent::dump() const
