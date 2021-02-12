@@ -18,7 +18,6 @@ $(NAME) $(__NAME__OBJS): libnts.a
 $(NAME): CPPFLAGS :=
 $(NAME): CPPFLAGS += -MD -MP
 $(NAME): CPPFLAGS += -I./cli/include
-$(NAME): CPPFLAGS += -I./lib/librtk/include
 $(NAME): CPPFLAGS += -I./nts/include
 $(NAME): CXXFLAGS :=
 $(NAME): CXXFLAGS += -Wall
@@ -42,7 +41,6 @@ libnts.a $(libnts_a_OBJS):
 libnts.a: CPPFLAGS :=
 libnts.a: CPPFLAGS += -MD -MP
 libnts.a: CPPFLAGS += -I./nts/include
-libnts.a: CPPFLAGS += -I./lib/librtk/include
 libnts.a: CXXFLAGS :=
 libnts.a: CXXFLAGS += -Wall
 libnts.a: CXXFLAGS += -Wextra
@@ -60,7 +58,6 @@ unit_tests $(unit_tests_OBJS): libnts.a
 unit_tests: CPPFLAGS :=
 unit_tests: CPPFLAGS += -MD -MP
 unit_tests: CPPFLAGS += -I./nts/include
-unit_tests: CPPFLAGS += -I./lib/librtk/include
 unit_tests: CXXFLAGS :=
 unit_tests: CXXFLAGS += -Wall
 unit_tests: CXXFLAGS += -Wextra
@@ -89,7 +86,6 @@ tests_run: ./unit_tests
 
 clean:
 	$(RM) $(__NAME__DEPS) $(__NAME__OBJS) $(libnts_a_DEPS) $(libnts_a_OBJS) $(unit_tests_DEPS) $(unit_tests_OBJS)
-	$(MAKE) -C ./lib/librtk fclean
 .PHONY: clean
 
 fclean: clean
@@ -99,22 +95,6 @@ fclean: clean
 
 re: fclean all
 .PHONY: re
-
-# libs
-pull:
-	$(RM) -r './lib/librtk'
-	git clone git@github.com:Arcahub/librtk './lib/librtk'
-	$(RM) -r './lib/librtk/.git'
-.PHONY: pull
-
-./lib:
-	mkdir -p $@
-
-./lib/librtk:
-	$(error $@ wasn't found! don't forget to `make pull`)
-./lib/librtk/%: | ./lib/librtk
-	$(MAKE) -C ./lib/librtk $*
-	$(MAKE) -C ./lib/librtk clean
 
 run: $(NAME)
 	@./$(NAME)

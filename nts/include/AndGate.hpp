@@ -16,7 +16,8 @@ class AndGate : public AComponent {
 public:
     AndGate();
 
-private:
+protected:
+    void _compute(PinSetter set) override;
 };
 
 }

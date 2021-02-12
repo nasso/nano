@@ -1,54 +1,229 @@
 /*
 ** EPITECH PROJECT, 2021
-** B-OOP-400-TLS-4-1-tekspice-nassim.gharbaoui
+** B-OOP-400-TLS-4-1-tekspice-nassim.gharbaoui [WSL: Ubuntu]
 ** File description:
 ** AComponent
 */
 
 #include "AComponent.hpp"
-#include "operator/syncAll.hpp"
+#include <iostream>
 
-void nts::AComponent::simulate(size_t tick)
+namespace nts {
+
+AComponent::~AComponent()
 {
-    if (tick != m_currentTick) {
-        m_currentTick = tick;
-        // Reset Component
+    while (!m_inputs.empty()) {
+        remove((*m_inputs.begin()).first);
+    }
+
+    while (!m_outputs.empty()) {
+        remove((*m_outputs.begin()).first);
     }
 }
 
-nts::Tristate nts::AComponent::compute(size_t pin)
+nts::Tristate AComponent::compute(std::size_t pin) const
 {
-    if (pin >= m_pins.size())
-        return UNDEFINED;
-    return m_pins[pin].getValue();
+    if (m_inputs.find(pin) != m_inputs.end()) {
+        auto& in = m_inputs.at(pin);
+
+        if (in.comp) {
+            return in.comp->compute(in.pin);
+        } else {
+            return UNDEFINED;
+        }
+    } else if (m_outputs.find(pin) != m_outputs.end()) {
+        return m_outputs.at(pin).value;
+    } else {
+        throw std::runtime_error("pin not found: " + std::to_string(pin));
+    }
 }
 
-void nts::AComponent::setLink(size_t pin, nts::IComponent& other, size_t otherPin)
+void AComponent::simulate(std::size_t tick)
 {
-    m_links[pin] = other.getPin(otherPin).asObservable().subscribe([&](nts::Tristate value) {
-        static size_t tick = 0;
+    if (tick == m_currentTick) {
+        return;
+    }
 
-        if (m_currentTick == tick) {
-            m_pins[pin].next(value);
-            tick++;
+    m_currentTick = tick;
+
+    std::set<IComponent*> dirty;
+
+    // consider all new links as dirty and needing to be simulated
+    for (auto& out : m_outputs) {
+        while (!out.second.newlinks.empty()) {
+            auto& link = *out.second.newlinks.begin();
+            out.second.newlinks.erase(link);
+
+            dirty.insert(link.comp);
+            out.second.links.insert(link);
+        }
+    }
+
+    // delegate computation to the implementation
+    _compute([&](std::size_t output, nts::Tristate value) {
+        if (m_outputs.find(output) != m_outputs.end()) {
+            auto& out = m_outputs.at(output);
+
+            if (out.value != value) {
+                out.value = value;
+
+                for (auto& link : out.links) {
+                    dirty.insert(link.comp);
+                }
+            }
+        } else {
+            throw new std::runtime_error("output not found: "
+                + std::to_string(output));
         }
     });
+
+    while (!dirty.empty()) {
+        auto& comp = *dirty.begin();
+
+        comp->simulate(tick);
+
+        dirty.erase(comp);
+    }
 }
 
-nts::Pin& nts::AComponent::getPin(size_t pin)
+void AComponent::setLink(std::size_t pin, nts::IComponent& other,
+    std::size_t otherPin)
 {
-    return m_pins[pin];
+    if (m_inputs.find(pin) != m_inputs.end()) {
+        auto& in = m_inputs.at(pin);
+
+        // only perform the link if it isn't already set
+        if (in.comp != &other || in.pin != otherPin) {
+            // connecting an input replaces the old connection
+            // we need to break the old link explicitly to notify in.comp
+            if (in.comp) {
+                unsetLink(pin, *in.comp, in.pin);
+            }
+
+            in.comp = &other;
+            in.pin = otherPin;
+
+            // since the link wasn't known, tell the other component about it!
+            other.setLink(otherPin, *this, pin);
+        }
+    } else if (m_outputs.find(pin) != m_outputs.end()) {
+        auto& out = m_outputs.at(pin);
+
+        // same as inputs, only link if the link isn't already present
+        if (out.links.find({ &other, otherPin }) == out.links.end()
+            && out.newlinks.find({ &other, otherPin }) == out.newlinks.end()) {
+            out.newlinks.insert({ &other, otherPin });
+
+            other.setLink(otherPin, *this, pin);
+        }
+    } else {
+        throw new std::runtime_error("pin not found: " + std::to_string(pin));
+    }
 }
 
-void nts::AComponent::_init()
+void AComponent::unsetLink(std::size_t pin, nts::IComponent& other,
+    std::size_t otherPin)
 {
-    std::vector<rtk::Observable<nts::Tristate>> obs;
+    if (m_inputs.find(pin) != m_inputs.end()) {
+        auto& in = m_inputs.at(pin);
 
-    for (size_t index : m_inputPins)
-        obs.push_back(m_pins[index].asObservable());
-    rtk::syncAll(obs).subscribe([&](auto) { _simulate(); });
+        // only disconnect if it is connected
+        if (in.comp == &other && in.pin == otherPin) {
+            in.comp = nullptr;
+
+            // disconnect from the other side
+            other.unsetLink(otherPin, *this, pin);
+        }
+    } else if (m_outputs.find(pin) != m_outputs.end()) {
+        auto& out = m_outputs.at(pin);
+
+        // only disconnect if it is connected
+        if (out.links.find({ &other, otherPin }) != out.links.end()
+            || out.newlinks.find({ &other, otherPin }) != out.newlinks.end()) {
+            out.newlinks.erase({ &other, otherPin });
+            out.links.erase({ &other, otherPin });
+
+            // disconnect from the other side
+            other.unsetLink(otherPin, *this, pin);
+        }
+    } else {
+        throw new std::runtime_error("pin not found: " + std::to_string(pin));
+    }
 }
 
-void nts::AComponent::dump() const
+void AComponent::input(std::size_t pin)
 {
+    remove(pin);
+    m_inputs[pin].comp = nullptr;
+}
+
+void AComponent::output(std::size_t pin)
+{
+    remove(pin);
+    m_outputs[pin].value = UNDEFINED;
+}
+
+void AComponent::remove(std::size_t pin)
+{
+    if (m_outputs.find(pin) != m_outputs.end()) {
+        auto& out = m_outputs.at(pin);
+
+        while (!out.links.empty()) {
+            auto& link = *out.links.begin();
+
+            if (link.comp) {
+                unsetLink(pin, *link.comp, link.pin);
+            }
+        }
+
+        while (!out.newlinks.empty()) {
+            auto& link = *out.newlinks.begin();
+
+            if (link.comp) {
+                unsetLink(pin, *link.comp, link.pin);
+            }
+        }
+
+        m_outputs.erase(pin);
+    } else if (m_inputs.find(pin) != m_inputs.end()) {
+        auto& in = m_inputs.at(pin);
+
+        if (in.comp) {
+            unsetLink(pin, *in.comp, in.pin);
+        }
+
+        m_inputs.erase(pin);
+    }
+}
+
+void AComponent::dump() const
+{
+    bool first = true;
+
+    std::cout << "(";
+    for (auto& in : m_inputs) {
+        if (!first)
+            std::cout << " ";
+        first = false;
+        std::cout << in.first << ":" << compute(in.first);
+    }
+    std::cout << ")";
+
+    std::cout << " -> ";
+    first = true;
+
+    std::cout << "(";
+    for (auto& out : m_outputs) {
+        if (!first)
+            std::cout << " ";
+        first = false;
+        std::cout << out.first << ":" << compute(out.first);
+    }
+    std::cout << ")" << std::endl;
+}
+
+bool AComponent::Link::operator<(const Link& other) const
+{
+    return comp < other.comp && pin < other.pin;
+}
 }
