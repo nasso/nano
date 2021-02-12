@@ -9,6 +9,7 @@
 #define NTSCIRCUIT_HPP_
 
 #include "Circuit.hpp"
+#include "MultiComponentFactory.hpp"
 #include <fstream>
 #include <memory>
 #include <string>
@@ -38,6 +39,7 @@ private:
     std::ifstream m_file;
     std::unordered_map<std::string, std::unique_ptr<IComponent>> m_components;
     std::vector<Link> m_links;
+    MultiComponentFactory m_factory;
 };
 }
 

@@ -6,11 +6,13 @@
 */
 
 #include "NTSCircuit.hpp"
+#include "BuiltInComponentFactory.hpp"
 #include <iostream>
 #include <regex>
 
 nts::NTSCircuit::NTSCircuit(std::string filename)
     : m_file(filename)
+    , m_factory({ std::shared_ptr<IComponentFactory>(new BuiltInComponentFactory) })
 {
     if (!m_file.is_open())
         throw std::runtime_error("Error");
@@ -33,9 +35,9 @@ void nts::NTSCircuit::create_chip(std::string& str)
         res.push_back((*it)[0]);
     if (res.size() != 2)
         throw std::runtime_error("Error with parsing config file unreconized string: " + str);
-    name = res[0];
-    type = res[1];
-    // m_components[name] = ComponentFactory::createComponent(type)
+    name = res[1];
+    type = res[0];
+    m_components[name] = m_factory.createComponent(type);
 }
 
 void nts::NTSCircuit::create_link(std::string& str)
