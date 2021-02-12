@@ -37,6 +37,18 @@ void AComponent::simulate(std::size_t tick)
 
     std::set<IComponent*> dirty;
 
+    // consider all new links as dirty and needing to be simulated
+    for (auto& out : m_outputs) {
+        while (!out.second.newlinks.empty()) {
+            auto& link = *out.second.newlinks.begin();
+            out.second.newlinks.erase(link);
+
+            dirty.insert(link.comp);
+            out.second.links.insert(link);
+        }
+    }
+
+    // delegate computation to the implementation
     _compute([&](std::size_t output, nts::Tristate value) {
         if (m_outputs.find(output) != m_outputs.end()) {
             auto& out = m_outputs.at(output);
@@ -44,8 +56,8 @@ void AComponent::simulate(std::size_t tick)
             if (out.value != value) {
                 out.value = value;
 
-                for (auto& child : out.children) {
-                    dirty.insert(child.comp);
+                for (auto& link : out.links) {
+                    dirty.insert(link.comp);
                 }
             }
         } else {
@@ -87,8 +99,9 @@ void AComponent::setLink(std::size_t pin, nts::IComponent& other,
         auto& out = m_outputs.at(pin);
 
         // same as inputs, only link if the link isn't already present
-        if (out.children.find({ &other, otherPin }) == out.children.end()) {
-            out.children.insert({ &other, otherPin });
+        if (out.links.find({ &other, otherPin }) == out.links.end()
+            && out.newlinks.find({ &other, otherPin }) == out.newlinks.end()) {
+            out.newlinks.insert({ &other, otherPin });
 
             other.setLink(otherPin, *this, pin);
         }
@@ -105,7 +118,7 @@ void AComponent::unsetLink(std::size_t pin, nts::IComponent& other,
 
         // only disconnect if it is connected
         if (in.comp == &other && in.pin == otherPin) {
-            in.comp = NULL;
+            in.comp = nullptr;
 
             // disconnect from the other side
             other.unsetLink(otherPin, *this, pin);
@@ -114,8 +127,10 @@ void AComponent::unsetLink(std::size_t pin, nts::IComponent& other,
         auto& out = m_outputs.at(pin);
 
         // only disconnect if it is connected
-        if (out.children.find({ &other, otherPin }) != out.children.end()) {
-            out.children.erase({ &other, otherPin });
+        if (out.links.find({ &other, otherPin }) != out.links.end()
+            || out.newlinks.find({ &other, otherPin }) != out.newlinks.end()) {
+            out.newlinks.erase({ &other, otherPin });
+            out.links.erase({ &other, otherPin });
 
             // disconnect from the other side
             other.unsetLink(otherPin, *this, pin);
@@ -128,7 +143,7 @@ void AComponent::unsetLink(std::size_t pin, nts::IComponent& other,
 void AComponent::input(std::size_t pin)
 {
     remove(pin);
-    m_inputs[pin].comp = NULL;
+    m_inputs[pin].comp = nullptr;
 }
 
 void AComponent::output(std::size_t pin)
@@ -142,10 +157,16 @@ void AComponent::remove(std::size_t pin)
     if (m_outputs.find(pin) != m_outputs.end()) {
         auto& out = m_outputs.at(pin);
 
-        while (!out.children.empty()) {
-            auto& child = *out.children.begin();
+        while (!out.links.empty()) {
+            auto& link = *out.links.begin();
 
-            unsetLink(pin, *child.comp, child.pin);
+            unsetLink(pin, *link.comp, link.pin);
+        }
+
+        while (!out.newlinks.empty()) {
+            auto& link = *out.newlinks.begin();
+
+            unsetLink(pin, *link.comp, link.pin);
         }
 
         m_outputs.erase(pin);

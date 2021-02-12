@@ -64,25 +64,26 @@ protected:
     virtual void _compute(PinSetter set) = 0;
 
 private:
-    struct Pin {
-        IComponent* comp;
-        std::size_t pin;
+    struct Link {
+        IComponent* comp = nullptr;
+        std::size_t pin = 0;
 
-        bool operator<(const Pin& other) const
+        inline bool operator<(const Link& other) const
         {
             return comp < other.comp && pin < other.pin;
         }
     };
 
     struct Output {
-        nts::Tristate value;
-        std::set<Pin> children;
+        nts::Tristate value = UNDEFINED;
+        std::set<Link> links;
+        std::set<Link> newlinks;
     };
 
     std::size_t m_currentTick;
     bool m_simulating = false;
     std::unordered_map<std::size_t, Output> m_outputs;
-    std::unordered_map<std::size_t, Pin> m_inputs;
+    std::unordered_map<std::size_t, Link> m_inputs;
 };
 
 }
