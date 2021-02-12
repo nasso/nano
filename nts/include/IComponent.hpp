@@ -70,8 +70,6 @@ public:
      * @brief Dump stuff in some way.
      */
     virtual void dump() const = 0;
-
-    virtual Pin& getPin(size_t pin) = 0;
 };
 
 }
