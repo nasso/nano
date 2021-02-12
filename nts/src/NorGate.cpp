@@ -10,7 +10,14 @@
 
 namespace nts {
 
-void NorGate::_compute(std::size_t)
+NorGate::NorGate()
+{
+    input(1);
+    input(2);
+    output(3);
+}
+
+void NorGate::_compute(PinSetter set)
 {
     auto a = compute(1);
     auto b = compute(2);

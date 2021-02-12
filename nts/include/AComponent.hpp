@@ -9,7 +9,10 @@
 #define ACOMPONENT_HPP_
 
 #include "IComponent.hpp"
+#include <functional>
+#include <set>
 #include <unordered_map>
+#include <vector>
 
 namespace nts {
 
@@ -21,26 +24,39 @@ public:
     void simulate(std::size_t tick) override;
     void setLink(std::size_t pin, nts::IComponent& other,
         std::size_t otherPin) override;
+    void unsetLink(std::size_t pin, nts::IComponent& other,
+        std::size_t otherPin) override;
 
     virtual void dump() const override;
 
 protected:
+    using PinSetter = std::function<void(std::size_t pin, nts::Tristate value)>;
+
     void input(std::size_t pin);
     void output(std::size_t pin);
-    void set(std::size_t output, nts::Tristate value);
 
-    virtual void _compute(std::size_t tick) = 0;
+    virtual void _compute(PinSetter set) = 0;
 
 private:
-    struct ComponentInput {
-        IComponent& component;
-        std::size_t output;
+    struct Pin {
+        IComponent* comp;
+        std::size_t pin;
+
+        bool operator<(const Pin& other) const
+        {
+            return comp < other.comp && pin < other.pin;
+        }
+    };
+
+    struct Output {
+        nts::Tristate value;
+        std::set<Pin> children;
     };
 
     std::size_t m_currentTick;
     bool m_simulating = false;
-    std::unordered_map<std::size_t, ComponentInput> m_inputs;
-    std::unordered_map<std::size_t, nts::Tristate> m_outputs;
+    std::unordered_map<std::size_t, Output> m_outputs;
+    std::unordered_map<std::size_t, Pin> m_inputs;
 };
 
 }

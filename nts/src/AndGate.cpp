@@ -9,7 +9,14 @@
 
 namespace nts {
 
-void AndGate::_compute(std::size_t)
+AndGate::AndGate()
+{
+    input(1);
+    input(2);
+    output(3);
+}
+
+void AndGate::_compute(PinSetter set)
 {
     auto a = compute(1);
     auto b = compute(2);

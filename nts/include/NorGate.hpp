@@ -13,8 +13,11 @@
 namespace nts {
 
 class NorGate : public AComponent {
+public:
+    NorGate();
+
 protected:
-    void _compute(std::size_t tick) override;
+    void _compute(PinSetter set) override;
 };
 
 }

@@ -24,7 +24,7 @@ int main()
     std::cout << "simulate" << std::endl;
     b.simulate(1);
     std::cout << "a: ";
-    b.dump();
+    a.dump();
     std::cout << "b: ";
     b.dump();
 
@@ -33,7 +33,7 @@ int main()
     std::cout << "set=1" << std::endl;
     b.simulate(4);
     std::cout << "a: ";
-    b.dump();
+    a.dump();
     std::cout << "b: ";
     b.dump();
 
@@ -42,7 +42,7 @@ int main()
     std::cout << "set=0" << std::endl;
     b.simulate(5);
     std::cout << "a: ";
-    b.dump();
+    a.dump();
     std::cout << "b: ";
     b.dump();
 
@@ -51,7 +51,7 @@ int main()
     std::cout << "reset=1" << std::endl;
     b.simulate(2);
     std::cout << "a: ";
-    b.dump();
+    a.dump();
     std::cout << "b: ";
     b.dump();
 
@@ -60,7 +60,7 @@ int main()
     std::cout << "reset=0" << std::endl;
     b.simulate(3);
     std::cout << "a: ";
-    b.dump();
+    a.dump();
     std::cout << "b: ";
     b.dump();
 }

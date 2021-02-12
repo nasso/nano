@@ -19,7 +19,7 @@ public:
     InputComponent& operator=(nts::Tristate value);
 
 protected:
-    void _compute(std::size_t tick) override;
+    void _compute(PinSetter tick) override;
 
 private:
     nts::Tristate m_value = UNDEFINED;

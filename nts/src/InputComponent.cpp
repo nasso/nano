@@ -11,6 +11,7 @@ namespace nts {
 
 InputComponent::InputComponent(nts::Tristate value)
 {
+    output(1);
     *this = value;
 }
 
@@ -20,7 +21,7 @@ InputComponent& InputComponent::operator=(nts::Tristate value)
     return *this;
 }
 
-void InputComponent::_compute(std::size_t)
+void InputComponent::_compute(PinSetter set)
 {
     set(1, m_value);
 }
