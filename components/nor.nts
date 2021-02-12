@@ -1,0 +1,16 @@
+# NOR gate
+
+.chipsets:
+input a
+input b
+output out
+not not_a
+not not_b
+and and
+
+.links:
+a:1 not_a:1
+b:1 not_b:1
+not_a:1 and:1
+not_b:1 and:2
+and:3 out:1
