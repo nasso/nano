@@ -12,6 +12,7 @@
 
 int main()
 {
+    std::size_t tick = 0;
     nts::InputComponent iset = nts::Tristate::FALSE;
     nts::InputComponent ireset = nts::Tristate::FALSE;
     nts::NorGate a;
@@ -23,7 +24,8 @@ int main()
     b.setLink(2, ireset, 1);
 
     std::cout << "simulate" << std::endl;
-    b.simulate(1);
+    iset.simulate(++tick);
+    ireset.simulate(++tick);
     std::cout << "a: ";
     a.dump();
     std::cout << "b: ";
@@ -32,7 +34,8 @@ int main()
     iset = nts::Tristate::TRUE;
 
     std::cout << "set=1" << std::endl;
-    b.simulate(4);
+    iset.simulate(++tick);
+    ireset.simulate(++tick);
     std::cout << "a: ";
     a.dump();
     std::cout << "b: ";
@@ -41,7 +44,8 @@ int main()
     iset = nts::Tristate::FALSE;
 
     std::cout << "set=0" << std::endl;
-    b.simulate(5);
+    iset.simulate(++tick);
+    ireset.simulate(++tick);
     std::cout << "a: ";
     a.dump();
     std::cout << "b: ";
@@ -50,7 +54,8 @@ int main()
     ireset = nts::Tristate::TRUE;
 
     std::cout << "reset=1" << std::endl;
-    b.simulate(2);
+    iset.simulate(++tick);
+    ireset.simulate(++tick);
     std::cout << "a: ";
     a.dump();
     std::cout << "b: ";
@@ -59,7 +64,8 @@ int main()
     ireset = nts::Tristate::FALSE;
 
     std::cout << "reset=0" << std::endl;
-    b.simulate(3);
+    iset.simulate(++tick);
+    ireset.simulate(++tick);
     std::cout << "a: ";
     a.dump();
     std::cout << "b: ";

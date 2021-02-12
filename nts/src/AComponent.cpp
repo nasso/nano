@@ -52,10 +52,10 @@ void AComponent::simulate(std::size_t tick)
     for (auto& out : m_outputs) {
         while (!out.second.newlinks.empty()) {
             auto& link = *out.second.newlinks.begin();
-            out.second.newlinks.erase(link);
 
             dirty.insert(link.comp);
             out.second.links.insert(link);
+            out.second.newlinks.erase(link);
         }
     }
 
