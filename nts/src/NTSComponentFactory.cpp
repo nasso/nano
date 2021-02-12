@@ -15,11 +15,14 @@ nts::NTSComponentFactory::NTSComponentFactory(std::string dirpath)
     m_dirpath = dirpath;
 }
 
-std::unique_ptr<nts::IComponent> nts::NTSComponentFactory::createComponent(const std::string& name)
+std::unique_ptr<nts::IComponent> nts::NTSComponentFactory::createComponent(
+    const std::string& name)
 {
     std::fstream file(m_dirpath + name + ".nts");
 
     if (!file.is_open())
         throw std::runtime_error("Error can't open file for component " + name);
-    return std::unique_ptr<NTSCircuit>(new NTSCircuit(m_dirpath + name + ".nts"));
+
+    return std::unique_ptr<NTSCircuit>(
+        new NTSCircuit(m_dirpath + name + ".nts"));
 }

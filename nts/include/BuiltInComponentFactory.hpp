@@ -20,7 +20,8 @@ public:
     BuiltInComponentFactory();
     ~BuiltInComponentFactory() = default;
 
-    std::unique_ptr<nts::IComponent> createComponent(const std::string& name) override;
+    std::unique_ptr<nts::IComponent> createComponent(const std::string& name)
+        override;
 
 private:
 };

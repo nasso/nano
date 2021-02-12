@@ -16,13 +16,14 @@ namespace nts {
 
 class MultiComponentFactory : public IComponentFactory {
 public:
-    MultiComponentFactory(std::vector<std::shared_ptr<IComponentFactory>>);
+    MultiComponentFactory(std::vector<std::unique_ptr<IComponentFactory>>);
     ~MultiComponentFactory() = default;
 
-    std::unique_ptr<nts::IComponent> createComponent(const std::string& name) override;
+    std::unique_ptr<nts::IComponent> createComponent(const std::string& name)
+        override;
 
 private:
-    std::vector<std::shared_ptr<IComponentFactory>> m_factories;
+    std::vector<std::unique_ptr<IComponentFactory>> m_factories;
 };
 
 }
