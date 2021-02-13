@@ -12,17 +12,21 @@
 #include <regex>
 #include <vector>
 
-nts::NTSCircuit::NTSCircuit(std::string filename)
+namespace nts {
+
+NTSCircuit::NTSCircuit(std::string filename)
     : m_file(filename)
 {
-    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(new BuiltInComponentFactory)));
-    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(new NTSComponentFactory("./components/"))));
+    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
+        new BuiltInComponentFactory)));
+    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
+        new NTSComponentFactory("./components/"))));
     if (!m_file.is_open())
         throw std::runtime_error("Error");
     parse();
 }
 
-void nts::NTSCircuit::create_chip(std::string& str)
+void NTSCircuit::create_chip(std::string& str)
 {
     std::regex component_type("\\w+");
     std::string name;
@@ -48,7 +52,7 @@ void nts::NTSCircuit::create_chip(std::string& str)
     }
 }
 
-void nts::NTSCircuit::create_link(std::string& str)
+void NTSCircuit::create_link(std::string& str)
 {
     std::regex components_r("(\\w+\\:[0-9]+)");
     std::regex component_r("\\w+");
@@ -71,18 +75,18 @@ void nts::NTSCircuit::create_link(std::string& str)
         throw std::runtime_error(
             "Error with parsing config file unreconized string: " + str);
     link.name1 = components[0][0];
-    link.pin1 = stoi(components[0][1]);
     link.name2 = components[1][0];
-    link.pin2 = stoi(components[1][1]);
+    link.pin1 = std::stoul(components[0][1]);
+    link.pin2 = std::stoul(components[1][1]);
     m_links.push_back(link);
 }
 
-void nts::NTSCircuit::parse_chips()
+void NTSCircuit::parse_chips()
 {
     std::string str;
-    std::regex comment_r("(#.*)");
-    std::regex trim_r("^(\\s*\\t*\\n*)");
-    std::regex links_r("(\\.links\\:\\s*\t*\n*)");
+    std::regex comment_r("#.*");
+    std::regex trim_r("^\\s*|\\s*$");
+    std::regex links_r("^\\.links\\:$");
 
     while (getline(m_file, str)) {
         str = std::regex_replace(str, comment_r, "");
@@ -97,12 +101,12 @@ void nts::NTSCircuit::parse_chips()
     }
 }
 
-void nts::NTSCircuit::parse_links()
+void NTSCircuit::parse_links()
 {
     std::string str;
-    std::regex comment_r("(#.*)");
-    std::regex trim_r("^(\\s*\\t*\\n*)");
-    std::regex chipsets_r("(\\.chipsets\\:\\s*\t*\n)");
+    std::regex comment_r("#.*");
+    std::regex trim_r("^\\s*|\\s*$");
+    std::regex chipsets_r("^\\.chipsets\\:$");
 
     while (getline(m_file, str)) {
         str = std::regex_replace(str, comment_r, "");
@@ -117,13 +121,13 @@ void nts::NTSCircuit::parse_links()
     }
 }
 
-void nts::NTSCircuit::parse()
+void NTSCircuit::parse()
 {
     std::string str;
     std::regex comment_r("(#.*)");
-    std::regex links_r("(\\.links\\:\\s*\\t*\\n)");
-    std::regex trim_r("^(\\s*\\t*\\n*)");
-    std::regex chipsets_r("\\.chipsets\\:\\s*\\t*\\n*");
+    std::regex trim_r("^\\s*|\\s*$");
+    std::regex links_r("^\\.links\\:$");
+    std::regex chipsets_r("^\\.chipsets\\:$");
 
     while (getline(m_file, str)) {
         str = std::regex_replace(str, comment_r, "");
@@ -141,7 +145,7 @@ void nts::NTSCircuit::parse()
     link_components();
 }
 
-void nts::NTSCircuit::link_components()
+void NTSCircuit::link_components()
 {
     for (auto link : m_links) {
         IComponent* from = nullptr;
@@ -169,4 +173,6 @@ void nts::NTSCircuit::link_components()
 
         from->setLink(link.pin1, *to, link.pin2);
     }
+}
+
 }

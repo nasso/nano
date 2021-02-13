@@ -6,7 +6,7 @@
 */
 
 #include "InputComponent.hpp"
-#include "NorGate.hpp"
+#include "NTSCircuit.hpp"
 #include <criterion/criterion.h>
 #include <cstddef>
 
@@ -15,8 +15,8 @@ Test(sr_latch, set_then_reset)
     std::size_t tick = 0;
     nts::InputComponent is = nts::Tristate::FALSE;
     nts::InputComponent ir = nts::Tristate::FALSE;
-    nts::NorGate b;
-    nts::NorGate q;
+    nts::NTSCircuit b("components/nor.nts");
+    nts::NTSCircuit q("components/nor.nts");
 
     auto step = [&]() {
         is.simulate(++tick);

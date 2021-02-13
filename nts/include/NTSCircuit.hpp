@@ -16,6 +16,7 @@
 #include <unordered_map>
 
 namespace nts {
+
 class NTSCircuit : public Circuit {
 public:
     NTSCircuit(std::string filename);
@@ -43,6 +44,7 @@ private:
     std::vector<Link> m_links;
     MultiComponentFactory m_factory;
 };
+
 }
 
 #endif /* !NTSCIRCUIT_HPP_ */
