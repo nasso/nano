@@ -16,7 +16,7 @@
 
 namespace nts {
 
-class AComponent : public IComponent {
+class AComponent : virtual public IComponent {
 public:
     virtual ~AComponent();
 

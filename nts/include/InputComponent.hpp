@@ -9,13 +9,14 @@
 #define INPUTCOMPONENT_HPP_
 
 #include "AComponent.hpp"
+#include "IInputComponent.hpp"
 
 namespace nts {
 
 /**
  * @brief A component with a single configurable output.
  */
-class InputComponent : public AComponent {
+class InputComponent : public AComponent, public IInputComponent {
 public:
     InputComponent(nts::Tristate value = UNDEFINED);
 

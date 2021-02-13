@@ -9,10 +9,11 @@
 #define OUTPUTCOMPONENT_HPP_
 
 #include "AComponent.hpp"
+#include "IOutputComponent.hpp"
 
 namespace nts {
 
-class OutputComponent : public AComponent {
+class OutputComponent : public AComponent, public IOutputComponent {
 public:
     OutputComponent();
 

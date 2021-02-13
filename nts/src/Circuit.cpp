@@ -10,35 +10,15 @@
 
 namespace nts {
 
-InputComponent& Circuit::input(std::size_t pin)
-{
-    AComponent::input(pin);
-
-    m_outputs.erase(pin);
-    m_inputs.erase(pin);
-
-    return m_inputs[pin];
-}
-
-OutputComponent& Circuit::output(std::size_t pin)
-{
-    AComponent::output(pin);
-
-    m_inputs.erase(pin);
-    m_outputs.erase(pin);
-
-    return m_outputs[pin];
-}
-
 void Circuit::_compute(PinSetter set)
 {
     for (auto& in : m_inputs) {
-        in.second = compute(in.first);
-        in.second.simulate(++m_internTick);
+        *in.second = compute(in.first);
+        in.second->simulate(++m_internTick);
     }
 
     for (auto& out : m_outputs) {
-        set(out.first, out.second);
+        set(out.first, *out.second);
     }
 }
 
