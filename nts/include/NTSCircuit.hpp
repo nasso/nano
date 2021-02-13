@@ -19,9 +19,7 @@ namespace nts {
 class NTSCircuit : public Circuit {
 public:
     NTSCircuit(std::string filename);
-    ~NTSCircuit();
 
-protected:
 private:
     struct Link {
         std::string name1;
@@ -35,9 +33,13 @@ private:
     void parse_links();
     void create_chip(std::string&);
     void create_link(std::string&);
-    void link_component();
+    void link_components();
+
+    std::size_t m_currentPin = 0;
     std::ifstream m_file;
-    std::unordered_map<std::string, std::unique_ptr<IComponent>> m_components;
+    std::unordered_map<std::string, IComponent*> m_pins;
+    std::unordered_map<std::string, std::unique_ptr<IComponent>>
+        m_ownedComponents;
     std::vector<Link> m_links;
     MultiComponentFactory m_factory;
 };

@@ -24,7 +24,7 @@ protected:
     void _compute(PinSetter) override;
 
 private:
-    nts::Tristate m_value;
+    nts::Tristate m_value = UNDEFINED;
 };
 
 }

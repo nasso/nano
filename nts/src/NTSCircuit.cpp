@@ -20,11 +20,6 @@ nts::NTSCircuit::NTSCircuit(std::string filename)
     parse();
 }
 
-nts::NTSCircuit::~NTSCircuit()
-{
-    m_file.close();
-}
-
 void nts::NTSCircuit::create_chip(std::string& str)
 {
     std::regex component_type("\\w+");
@@ -38,7 +33,15 @@ void nts::NTSCircuit::create_chip(std::string& str)
         throw std::runtime_error("Error with parsing config file unreconized string: " + str);
     type = res[0];
     name = res[1];
-    m_components[name] = m_factory.createComponent(type);
+    if (type == "ignored") {
+        m_currentPin++;
+    } else if (type == "input") {
+        m_pins.emplace(name, &input(++m_currentPin));
+    } else if (type == "output") {
+        m_pins.emplace(name, &output(++m_currentPin));
+    } else {
+        m_ownedComponents.emplace(name, m_factory.createComponent(type));
+    }
 }
 
 void nts::NTSCircuit::create_link(std::string& str)
@@ -80,6 +83,7 @@ void nts::NTSCircuit::parse_chips()
         else if (std::regex_match(str, links_r)) {
             parse_links();
         } else {
+            std::cout << "creating " << str << std::endl;
             create_chip(str);
         }
     }
@@ -125,16 +129,35 @@ void nts::NTSCircuit::parse()
         else
             throw std::runtime_error("Error with parsing config file unreconized string: " + str);
     }
-    link_component();
+    link_components();
 }
 
-void nts::NTSCircuit::link_component()
+void nts::NTSCircuit::link_components()
 {
     for (auto link : m_links) {
-        if (m_components.find(link.name1) == m_components.end())
+        IComponent* from = nullptr;
+        IComponent* to = nullptr;
+
+        if (m_pins.find(link.name1) != m_pins.end()) {
+            from = m_pins.at(link.name1);
+        } else if (m_ownedComponents.find(link.name1) != m_ownedComponents.end()) {
+            from = m_ownedComponents.at(link.name1).get();
+        }
+
+        if (m_pins.find(link.name2) != m_pins.end()) {
+            to = m_pins.at(link.name2);
+        } else if (m_ownedComponents.find(link.name2) != m_ownedComponents.end()) {
+            to = m_ownedComponents.at(link.name2).get();
+        }
+
+        if (from == nullptr) {
             throw std::runtime_error("Not found component with name " + link.name1);
-        if (m_components.find(link.name2) == m_components.end())
+        }
+
+        if (to == nullptr) {
             throw std::runtime_error("Not found component with name " + link.name2);
-        m_components[link.name1]->setLink(link.pin1, *m_components[link.name2], link.pin2);
+        }
+
+        from->setLink(link.pin1, *to, link.pin2);
     }
 }
