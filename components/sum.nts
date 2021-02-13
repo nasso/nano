@@ -1,0 +1,31 @@
+# sum two bits with carry
+
+.chipsets:
+input a
+input b
+input c
+output carry
+output sum
+xor xor1
+xor xor2
+and and1
+and and2
+or or
+
+.links:
+a:1 xor1:1
+a:1 and1:2
+b:1 xor1:2
+b:1 and1:1
+c:1 xor2:2
+c:1 and2:2
+
+xor1:3 xor2:1
+xor1:3 and2:1
+
+and1:3 or:2
+
+and2:3 or:1
+
+xor2:3 sum:1
+or:3 carry:1

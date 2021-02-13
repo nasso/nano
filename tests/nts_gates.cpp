@@ -5,7 +5,6 @@
 ** nts_gates
 */
 
-#include "Circuit.hpp"
 #include "NTSCircuit.hpp"
 #include "assert_truth.hpp"
 #include <criterion/criterion.h>
