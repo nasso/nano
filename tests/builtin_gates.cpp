@@ -6,42 +6,46 @@
 */
 
 #include "AndGate.hpp"
-#include "InputComponent.hpp"
+#include "NotGate.hpp"
+#include "assert_truth.hpp"
 #include <criterion/criterion.h>
 
-Test(logic_gates, and_gate)
+const auto T = nts::Tristate::TRUE;
+const auto F = nts::Tristate::FALSE;
+const auto U = nts::Tristate::UNDEFINED;
+
+Test(builtin_gates, and_gate)
 {
-    std::size_t tick = 0;
-    nts::InputComponent a;
-    nts::InputComponent b;
     nts::AndGate gate;
 
-    a.setLink(1, gate, 1);
-    b.setLink(1, gate, 2);
+    assert_truth(gate, {
+                           .inputs = { 1, 2 },
+                           .outputs = { 3 },
+                           .truthTable = {
+                               { { U, U }, { U } },
+                               { { U, F }, { F } },
+                               { { U, T }, { U } },
+                               { { F, U }, { F } },
+                               { { F, F }, { F } },
+                               { { F, T }, { F } },
+                               { { T, U }, { U } },
+                               { { T, F }, { F } },
+                               { { T, T }, { T } },
+                           },
+                       });
+}
 
-    auto sim = [&](nts::Tristate va, nts::Tristate vb) {
-        a = va;
-        b = vb;
-        a.simulate(++tick);
-        b.simulate(++tick);
-    };
+Test(builtin_gates, not_gate)
+{
+    nts::NotGate gate;
 
-    sim(nts::Tristate::UNDEFINED, nts::Tristate::UNDEFINED);
-    cr_assert_eq(gate.compute(3), nts::Tristate::UNDEFINED);
-    sim(nts::Tristate::UNDEFINED, nts::Tristate::FALSE);
-    cr_assert_eq(gate.compute(3), nts::Tristate::FALSE);
-    sim(nts::Tristate::UNDEFINED, nts::Tristate::TRUE);
-    cr_assert_eq(gate.compute(3), nts::Tristate::UNDEFINED);
-    sim(nts::Tristate::FALSE, nts::Tristate::UNDEFINED);
-    cr_assert_eq(gate.compute(3), nts::Tristate::FALSE);
-    sim(nts::Tristate::FALSE, nts::Tristate::FALSE);
-    cr_assert_eq(gate.compute(3), nts::Tristate::FALSE);
-    sim(nts::Tristate::FALSE, nts::Tristate::TRUE);
-    cr_assert_eq(gate.compute(3), nts::Tristate::FALSE);
-    sim(nts::Tristate::TRUE, nts::Tristate::UNDEFINED);
-    cr_assert_eq(gate.compute(3), nts::Tristate::UNDEFINED);
-    sim(nts::Tristate::TRUE, nts::Tristate::FALSE);
-    cr_assert_eq(gate.compute(3), nts::Tristate::FALSE);
-    sim(nts::Tristate::TRUE, nts::Tristate::TRUE);
-    cr_assert_eq(gate.compute(3), nts::Tristate::TRUE);
+    assert_truth<1, 1>(gate, {
+                                 .inputs = { 1 },
+                                 .outputs = { 2 },
+                                 .truthTable = {
+                                     { { U }, { U } },
+                                     { { F }, { T } },
+                                     { { T }, { F } },
+                                 },
+                             });
 }
