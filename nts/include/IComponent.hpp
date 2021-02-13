@@ -38,7 +38,7 @@ public:
      * @param pin The output pin for which to get the value.
      * @return nts::Tristate The current value of the pin.
      */
-    virtual nts::Tristate compute(std::size_t pin) const = 0;
+    virtual nts::Tristate compute(std::size_t pin) = 0;
 
     /**
      * @brief Link a pin of this component to the pin of another component.

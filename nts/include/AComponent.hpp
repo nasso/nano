@@ -10,8 +10,8 @@
 
 #include "IComponent.hpp"
 #include <functional>
-#include <set>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace nts {
@@ -20,7 +20,8 @@ class AComponent : virtual public IComponent {
 public:
     virtual ~AComponent();
 
-    nts::Tristate compute(std::size_t pin) const override;
+    nts::Tristate compute(std::size_t pin) const;
+    nts::Tristate compute(std::size_t pin) override;
     void simulate(std::size_t tick) override;
     void setLink(std::size_t pin, nts::IComponent& other,
         std::size_t otherPin) override;
@@ -68,21 +69,33 @@ private:
         IComponent* comp = nullptr;
         std::size_t pin = 0;
 
-        bool operator<(const Link& other) const;
+        bool operator==(const Link& other) const;
+    };
+
+    struct LinkHash {
+        size_t operator()(const Link& link) const
+        {
+            return std::hash<IComponent*>()(link.comp)
+                ^ std::hash<std::size_t>()(link.pin);
+        }
+    };
+
+    struct Input {
+        nts::Tristate value = UNDEFINED;
+        Link link;
     };
 
     struct Output {
         nts::Tristate value = UNDEFINED;
-        std::set<Link> links;
-        std::set<Link> newlinks;
+        std::unordered_set<Link, LinkHash> links;
+        std::unordered_set<Link, LinkHash> newlinks;
     };
 
     std::size_t m_currentTick = 0;
-    bool m_simulating = false;
     std::unordered_map<std::size_t, Output> m_outputs;
-    std::unordered_map<std::size_t, Link> m_inputs;
+    std::unordered_map<std::size_t, Input> m_inputs;
 };
 
-}
+};
 
 #endif /* !ACOMPONENT_HPP_ */

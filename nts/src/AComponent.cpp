@@ -6,7 +6,9 @@
 */
 
 #include "AComponent.hpp"
+#include <algorithm>
 #include <iostream>
+#include <unordered_set>
 
 namespace nts {
 
@@ -24,13 +26,7 @@ AComponent::~AComponent()
 nts::Tristate AComponent::compute(std::size_t pin) const
 {
     if (m_inputs.find(pin) != m_inputs.end()) {
-        auto& in = m_inputs.at(pin);
-
-        if (in.comp) {
-            return in.comp->compute(in.pin);
-        } else {
-            return UNDEFINED;
-        }
+        return m_inputs.at(pin).value;
     } else if (m_outputs.find(pin) != m_outputs.end()) {
         return m_outputs.at(pin).value;
     } else {
@@ -38,15 +34,36 @@ nts::Tristate AComponent::compute(std::size_t pin) const
     }
 }
 
+nts::Tristate AComponent::compute(std::size_t pin)
+{
+    const auto& const_self = *this;
+
+    return const_self.compute(pin);
+}
+
 void AComponent::simulate(std::size_t tick)
 {
-    if (tick == m_currentTick) {
+    bool inputsDirty = false;
+
+    // read inputs
+    for (auto& input : m_inputs) {
+        auto& in = input.second;
+        auto val = in.link.comp
+            ? in.link.comp->compute(in.link.pin)
+            : UNDEFINED;
+
+        inputsDirty |= in.value != val;
+        in.value = val;
+    }
+
+    // if there's nothing to do, skip!
+    if (tick == m_currentTick && !inputsDirty) {
         return;
     }
 
     m_currentTick = tick;
 
-    std::set<IComponent*> dirty;
+    std::unordered_set<IComponent*> dirty;
 
     // consider all new links as dirty and needing to be simulated
     for (auto& out : m_outputs) {
@@ -93,15 +110,15 @@ void AComponent::setLink(std::size_t pin, nts::IComponent& other,
         auto& in = m_inputs.at(pin);
 
         // only perform the link if it isn't already set
-        if (in.comp != &other || in.pin != otherPin) {
+        if (in.link.comp != &other || in.link.pin != otherPin) {
             // connecting an input replaces the old connection
-            // we need to break the old link explicitly to notify in.comp
-            if (in.comp) {
-                unsetLink(pin, *in.comp, in.pin);
+            // we need to break the old link explicitly to notify in.link.comp
+            if (in.link.comp) {
+                unsetLink(pin, *in.link.comp, in.link.pin);
             }
 
-            in.comp = &other;
-            in.pin = otherPin;
+            in.link.comp = &other;
+            in.link.pin = otherPin;
 
             // since the link wasn't known, tell the other component about it!
             other.setLink(otherPin, *this, pin);
@@ -128,8 +145,8 @@ void AComponent::unsetLink(std::size_t pin, nts::IComponent& other,
         auto& in = m_inputs.at(pin);
 
         // only disconnect if it is connected
-        if (in.comp == &other && in.pin == otherPin) {
-            in.comp = nullptr;
+        if (in.link.comp == &other && in.link.pin == otherPin) {
+            in.link.comp = nullptr;
 
             // disconnect from the other side
             other.unsetLink(otherPin, *this, pin);
@@ -154,7 +171,7 @@ void AComponent::unsetLink(std::size_t pin, nts::IComponent& other,
 void AComponent::input(std::size_t pin)
 {
     remove(pin);
-    m_inputs[pin].comp = nullptr;
+    m_inputs[pin].link.comp = nullptr;
 }
 
 void AComponent::output(std::size_t pin)
@@ -188,8 +205,8 @@ void AComponent::remove(std::size_t pin)
     } else if (m_inputs.find(pin) != m_inputs.end()) {
         auto& in = m_inputs.at(pin);
 
-        if (in.comp) {
-            unsetLink(pin, *in.comp, in.pin);
+        if (in.link.comp) {
+            unsetLink(pin, *in.link.comp, in.link.pin);
         }
 
         m_inputs.erase(pin);
@@ -222,8 +239,9 @@ void AComponent::dump() const
     std::cout << ")" << std::endl;
 }
 
-bool AComponent::Link::operator<(const Link& other) const
+bool AComponent::Link::operator==(const Link& other) const
 {
-    return comp < other.comp && pin < other.pin;
+    return comp == other.comp && pin == other.pin;
 }
+
 }

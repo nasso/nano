@@ -47,7 +47,10 @@ static void assert_truth(nts::IComponent& gate, GateSpec<I, O> spec)
         }
 
         for (std::size_t i = 0; i < O; i++) {
-            cr_assert_eq(outputs[i], case_.outputs[i]);
+            if (outputs[i] != case_.outputs[i]) {
+                gate.dump();
+                cr_assert_fail();
+            }
         }
     }
 }
