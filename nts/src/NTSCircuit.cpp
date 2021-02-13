@@ -92,7 +92,6 @@ void nts::NTSCircuit::parse_chips()
         else if (std::regex_match(str, links_r)) {
             parse_links();
         } else {
-            std::cout << "creating " << str << std::endl;
             create_chip(str);
         }
     }

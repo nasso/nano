@@ -6,9 +6,8 @@
 Test(test_parser, parser)
 {
     try {
-        nts::NTSCircuit m("4081_and.nts");
-    } catch (std::runtime_error e) {
-        std::cout << e.what() << std::endl;
-        cr_fail(CR_FAIL_CONTINUES_);
+        nts::NTSCircuit m("components/4081.nts");
+    } catch (std::runtime_error& e) {
+        cr_assert_fail("%s", e.what());
     }
 }
