@@ -8,18 +8,21 @@
 #include "MultiComponentFactory.hpp"
 #include <stdexcept>
 
-nts::MultiComponentFactory::MultiComponentFactory(std::vector<std::shared_ptr<IComponentFactory>> factories)
+void nts::MultiComponentFactory::addFactory(
+    std::unique_ptr<IComponentFactory> factory)
 {
-    m_factories = factories;
+    m_factories.push_back(std::move(factory));
 }
 
-std::unique_ptr<nts::IComponent> nts::MultiComponentFactory::createComponent(const std::string& name)
+std::unique_ptr<nts::IComponent> nts::MultiComponentFactory::createComponent(
+    const std::string& name)
 {
-    for (auto factory : m_factories) {
+    for (auto& factory : m_factories) {
         try {
             return factory->createComponent(name);
-        } catch (std::exception) {
+        } catch (std::exception&) {
         }
     }
+
     throw std::runtime_error("Error can't create component " + name);
 }

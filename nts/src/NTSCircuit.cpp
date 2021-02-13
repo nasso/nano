@@ -10,11 +10,13 @@
 #include "NTSComponentFactory.hpp"
 #include <iostream>
 #include <regex>
+#include <vector>
 
 nts::NTSCircuit::NTSCircuit(std::string filename)
     : m_file(filename)
-    , m_factory({ std::shared_ptr<IComponentFactory>(new BuiltInComponentFactory), std::shared_ptr<IComponentFactory>(new NTSComponentFactory("./components/")) })
 {
+    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(new BuiltInComponentFactory)));
+    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(new NTSComponentFactory("./components/"))));
     if (!m_file.is_open())
         throw std::runtime_error("Error");
     parse();
@@ -26,11 +28,13 @@ void nts::NTSCircuit::create_chip(std::string& str)
     std::string name;
     std::string type;
     std::vector<std::string> res;
+    std::sregex_iterator it(str.begin(), str.end(), component_type);
 
-    for (std::sregex_iterator it(str.begin(), str.end(), component_type), it_end; it != it_end; ++it)
+    for (std::sregex_iterator it_end; it != it_end; ++it)
         res.push_back((*it)[0]);
     if (res.size() != 2)
-        throw std::runtime_error("Error with parsing config file unreconized string: " + str);
+        throw std::runtime_error(
+            "Error with parsing config file unreconized string: " + str);
     type = res[0];
     name = res[1];
     if (type == "ignored") {
@@ -50,17 +54,22 @@ void nts::NTSCircuit::create_link(std::string& str)
     std::regex component_r("\\w+");
     std::string tmp_str;
     std::vector<std::vector<std::string>> components;
+    std::sregex_iterator it(str.begin(), str.end(), components_r);
     Link link;
 
-    for (std::sregex_iterator it(str.begin(), str.end(), components_r), it_end; it != it_end; ++it) {
-        std::vector<std::string> tmp;
+    for (std::sregex_iterator it_end; it != it_end; ++it) {
         tmp_str = (*it)[0];
-        for (std::sregex_iterator it2(tmp_str.begin(), tmp_str.end(), component_r), it2_end; it2 != it2_end; ++it2)
+        std::sregex_iterator it2(tmp_str.begin(), tmp_str.end(), component_r);
+        std::vector<std::string> tmp;
+        for (std::sregex_iterator it2_end; it2 != it2_end; ++it2)
             tmp.push_back((*it2)[0]);
         components.push_back(tmp);
     }
-    if (components.size() != 2 || components[0].size() != 2 || components[1].size() != 2)
-        throw std::runtime_error("Error with parsing config file unreconized string: " + str);
+    if (components.size() != 2
+        || components[0].size() != 2
+        || components[1].size() != 2)
+        throw std::runtime_error(
+            "Error with parsing config file unreconized string: " + str);
     link.name1 = components[0][0];
     link.pin1 = stoi(components[0][1]);
     link.name2 = components[1][0];
@@ -127,7 +136,8 @@ void nts::NTSCircuit::parse()
         } else if (std::regex_match(str, links_r))
             parse_links();
         else
-            throw std::runtime_error("Error with parsing config file unreconized string: " + str);
+            throw std::runtime_error(
+                "Error with parsing config file unreconized string: " + str);
     }
     link_components();
 }
@@ -138,24 +148,24 @@ void nts::NTSCircuit::link_components()
         IComponent* from = nullptr;
         IComponent* to = nullptr;
 
-        if (m_pins.find(link.name1) != m_pins.end()) {
+        if (m_pins.find(link.name1) != m_pins.end())
             from = m_pins.at(link.name1);
-        } else if (m_ownedComponents.find(link.name1) != m_ownedComponents.end()) {
+        else if (m_ownedComponents.find(link.name1) != m_ownedComponents.end())
             from = m_ownedComponents.at(link.name1).get();
-        }
 
-        if (m_pins.find(link.name2) != m_pins.end()) {
+        if (m_pins.find(link.name2) != m_pins.end())
             to = m_pins.at(link.name2);
-        } else if (m_ownedComponents.find(link.name2) != m_ownedComponents.end()) {
+        else if (m_ownedComponents.find(link.name2) != m_ownedComponents.end())
             to = m_ownedComponents.at(link.name2).get();
-        }
 
         if (from == nullptr) {
-            throw std::runtime_error("Not found component with name " + link.name1);
+            throw std::runtime_error("Not found component with name "
+                + link.name1);
         }
 
         if (to == nullptr) {
-            throw std::runtime_error("Not found component with name " + link.name2);
+            throw std::runtime_error("Not found component with name "
+                + link.name2);
         }
 
         from->setLink(link.pin1, *to, link.pin2);
