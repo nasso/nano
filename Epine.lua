@@ -26,6 +26,6 @@ return {
     epine.br,
     action "run" {
         prerequisites = {"$(NAME)"},
-        quiet("./$(NAME)")
+        quiet("./$(NAME) $(ARGS)")
     }
 }
