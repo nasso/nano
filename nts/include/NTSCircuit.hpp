@@ -11,6 +11,7 @@
 #include "Circuit.hpp"
 #include "MultiComponentFactory.hpp"
 #include <fstream>
+#include <map>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -21,6 +22,13 @@ class NTSCircuit : public Circuit {
 public:
     NTSCircuit(std::string filename);
 
+    void dump() const;
+
+protected:
+    std::map<std::string, IComponent*> m_pins;
+    std::unordered_map<std::string, std::unique_ptr<IComponent>>
+        m_ownedComponents;
+
 private:
     struct Link {
         std::string name1;
@@ -30,17 +38,14 @@ private:
     };
 
     void parse();
-    void parse_chips();
-    void parse_links();
-    void create_chip(std::string&);
-    void create_link(std::string&);
+    void parseChips();
+    void parseLinks();
+    void createChip(std::string&);
+    void createLink(std::string&);
     void link_components();
 
     std::size_t m_currentPin = 0;
     std::ifstream m_file;
-    std::unordered_map<std::string, IComponent*> m_pins;
-    std::unordered_map<std::string, std::unique_ptr<IComponent>>
-        m_ownedComponents;
     std::vector<Link> m_links;
     MultiComponentFactory m_factory;
 };

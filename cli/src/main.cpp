@@ -5,9 +5,18 @@
 ** main
 */
 
+#include "Relp.hpp"
 #include <iostream>
 
 int main()
 {
-    std::cout << "hello worlde." << std::endl;
+    try {
+        nts::MainCircuit circuit("test.nts");
+
+        Relp::run(circuit);
+    } catch (std::runtime_error& e) {
+        std::cout << e.what() << std::endl;
+        return (84);
+    }
+    return (0);
 }
