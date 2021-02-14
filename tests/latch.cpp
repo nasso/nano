@@ -11,6 +11,10 @@
 #include <criterion/criterion.h>
 #include <cstddef>
 
+const auto U = nts::UNDEFINED;
+const auto F = nts::FALSE;
+const auto T = nts::TRUE;
+
 Test(latch, sr_latch)
 {
     std::size_t tick = 0;
@@ -191,4 +195,72 @@ Test(latch, d_flipflop)
     idata = nts::Tristate::FALSE;
     step();
     cr_assert_eq(out, nts::Tristate::TRUE);
+}
+
+Test(latch, register_1)
+{
+    std::size_t tick = 0;
+    nts::NTSCircuit gate("components/reg1.nts");
+    nts::InputComponent idata;
+    nts::InputComponent istore;
+    nts::InputComponent iclock;
+    nts::OutputComponent out;
+
+    auto step = [&](nts::Tristate data, nts::Tristate store, nts::Tristate cl) {
+        idata = data;
+        istore = store;
+        iclock = cl;
+
+        tick++;
+        idata.simulate(tick);
+        iclock.simulate(tick);
+    };
+
+    idata.setLink(1, gate, 1);
+    istore.setLink(1, gate, 2);
+    iclock.setLink(1, gate, 3);
+    gate.setLink(4, out, 1);
+
+    step(U, U, U);
+    cr_assert_eq(out, U);
+
+    // cycle the clock with undefined values
+    step(U, U, F);
+    cr_assert_eq(out, U);
+    step(U, U, T);
+    cr_assert_eq(out, U);
+    step(U, U, F);
+    cr_assert_eq(out, U);
+
+    // cycle the clock with (T, F)
+    step(T, F, F);
+    cr_assert_eq(out, U);
+    step(T, F, T);
+    cr_assert_eq(out, U);
+    step(T, F, F);
+    cr_assert_eq(out, U);
+
+    // cycle the clock with (T, T)
+    step(T, T, F);
+    cr_assert_eq(out, U);
+    step(T, T, T);
+    cr_assert_eq(out, T);
+    step(T, T, F);
+    cr_assert_eq(out, T);
+
+    // cycle the clock with (F, T)
+    step(F, T, F);
+    cr_assert_eq(out, T);
+    step(F, T, T);
+    cr_assert_eq(out, F);
+    step(F, T, F);
+    cr_assert_eq(out, F);
+
+    // keep the clock low and cycle the store!
+    step(T, F, F);
+    cr_assert_eq(out, F);
+    step(T, T, F);
+    cr_assert_eq(out, F);
+    step(T, F, F);
+    cr_assert_eq(out, F);
 }

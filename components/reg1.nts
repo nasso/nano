@@ -1,0 +1,24 @@
+# 1-BIT REGISTER
+
+.chipsets:
+input data
+input store
+input clock
+output out
+
+multiplexer mpx
+dflipflop ff
+
+.links:
+# the multiplexer gives us the bit we want to store every cycle
+# if store is low, we (re)store whatever we had already stored
+# if store is high, we store the data input
+mpx:1 ff:3
+mpx:2 data:1
+mpx:3 store:1
+
+# data input
+ff:1 mpx:4
+
+# clock signal
+ff:2 clock:1
