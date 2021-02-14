@@ -14,7 +14,7 @@
 
 namespace nts {
 
-NTSCircuit::NTSCircuit(std::string filename)
+NTSCircuit::NTSCircuit(const std::string& filename)
     : m_file(filename)
 {
     m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
@@ -26,7 +26,7 @@ NTSCircuit::NTSCircuit(std::string filename)
     parse();
 }
 
-void NTSCircuit::create_chip(std::string& str)
+void NTSCircuit::createChip(std::string& str)
 {
     std::regex component_type("\\w+");
     std::string name;
@@ -52,7 +52,7 @@ void NTSCircuit::create_chip(std::string& str)
     }
 }
 
-void NTSCircuit::create_link(std::string& str)
+void NTSCircuit::createLink(std::string& str)
 {
     std::regex components_r("(\\w+\\:[0-9]+)");
     std::regex component_r("\\w+");
@@ -81,7 +81,7 @@ void NTSCircuit::create_link(std::string& str)
     m_links.push_back(link);
 }
 
-void NTSCircuit::parse_chips()
+void NTSCircuit::parseChips()
 {
     std::string str;
     std::regex comment_r("#.*");
@@ -94,14 +94,14 @@ void NTSCircuit::parse_chips()
         if (str.empty())
             continue;
         else if (std::regex_match(str, links_r)) {
-            parse_links();
+            parseLinks();
         } else {
-            create_chip(str);
+            createChip(str);
         }
     }
 }
 
-void NTSCircuit::parse_links()
+void NTSCircuit::parseLinks()
 {
     std::string str;
     std::regex comment_r("#.*");
@@ -114,9 +114,9 @@ void NTSCircuit::parse_links()
         if (str.empty())
             continue;
         else if (std::regex_match(str, chipsets_r)) {
-            parse_chips();
+            parseChips();
         } else {
-            create_link(str);
+            createLink(str);
         }
     }
 }
@@ -135,9 +135,9 @@ void NTSCircuit::parse()
         if (str.empty())
             continue;
         if (std::regex_match(str, chipsets_r)) {
-            parse_chips();
+            parseChips();
         } else if (std::regex_match(str, links_r))
-            parse_links();
+            parseLinks();
         else
             throw std::runtime_error(
                 "Error with parsing config file unreconized string: " + str);
@@ -173,6 +173,15 @@ void NTSCircuit::link_components()
 
         from->setLink(link.pin1, *to, link.pin2);
     }
+}
+
+void NTSCircuit::dump() const
+{
+    for (auto& c : m_ownedComponents) {
+        std::cout << c.first << " ";
+        c.second->dump();
+    }
+    AComponent::dump();
 }
 
 }

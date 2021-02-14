@@ -57,6 +57,7 @@ unit_tests_DEPS := $(unit_tests_OBJS:.o=.d)
 unit_tests $(unit_tests_OBJS): libnts.a
 unit_tests: CPPFLAGS :=
 unit_tests: CPPFLAGS += -MD -MP
+unit_tests: CPPFLAGS += -I./include
 unit_tests: CPPFLAGS += -I./nts/include
 unit_tests: CXXFLAGS :=
 unit_tests: CXXFLAGS += -Wall
@@ -97,5 +98,5 @@ re: fclean all
 .PHONY: re
 
 run: $(NAME)
-	@./$(NAME)
+	@./$(NAME) $(ARGS)
 .PHONY: run
