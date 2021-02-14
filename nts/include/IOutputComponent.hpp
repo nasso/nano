@@ -8,13 +8,18 @@
 #ifndef IOUTPUTCOMPONENT_HPP_
 #define IOUTPUTCOMPONENT_HPP_
 
-#include "IComponent.hpp"
+#include "IPinComponent.hpp"
 
 namespace nts {
 
-class IOutputComponent : virtual public IComponent {
+class IOutputComponent : virtual public IPinComponent {
 public:
     virtual operator nts::Tristate() const = 0;
+
+    Kind kind() const final override
+    {
+        return OUTPUT;
+    }
 };
 
 }

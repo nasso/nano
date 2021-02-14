@@ -10,6 +10,7 @@
 
 #include "IComponent.hpp"
 #include <functional>
+#include <iostream>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -28,6 +29,7 @@ public:
     void unsetLink(std::size_t pin, nts::IComponent& other,
         std::size_t otherPin) override;
     virtual void dump() const override;
+    virtual void dump(std::ostream&) const override;
 
 protected:
     using PinSetter = std::function<void(std::size_t pin, nts::Tristate value)>;

@@ -72,8 +72,8 @@ Test(components_4008, adder_tristate)
                 },
             })) {
         criterion::logging::warn
-            << "Tristate Full Adder tests didn't pass!"
+            << "Tristate Full Adder tests failed!"
             << std::flush;
-        gate.dump();
+        criterion::logging::info << gate << std::flush;
     }
 }

@@ -8,16 +8,21 @@
 #ifndef IINPUTCOMPONENT_HPP_
 #define IINPUTCOMPONENT_HPP_
 
-#include "IComponent.hpp"
+#include "IPinComponent.hpp"
 
 namespace nts {
 
 /**
  * @brief A component that can be manually set to a specific value.
  */
-class IInputComponent : virtual public IComponent {
+class IInputComponent : public IPinComponent {
 public:
     virtual IInputComponent& operator=(nts::Tristate value) = 0;
+
+    Kind kind() const final override
+    {
+        return INPUT;
+    }
 };
 
 }

@@ -215,28 +215,29 @@ void AComponent::remove(std::size_t pin)
 
 void AComponent::dump() const
 {
+    std::cout << *this << '\n';
+}
+
+void AComponent::dump(std::ostream& os) const
+{
     bool first = true;
 
-    std::cout << "(";
-    for (auto& in : m_inputs) {
+    os << "(component (";
+    for (auto& pin : m_inputs) {
         if (!first)
-            std::cout << " ";
+            os << " ";
         first = false;
-        std::cout << in.first << ":" << compute(in.first);
+        os << "(" << pin.first << " " << compute(pin.first) << ")";
     }
-    std::cout << ")";
-
-    std::cout << " -> ";
+    os << ") (";
     first = true;
-
-    std::cout << "(";
-    for (auto& out : m_outputs) {
+    for (auto& pin : m_outputs) {
         if (!first)
-            std::cout << " ";
+            os << " ";
         first = false;
-        std::cout << out.first << ":" << compute(out.first);
+        os << "(" << pin.first << " " << compute(pin.first) << ")";
     }
-    std::cout << ")" << std::endl;
+    os << "))";
 }
 
 bool AComponent::Link::operator==(const Link& other) const

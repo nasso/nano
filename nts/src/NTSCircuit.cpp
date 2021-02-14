@@ -175,13 +175,49 @@ void NTSCircuit::link_components()
     }
 }
 
-void NTSCircuit::dump() const
+void NTSCircuit::dump(std::ostream& os) const
 {
-    for (auto& c : m_ownedComponents) {
-        std::cout << c.first << " ";
-        c.second->dump();
+    static const std::size_t shiftWidth = 1;
+    static const std::string shift(shiftWidth, ' ');
+    thread_local std::size_t level = 0;
+
+    const std::string curShift(level * 2 * shiftWidth, ' ');
+
+    // circuit
+    os << "(circuit\n";
+
+    // pins
+    bool breakPins = m_pins.size() >= 6;
+
+    os << curShift << shift << "(pins";
+    for (const auto& pin : m_pins) {
+        if (breakPins) {
+            os << "\n";
+            os << curShift << shift << shift;
+        } else {
+            os << " ";
+        }
+
+        os << "(" << pin.first << " " << pin.second->compute(1) << ")";
     }
-    AComponent::dump();
+    if (breakPins) {
+        os << "\n";
+        os << curShift << shift;
+    }
+    os << ")\n";
+
+    // chipsets
+    os << curShift << shift << "(chipsets\n";
+    level++;
+    for (const auto& c : m_ownedComponents) {
+        os << curShift << shift << shift;
+        os << "(" << c.first << " " << *c.second << ")\n";
+    }
+    level--;
+    os << curShift << shift << ")\n";
+
+    // end circuit
+    os << curShift << ")";
 }
 
 }

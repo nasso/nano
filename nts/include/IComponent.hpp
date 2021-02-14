@@ -9,6 +9,7 @@
 #define ICOMPONENT_HPP_
 
 #include <cstddef>
+#include <iostream>
 
 namespace nts {
 
@@ -70,8 +71,18 @@ public:
      * @brief Dump stuff in some way.
      */
     virtual void dump() const = 0;
+
+    /**
+     * @brief Dump stuff to the given output.
+     *
+     * @param os
+     */
+    virtual void dump(std::ostream& os) const = 0;
 };
 
 }
+
+std::ostream& operator<<(std::ostream& os, const nts::Tristate& state);
+std::ostream& operator<<(std::ostream& os, const nts::IComponent& comp);
 
 #endif /* !ICOMPONENT_HPP_ */

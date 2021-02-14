@@ -9,8 +9,10 @@
 #define NTSCIRCUIT_HPP_
 
 #include "Circuit.hpp"
+#include "IPinComponent.hpp"
 #include "MultiComponentFactory.hpp"
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <memory>
 #include <string>
@@ -22,10 +24,11 @@ class NTSCircuit : public Circuit {
 public:
     NTSCircuit(const std::string& filename);
 
-    void dump() const;
+    using AComponent::dump;
+    void dump(std::ostream&) const override;
 
 protected:
-    std::map<std::string, IComponent*> m_pins;
+    std::map<std::string, IPinComponent*> m_pins;
     std::unordered_map<std::string, std::unique_ptr<IComponent>>
         m_ownedComponents;
 

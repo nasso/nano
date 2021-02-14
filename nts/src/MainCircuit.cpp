@@ -8,15 +8,6 @@
 #include "MainCircuit.hpp"
 #include <iostream>
 
-std::ostream& operator<<(std::ostream& os, const nts::Tristate& state)
-{
-    if (state == nts::Tristate::UNDEFINED)
-        os << "U";
-    else
-        os << ((state == nts::Tristate::FALSE) ? "0" : "1");
-    return os;
-}
-
 nts::MainCircuit::MainCircuit(const std::string& filename)
     : NTSCircuit(filename)
 {
