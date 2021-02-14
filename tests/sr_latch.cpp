@@ -7,63 +7,43 @@
 
 #include "InputComponent.hpp"
 #include "NTSCircuit.hpp"
+#include "OutputComponent.hpp"
 #include <criterion/criterion.h>
 #include <cstddef>
 
 Test(sr_latch, set_then_reset)
 {
     std::size_t tick = 0;
+    nts::NTSCircuit gate("components/srlatch.nts");
     nts::InputComponent is = nts::Tristate::FALSE;
     nts::InputComponent ir = nts::Tristate::FALSE;
-    nts::NTSCircuit b("components/nor.nts");
-    nts::NTSCircuit q("components/nor.nts");
+    nts::OutputComponent out;
 
     auto step = [&]() {
         is.simulate(++tick);
         ir.simulate(++tick);
     };
 
-    cr_assert_eq(is.compute(1), nts::Tristate::UNDEFINED);
-    cr_assert_eq(ir.compute(1), nts::Tristate::UNDEFINED);
-    cr_assert_eq(b.compute(3), nts::Tristate::UNDEFINED);
-    cr_assert_eq(q.compute(3), nts::Tristate::UNDEFINED);
-
-    is.setLink(1, b, 1);
-    ir.setLink(1, q, 2);
-    b.setLink(3, q, 1);
-    q.setLink(3, b, 2);
+    is.setLink(1, gate, 1);
+    ir.setLink(1, gate, 2);
+    gate.setLink(3, out, 1);
 
     step();
-    cr_assert_eq(is.compute(1), nts::Tristate::FALSE);
-    cr_assert_eq(ir.compute(1), nts::Tristate::FALSE);
-    cr_assert_eq(b.compute(3), nts::Tristate::UNDEFINED);
-    cr_assert_eq(q.compute(3), nts::Tristate::UNDEFINED);
+    cr_assert_eq(out, nts::Tristate::UNDEFINED);
 
     is = nts::Tristate::TRUE;
     step();
-    cr_assert_eq(is.compute(1), nts::Tristate::TRUE);
-    cr_assert_eq(ir.compute(1), nts::Tristate::FALSE);
-    cr_assert_eq(b.compute(3), nts::Tristate::FALSE);
-    cr_assert_eq(q.compute(3), nts::Tristate::TRUE);
+    cr_assert_eq(out, nts::Tristate::TRUE);
 
     is = nts::Tristate::FALSE;
     step();
-    cr_assert_eq(is.compute(1), nts::Tristate::FALSE);
-    cr_assert_eq(ir.compute(1), nts::Tristate::FALSE);
-    cr_assert_eq(b.compute(3), nts::Tristate::FALSE);
-    cr_assert_eq(q.compute(3), nts::Tristate::TRUE);
+    cr_assert_eq(out, nts::Tristate::TRUE);
 
     ir = nts::Tristate::TRUE;
     step();
-    cr_assert_eq(is.compute(1), nts::Tristate::FALSE);
-    cr_assert_eq(ir.compute(1), nts::Tristate::TRUE);
-    cr_assert_eq(b.compute(3), nts::Tristate::TRUE);
-    cr_assert_eq(q.compute(3), nts::Tristate::FALSE);
+    cr_assert_eq(out, nts::Tristate::FALSE);
 
     ir = nts::Tristate::FALSE;
     step();
-    cr_assert_eq(is.compute(1), nts::Tristate::FALSE);
-    cr_assert_eq(ir.compute(1), nts::Tristate::FALSE);
-    cr_assert_eq(b.compute(3), nts::Tristate::TRUE);
-    cr_assert_eq(q.compute(3), nts::Tristate::FALSE);
+    cr_assert_eq(out, nts::Tristate::FALSE);
 }

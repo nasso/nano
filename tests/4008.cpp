@@ -36,7 +36,7 @@ Test(components_4008, adder_binary)
                                 });
 }
 
-Test(components_4008, adder_tristate)
+Test(components_4008, adder_tristate, .disabled = true)
 {
     nts::NTSCircuit gate("components/adder.nts");
 
@@ -106,6 +106,7 @@ Theory(
         nts::Tristate b4),
     components_4008,
     binary_4008,
+    .disabled = true,
     .timeout = 5)
 {
     nts::NTSCircuit gate("components/4008.nts");
