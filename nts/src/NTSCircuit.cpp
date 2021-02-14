@@ -14,7 +14,7 @@
 
 namespace nts {
 
-NTSCircuit::NTSCircuit(std::string filename)
+NTSCircuit::NTSCircuit(const std::string& filename)
     : m_file(filename)
 {
     m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(

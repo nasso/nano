@@ -20,7 +20,7 @@ namespace nts {
 
 class NTSCircuit : public Circuit {
 public:
-    NTSCircuit(std::string filename);
+    NTSCircuit(const std::string& filename);
 
     void dump() const;
 

@@ -17,7 +17,7 @@ std::ostream& operator<<(std::ostream& os, const nts::Tristate& state)
     return os;
 }
 
-nts::MainCircuit::MainCircuit(std::string filename)
+nts::MainCircuit::MainCircuit(const std::string& filename)
     : NTSCircuit(filename)
 {
     m_tick = 0;
