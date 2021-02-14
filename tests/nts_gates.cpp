@@ -117,3 +117,42 @@ Test(logic_gates, xnor)
                            },
                        });
 }
+
+Test(logic_gates, multiplexer)
+{
+    nts::NTSCircuit gate("components/multiplexer.nts");
+
+    assert_truth<3>(gate, {
+                              .inputs = { 1, 2, 3 },
+                              .outputs = { 4 },
+                              .truthTable = {
+                                  { { U, U, U }, { U } },
+                                  { { U, U, F }, { U } },
+                                  { { U, U, T }, { U } },
+                                  { { U, F, U }, { U } },
+                                  { { U, F, F }, { U } },
+                                  { { U, F, T }, { F } },
+                                  { { U, T, U }, { U } },
+                                  { { U, T, F }, { U } },
+                                  { { U, T, T }, { T } },
+                                  { { F, U, U }, { U } },
+                                  { { F, U, F }, { F } },
+                                  { { F, U, T }, { U } },
+                                  { { F, F, U }, { F } },
+                                  { { F, F, F }, { F } },
+                                  { { F, F, T }, { F } },
+                                  { { F, T, U }, { U } },
+                                  { { F, T, F }, { F } },
+                                  { { F, T, T }, { T } },
+                                  { { T, U, U }, { U } },
+                                  { { T, U, F }, { T } },
+                                  { { T, U, T }, { U } },
+                                  { { T, F, U }, { U } },
+                                  { { T, F, F }, { T } },
+                                  { { T, F, T }, { F } },
+                                  { { T, T, U }, { T } },
+                                  { { T, T, F }, { T } },
+                                  { { T, T, T }, { T } },
+                              },
+                          });
+}

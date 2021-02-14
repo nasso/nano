@@ -69,7 +69,7 @@ template <
 static void assert_truth(nts::IComponent& gate, GateSpec<I, O, B, V> spec)
 {
     if (!test_gate(gate, spec)) {
-        gate.dump();
+        criterion::logging::warn << gate << std::flush;
         cr_assert_fail();
     }
 }
@@ -82,7 +82,7 @@ template <
 static void expect_truth(nts::IComponent& gate, GateSpec<I, O, B, V> spec)
 {
     if (!test_gate(gate, spec)) {
-        gate.dump();
+        criterion::logging::info << gate << std::flush;
         cr_expect_fail();
     }
 }
