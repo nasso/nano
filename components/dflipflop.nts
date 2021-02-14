@@ -1,0 +1,20 @@
+# Edge Triggered Data Flip-Flop
+
+.chipsets:
+input data
+input clock
+output out
+not notClock
+dlatch dlatch1
+dlatch dlatch2
+
+.links:
+clock:1 notClock:1
+
+dlatch1:1 data:1
+dlatch1:2 notClock:2
+
+dlatch2:1 dlatch1:3
+dlatch2:2 clock:1
+
+dlatch2:3 out:1

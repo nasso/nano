@@ -118,3 +118,77 @@ Test(latch, data_latch)
     step();
     cr_assert_eq(out, nts::Tristate::FALSE);
 }
+
+Test(latch, d_flipflop)
+{
+    std::size_t tick = 0;
+    nts::NTSCircuit gate("components/dflipflop.nts");
+    nts::InputComponent idata;
+    nts::InputComponent iclock;
+    nts::OutputComponent out;
+
+    auto step = [&]() {
+        tick++;
+        idata.simulate(tick);
+        iclock.simulate(tick);
+    };
+
+    idata.setLink(1, gate, 1);
+    iclock.setLink(1, gate, 2);
+    gate.setLink(3, out, 1);
+
+    step();
+    cr_assert_eq(out, nts::Tristate::UNDEFINED);
+
+    idata = nts::Tristate::TRUE;
+    step();
+    cr_assert_eq(out, nts::Tristate::UNDEFINED);
+
+    idata = nts::Tristate::FALSE;
+    step();
+    cr_assert_eq(out, nts::Tristate::UNDEFINED);
+
+    iclock = nts::Tristate::TRUE;
+    step();
+    cr_assert_eq(out, nts::Tristate::UNDEFINED);
+
+    iclock = nts::Tristate::FALSE;
+    step();
+    cr_assert_eq(out, nts::Tristate::UNDEFINED);
+
+    iclock = nts::Tristate::TRUE;
+    step();
+    cr_assert_eq(out, nts::Tristate::FALSE);
+
+    iclock = nts::Tristate::FALSE;
+    step();
+    cr_assert_eq(out, nts::Tristate::FALSE);
+
+    idata = nts::Tristate::TRUE;
+    step();
+    cr_assert_eq(out, nts::Tristate::FALSE);
+
+    iclock = nts::Tristate::TRUE;
+    step();
+    cr_assert_eq(out, nts::Tristate::TRUE);
+
+    iclock = nts::Tristate::FALSE;
+    step();
+    cr_assert_eq(out, nts::Tristate::TRUE);
+
+    iclock = nts::Tristate::TRUE;
+    step();
+    cr_assert_eq(out, nts::Tristate::TRUE);
+
+    idata = nts::Tristate::FALSE;
+    step();
+    cr_assert_eq(out, nts::Tristate::TRUE);
+
+    iclock = nts::Tristate::FALSE;
+    step();
+    cr_assert_eq(out, nts::Tristate::TRUE);
+
+    idata = nts::Tristate::FALSE;
+    step();
+    cr_assert_eq(out, nts::Tristate::TRUE);
+}
