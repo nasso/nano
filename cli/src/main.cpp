@@ -5,6 +5,10 @@
 ** main
 */
 
+#include "BuiltInComponentFactory.hpp"
+#include "IComponentFactory.hpp"
+#include "IOComponentFactory.hpp"
+#include "NTSComponentFactory.hpp"
 #include "Relp.hpp"
 #include <iostream>
 
@@ -21,7 +25,14 @@ int main(int argc, char** argv)
     }
 
     try {
-        nts::MainCircuit circuit(argv[1]);
+        std::vector<std::unique_ptr<nts::IComponentFactory>> factories;
+        factories.emplace_back(
+            new nts::IOComponentFactory);
+        factories.emplace_back(
+            new nts::NTSComponentFactory("./components/"));
+        factories.emplace_back(
+            new nts::BuiltInComponentFactory);
+        nts::MainCircuit circuit(argv[1], factories);
 
         Relp::run(circuit);
     } catch (std::exception& e) {

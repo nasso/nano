@@ -22,7 +22,8 @@ namespace nts {
 
 class NTSCircuit : public Circuit {
 public:
-    NTSCircuit(const std::string& filename);
+    NTSCircuit(const std::string& filename,
+        std::vector<std::unique_ptr<IComponentFactory>>& factories);
 
     using AComponent::dump;
     void dump(std::ostream&) const override;

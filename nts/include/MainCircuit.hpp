@@ -13,7 +13,8 @@
 namespace nts {
 class MainCircuit : public NTSCircuit {
 public:
-    MainCircuit(const std::string& filename);
+    MainCircuit(const std::string& filename,
+        std::vector<std::unique_ptr<IComponentFactory>>& factories);
     ~MainCircuit();
 
     MainCircuit& operator=(const MainCircuit&);

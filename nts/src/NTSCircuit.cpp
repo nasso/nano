@@ -14,13 +14,12 @@
 
 namespace nts {
 
-NTSCircuit::NTSCircuit(const std::string& filename)
+NTSCircuit::NTSCircuit(const std::string& filename, std::vector<std::unique_ptr<IComponentFactory>>& factories)
     : m_file(filename)
 {
-    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
-        new BuiltInComponentFactory)));
-    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
-        new NTSComponentFactory("./components/"))));
+    for (auto& factory : factories) {
+        m_factory.addFactory(std::move(factory));
+    }
     if (!m_file.is_open())
         throw std::runtime_error("Error");
     parse();

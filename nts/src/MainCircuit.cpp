@@ -8,8 +8,10 @@
 #include "MainCircuit.hpp"
 #include <iostream>
 
-nts::MainCircuit::MainCircuit(const std::string& filename)
-    : NTSCircuit(filename)
+nts::MainCircuit::MainCircuit(const std::string& filename,
+    std::vector<std::unique_ptr<IComponentFactory>>& factories)
+    : NTSCircuit(
+        filename, factories)
 {
     m_tick = 0;
 }
