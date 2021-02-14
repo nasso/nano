@@ -30,7 +30,7 @@ template <
     std::size_t O = 1,
     std::size_t B = 3,
     typename V = nts::Tristate>
-static void assert_truth(nts::IComponent& gate, GateSpec<I, O, B, V> spec)
+static bool test_gate(nts::IComponent& gate, GateSpec<I, O, B, V> spec)
 {
     std::size_t tick = 0;
     nts::InputComponent inputs[I] = {};
@@ -53,10 +53,37 @@ static void assert_truth(nts::IComponent& gate, GateSpec<I, O, B, V> spec)
 
         for (std::size_t i = 0; i < O; i++) {
             if (outputs[i] != case_.outputs[i]) {
-                gate.dump();
-                cr_expect_fail();
+                return false;
             }
         }
+    }
+
+    return true;
+}
+
+template <
+    std::size_t I = 2,
+    std::size_t O = 1,
+    std::size_t B = 3,
+    typename V = nts::Tristate>
+static void assert_truth(nts::IComponent& gate, GateSpec<I, O, B, V> spec)
+{
+    if (!test_gate(gate, spec)) {
+        gate.dump();
+        cr_assert_fail();
+    }
+}
+
+template <
+    std::size_t I = 2,
+    std::size_t O = 1,
+    std::size_t B = 3,
+    typename V = nts::Tristate>
+static void expect_truth(nts::IComponent& gate, GateSpec<I, O, B, V> spec)
+{
+    if (!test_gate(gate, spec)) {
+        gate.dump();
+        cr_expect_fail();
     }
 }
 

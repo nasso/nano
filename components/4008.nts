@@ -1,0 +1,21 @@
+# 4008 adder
+
+.chipsets:
+input A4
+input B3
+input A3
+input B2
+input A2
+input B1
+input A1
+ignored VSS
+input C1
+output S1
+output S2
+output S3
+output S4
+output CO
+input B4
+ignored VDD
+
+.links:
