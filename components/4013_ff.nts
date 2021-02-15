@@ -1,0 +1,48 @@
+# A single flip flop of the 4013 component
+
+.chipsets:
+output q    # 1
+output qb   # 2
+input cl    # 3
+input reset # 4
+input data  # 5
+input set   # 6
+
+mux m_mux
+nor m_nor1
+nor m_nor2
+
+mux s_mux
+nor s_nor1
+nor s_nor2
+
+not not1
+not not2
+
+.links:
+
+# master
+m_nor1:1 set:1
+m_nor2:1 reset:1
+m_nor1:2 m_mux:4
+m_nor2:2 m_nor1:3
+
+m_mux:1 m_nor2:3
+m_mux:2 data:1
+m_mux:3 cl:1
+
+# slave
+s_nor1:1 set:1
+s_nor2:1 reset:1
+s_nor1:2 s_nor2:3
+s_nor2:2 s_mux:4
+
+s_mux:1 m_nor1:3
+s_mux:2 s_nor1:3
+s_mux:3 cl:1
+
+not1:1 s_mux:4
+not2:1 s_nor2:3
+
+q:1 not1:2
+qb:1 not2:2

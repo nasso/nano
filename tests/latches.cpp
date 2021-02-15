@@ -15,7 +15,7 @@ const auto U = nts::UNDEFINED;
 const auto F = nts::FALSE;
 const auto T = nts::TRUE;
 
-Test(latch, sr_latch)
+Test(latches, srlatch)
 {
     std::size_t tick = 0;
     nts::NTSCircuit gate("components/srlatch.nts");
@@ -53,7 +53,7 @@ Test(latch, sr_latch)
     cr_assert_eq(out, nts::Tristate::FALSE);
 }
 
-Test(latch, data_latch)
+Test(latches, dlatch)
 {
     std::size_t tick = 0;
     nts::NTSCircuit gate("components/dlatch.nts");
@@ -123,7 +123,7 @@ Test(latch, data_latch)
     cr_assert_eq(out, nts::Tristate::FALSE);
 }
 
-Test(latch, d_flipflop)
+Test(latches, dflipflop)
 {
     std::size_t tick = 0;
     nts::NTSCircuit gate("components/dflipflop.nts");
@@ -197,7 +197,7 @@ Test(latch, d_flipflop)
     cr_assert_eq(out, nts::Tristate::TRUE);
 }
 
-Test(latch, register_1)
+Test(latches, reg1)
 {
     std::size_t tick = 0;
     nts::NTSCircuit gate("components/reg1.nts");

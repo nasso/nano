@@ -120,7 +120,7 @@ Test(logic_gates, xnor)
 
 Test(logic_gates, multiplexer)
 {
-    nts::NTSCircuit gate("components/multiplexer.nts");
+    nts::NTSCircuit gate("components/mux.nts");
 
     assert_truth<3>(gate, {
                               .inputs = { 1, 2, 3 },
@@ -152,6 +152,45 @@ Test(logic_gates, multiplexer)
                                   { { T, F, T }, { F } },
                                   { { T, T, U }, { T } },
                                   { { T, T, F }, { T } },
+                                  { { T, T, T }, { T } },
+                              },
+                          });
+}
+
+Test(logic_gates, and3)
+{
+    nts::NTSCircuit gate("components/and3.nts");
+
+    assert_truth<3>(gate, {
+                              .inputs = { 1, 2, 3 },
+                              .outputs = { 4 },
+                              .truthTable = {
+                                  { { U, U, U }, { U } },
+                                  { { U, U, F }, { F } },
+                                  { { U, U, T }, { U } },
+                                  { { U, F, U }, { F } },
+                                  { { U, F, F }, { F } },
+                                  { { U, F, T }, { F } },
+                                  { { U, T, U }, { U } },
+                                  { { U, T, F }, { F } },
+                                  { { U, T, T }, { U } },
+                                  { { F, U, U }, { F } },
+                                  { { F, U, F }, { F } },
+                                  { { F, U, T }, { F } },
+                                  { { F, F, U }, { F } },
+                                  { { F, F, F }, { F } },
+                                  { { F, F, T }, { F } },
+                                  { { F, T, U }, { F } },
+                                  { { F, T, F }, { F } },
+                                  { { F, T, T }, { F } },
+                                  { { T, U, U }, { U } },
+                                  { { T, U, F }, { F } },
+                                  { { T, U, T }, { U } },
+                                  { { T, F, U }, { F } },
+                                  { { T, F, F }, { F } },
+                                  { { T, F, T }, { F } },
+                                  { { T, T, U }, { U } },
+                                  { { T, T, F }, { F } },
                                   { { T, T, T }, { T } },
                               },
                           });
