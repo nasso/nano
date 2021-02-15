@@ -7,6 +7,7 @@
 
 #include "InputComponent.hpp"
 #include "NTSCircuit.hpp"
+#include "NotGate.hpp"
 #include <criterion/criterion.h>
 
 const auto U = nts::UNDEFINED;
@@ -20,16 +21,19 @@ public:
         nts::Tristate d = U,
         nts::Tristate r = U,
         nts::Tristate s = U)
-        : gate("components/4013_ff.nts")
+        : gate("components/adflipflop.nts")
         , clock(cl)
         , data(d)
         , reset(r)
         , set(s)
     {
-        gate.setLink(3, clock, 1);
-        gate.setLink(4, reset, 1);
-        gate.setLink(5, data, 1);
-        gate.setLink(6, set, 1);
+        set.setLink(1, set_, 1);
+        reset.setLink(1, reset_, 1);
+
+        gate.setLink(2, clock, 1);
+        gate.setLink(6, reset_, 2);
+        gate.setLink(1, data, 1);
+        gate.setLink(5, set_, 2);
 
         simulate();
     }
@@ -55,7 +59,7 @@ public:
         set = s;
 
         simulate();
-        return { gate.compute(1), gate.compute(2) };
+        return { gate.compute(3), gate.compute(4) };
     }
 
     nts::NTSCircuit gate;
@@ -65,6 +69,8 @@ public:
     nts::InputComponent set;
 
 private:
+    nts::NotGate reset_;
+    nts::NotGate set_;
     std::size_t m_tick = 0;
 };
 

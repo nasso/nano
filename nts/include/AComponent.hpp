@@ -59,8 +59,8 @@ protected:
      * @brief Computes the values for all outputs.
      *
      * This method is called automatically by the AComponent class and shouldn't
-     * be manually called. The provided callback is only valid for the length of
-     * the call and should NOT be stored/reused elsewhere.
+     * be manually called. The provided callbacks are only valid for the length
+     * of the call and should NOT be stored/reused elsewhere.
      *
      * @param set The function to be used to set each output pin's value.
      */

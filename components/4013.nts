@@ -16,20 +16,30 @@ output qb_2
 output q_2
 ignored vdd
 
-4013_ff ff1
-4013_ff ff2
+adflipflop ff1
+not nots_1
+not notr_1
+adflipflop ff2
+not nots_2
+not notr_2
 
 .links:
-q_1:1 ff1:1
-qb_1:1 ff1:2
-cl_1:1 ff1:3
-reset_1:1 ff1:4
-data_1:1 ff1:5
-set_1:1 ff1:6
+nots_1:1 set_1:1
+notr_1:1 reset_1:1
 
-q_2:1 ff2:1
-qb_2:1 ff2:2
-cl_2:1 ff2:3
-reset_2:1 ff2:4
-data_2:1 ff2:5
-set_2:1 ff2:6
+q_1:1 ff1:3
+qb_1:1 ff1:4
+cl_1:1 ff1:2
+notr_1:2 ff1:6
+data_1:1 ff1:1
+nots_1:2 ff1:5
+
+nots_2:1 set_2:1
+notr_2:1 reset_2:1
+
+q_2:1 ff2:3
+qb_2:1 ff2:4
+cl_2:1 ff2:2
+notr_2:2 ff2:6
+data_2:1 ff2:1
+nots_2:2 ff2:5

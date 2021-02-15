@@ -1,0 +1,44 @@
+# Rising-Edge Triggered Asynchronous Data Flip-Flop
+
+.chipsets:
+input data
+input clock
+output q
+output q_
+input preset_
+input clear_
+
+nand3 nand1
+nand3 nand2
+nand3 nand3
+nand3 nand4
+nand3 nand5
+nand3 nand6
+
+.links:
+nand1:1 preset_:1
+nand1:2 nand4:4
+nand1:3 nand2:4
+
+nand2:1 nand1:4
+nand2:2 clear_:1
+nand2:3 clock:1
+
+nand3:1 nand2:4
+nand3:2 clock:1
+nand3:3 nand4:4
+
+nand4:1 nand3:4
+nand4:2 clear_:1
+nand4:3 data:1
+
+nand5:1 preset_:1
+nand5:2 nand2:4
+nand5:3 nand6:4
+
+nand6:1 nand5:4
+nand6:2 clear_:1
+nand6:3 nand3:4
+
+q:1 nand5:4
+q_:1 nand6:4

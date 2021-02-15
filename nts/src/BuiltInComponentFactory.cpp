@@ -8,9 +8,9 @@
 #include "BuiltInComponentFactory.hpp"
 #include "AndGate.hpp"
 #include "InputComponent.hpp"
-#include "NTSCircuit.hpp"
 #include "NotGate.hpp"
 #include "OutputComponent.hpp"
+#include "PullComponent.hpp"
 #include <fstream>
 #include <stdexcept>
 
@@ -28,6 +28,12 @@ std::unique_ptr<nts::IComponent> nts::BuiltInComponentFactory::createComponent(c
         return std::unique_ptr<nts::IComponent>(new AndGate);
     } else if (name == "not") {
         return std::unique_ptr<nts::IComponent>(new NotGate);
+    } else if (name == "pullup") {
+        return std::unique_ptr<nts::IComponent>(
+            new PullComponent(PullComponent::UP));
+    } else if (name == "pulldown") {
+        return std::unique_ptr<nts::IComponent>(
+            new PullComponent(PullComponent::DOWN));
     }
     throw std::runtime_error("Error can't create component " + name);
 }

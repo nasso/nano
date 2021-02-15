@@ -77,22 +77,23 @@ void AComponent::simulate(std::size_t tick)
     }
 
     // delegate computation to the implementation
-    _compute([&](std::size_t output, nts::Tristate value) {
-        if (m_outputs.find(output) != m_outputs.end()) {
-            auto& out = m_outputs.at(output);
+    _compute(
+        [&](std::size_t output, nts::Tristate value) {
+            if (m_outputs.find(output) != m_outputs.end()) {
+                auto& out = m_outputs.at(output);
 
-            if (out.value != value) {
-                out.value = value;
+                if (out.value != value) {
+                    out.value = value;
 
-                for (auto& link : out.links) {
-                    dirty.insert(link.comp);
+                    for (auto& link : out.links) {
+                        dirty.insert(link.comp);
+                    }
                 }
+            } else {
+                throw std::runtime_error("output not found: "
+                    + std::to_string(output));
             }
-        } else {
-            throw std::runtime_error("output not found: "
-                + std::to_string(output));
-        }
-    });
+        });
 
     while (!dirty.empty()) {
         auto& comp = *dirty.begin();
