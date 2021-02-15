@@ -7,6 +7,7 @@
 
 #include "NTSCircuit.hpp"
 #include "BuiltInComponentFactory.hpp"
+#include "ClockComponent.hpp"
 #include "NTSComponentFactory.hpp"
 #include <iostream>
 #include <regex>
@@ -45,6 +46,8 @@ void NTSCircuit::createChip(std::string& str)
         m_currentPin++;
     } else if (type == "input") {
         m_pins.emplace(name, &input(++m_currentPin));
+    } else if (type == "clock") {
+        m_pins.emplace(name, &input<ClockComponent>(++m_currentPin));
     } else if (type == "output") {
         m_pins.emplace(name, &output(++m_currentPin));
     } else {

@@ -6,6 +6,7 @@
 */
 
 #include "MainCircuit.hpp"
+#include "IPinComponent.hpp"
 #include <iostream>
 
 nts::MainCircuit::MainCircuit(const std::string& filename)
@@ -24,12 +25,11 @@ void nts::MainCircuit::setInputPin(const std::string& name, nts::Tristate state)
         std::cout << "Component " << name << " doesn't exist" << std::endl;
         return;
     }
-    if (!dynamic_cast<const nts::InputComponent*>(m_pins[name])) {
+    if (m_pins[name]->kind() != nts::IPinComponent::INPUT) {
         std::cout << "Component " << name << " is not an input" << std::endl;
         return;
     }
-    nts::InputComponent& input = *dynamic_cast<nts::InputComponent*>(m_pins[name]);
-    input = state;
+    *static_cast<nts::IInputComponent*>(m_pins[name]) = state;
 }
 
 void nts::MainCircuit::display() const
@@ -37,26 +37,28 @@ void nts::MainCircuit::display() const
     std::cout << "tick: " << m_tick << std::endl;
     std::cout << "input(s):" << std::endl;
     for (auto& pin : m_pins) {
-        if (dynamic_cast<const nts::InputComponent*>(pin.second)) {
-            std::cout << "\t" << pin.first << ": " << pin.second->compute(1) << std::endl;
+        if (pin.second->kind() == nts::IPinComponent::INPUT) {
+            std::cout
+                << "\t" << pin.first << ": "
+                << pin.second->compute(1) << std::endl;
         }
     }
     std::cout << "output(s):" << std::endl;
     for (auto& pin : m_pins) {
-        if (dynamic_cast<const nts::OutputComponent*>(pin.second)) {
-            std::cout << "\t" << pin.first << ": " << pin.second->compute(1) << std::endl;
+        if (pin.second->kind() == nts::IPinComponent::OUTPUT) {
+            std::cout
+                << "\t" << pin.first << ": "
+                << pin.second->compute(1) << std::endl;
         }
     }
 }
 
 void nts::MainCircuit::simulate()
 {
-    nts::InputComponent* input;
-
     m_tick++;
     for (auto& pin : m_pins) {
-        input = dynamic_cast<nts::InputComponent*>(pin.second);
-        if (input)
-            input->simulate(m_tick);
+        if (pin.second->kind() == nts::IPinComponent::INPUT) {
+            pin.second->simulate(m_tick);
+        }
     }
 }

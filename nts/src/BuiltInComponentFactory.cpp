@@ -7,6 +7,7 @@
 
 #include "BuiltInComponentFactory.hpp"
 #include "AndGate.hpp"
+#include "ClockComponent.hpp"
 #include "ConstComponent.hpp"
 #include "InputComponent.hpp"
 #include "NotGate.hpp"
@@ -19,11 +20,7 @@ namespace nts {
 std::unique_ptr<nts::IComponent> BuiltInComponentFactory::createComponent(
     const std::string& name)
 {
-    if (name == "input") {
-        return std::unique_ptr<nts::IComponent>(new InputComponent);
-    } else if (name == "output") {
-        return std::unique_ptr<nts::IComponent>(new OutputComponent);
-    } else if (name == "and") {
+    if (name == "and") {
         return std::unique_ptr<nts::IComponent>(new AndGate);
     } else if (name == "not") {
         return std::unique_ptr<nts::IComponent>(new NotGate);
