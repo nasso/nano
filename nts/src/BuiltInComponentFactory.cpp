@@ -11,7 +11,6 @@
 #include "InputComponent.hpp"
 #include "NotGate.hpp"
 #include "OutputComponent.hpp"
-#include "PullComponent.hpp"
 #include <fstream>
 #include <stdexcept>
 
@@ -32,12 +31,6 @@ std::unique_ptr<nts::IComponent> BuiltInComponentFactory::createComponent(
         return std::unique_ptr<nts::IComponent>(new ConstComponent(TRUE));
     } else if (name == "false") {
         return std::unique_ptr<nts::IComponent>(new ConstComponent(FALSE));
-    } else if (name == "pullup") {
-        return std::unique_ptr<nts::IComponent>(
-            new PullComponent(PullComponent::UP));
-    } else if (name == "pulldown") {
-        return std::unique_ptr<nts::IComponent>(
-            new PullComponent(PullComponent::DOWN));
     }
     throw std::runtime_error("Error can't create component " + name);
 }

@@ -5,21 +5,15 @@ input data
 input clock
 output q
 output q_
-input in_preset_
-input in_clear_
-
-pullup preset_
-pullup clear_
+true preset_
+true clear_
 
 adflipflop async
 
 .links:
-in_preset_:1 preset_:1
-in_clear_:1 clear_:1
-
 async:1 data:1
 async:2 clock:1
 async:3 q:1
 async:4 q_:1
-async:5 preset_:2
-async:6 clear_:2
+async:5 preset_:1
+async:6 clear_:1
