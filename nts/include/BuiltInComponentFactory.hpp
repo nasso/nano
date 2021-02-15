@@ -17,7 +17,6 @@ namespace nts {
 
 class BuiltInComponentFactory : public IComponentFactory {
 public:
-    BuiltInComponentFactory();
     ~BuiltInComponentFactory() = default;
 
     std::unique_ptr<nts::IComponent> createComponent(const std::string& name)

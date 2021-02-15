@@ -6,6 +6,7 @@
 */
 
 #include "AndGate.hpp"
+#include "ConstComponent.hpp"
 #include "NotGate.hpp"
 #include "assert_truth.hpp"
 #include <criterion/criterion.h>
@@ -48,4 +49,13 @@ Test(builtin_gates, not_gate)
                                      { { T }, { F } },
                                  },
                              });
+}
+
+Test(builtin_gates, constants)
+{
+    nts::ConstComponent constants[] = { nts::TRUE, nts::FALSE, nts::UNDEFINED };
+
+    cr_assert_eq(constants[0].compute(1), nts::TRUE);
+    cr_assert_eq(constants[1].compute(1), nts::FALSE);
+    cr_assert_eq(constants[2].compute(1), nts::UNDEFINED);
 }
