@@ -28,7 +28,6 @@ void LoggerComponent::_compute(PinSetter)
             return;
         val = (val << 1) + tmp;
     }
-    std::cout << ((int)val) << std::endl;
     m_output << val;
 }
 }
