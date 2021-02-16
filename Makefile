@@ -7,7 +7,7 @@
 
 NAME = nanotekspice
 
-all: nanotekspice
+all: $(NAME)
 .PHONY: all
 
 __NAME__SRCS := $(shell find -path './cli/src/*.cpp')
