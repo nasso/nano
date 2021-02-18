@@ -15,9 +15,9 @@ namespace nts {
 
 class ClockComponent : public AComponent, public IInputComponent {
 public:
-    ClockComponent(nts::Tristate init = UNDEFINED);
+    ClockComponent(Tristate init = Tristate::UNDEFINED);
 
-    virtual ClockComponent& operator=(nts::Tristate value) override;
+    virtual ClockComponent& operator=(Tristate value) override;
 
 protected:
     void _compute(PinSetter) override;
