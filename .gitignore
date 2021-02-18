@@ -1,9 +1,8 @@
 .vs
 .vscode
-*.o
-*.d
 nanotekspice
-libnts.a
 unit_tests
 build
+
+# Visual Studio CMake configuration
 CMakeSettings.json
