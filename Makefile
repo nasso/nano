@@ -7,30 +7,42 @@
 
 NAME = nanotekspice
 
-BUILD_DIR = $(abspath ./build)
+TESTS_BIN = unit_tests
+
+BUILD_DIR = build
 
 INSTALL_DIR = $(abspath .)
 
 CMFLAGS = -DCMAKE_INSTALL_BINDIR='$(INSTALL_DIR)'
 
-all: $(NAME)
+MAKEFLAGS += --no-print-directory
+
+all: | $(BUILD_DIR)
+	cd $(BUILD_DIR) \
+	&& cmake $(CMFLAGS) .. \
+	&& cmake --build . --target $(NAME) \
+	&& cmake --install .
 
 clean:
-	cd $(BUILD_DIR) && cmake --build . --target clean
+	if [ -d "$(BUILD_DIR)" ]; then \
+		cd "$(BUILD_DIR)" && cmake --build . --target clean; \
+	fi
 
 fclean: clean
 	$(RM) -r $(BUILD_DIR)
 	$(RM) $(NAME)
+	$(RM) $(TESTS_BIN)
 
-re: fclean all
-
-$(NAME): | $(BUILD_DIR)
+tests_run: | $(BUILD_DIR)
 	cd $(BUILD_DIR) \
 	&& cmake $(CMFLAGS) .. \
-	&& cmake --build . --target $(NAME) -- -j8 \
-	&& cmake --install .
+	&& cmake --build . --target $(TESTS_BIN) \
+	&& cmake --install . --component tests
+	./$(TESTS_BIN)
+
+re: fclean all
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean tests_run re

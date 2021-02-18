@@ -13,9 +13,11 @@ option(ENABLE_TESTS "Build tests along with the library" ON)
 add_subdirectory("nts")
 add_subdirectory("cli")
 
+install(TARGETS nanotekspice)
+
 if (ENABLE_TESTS)
 	enable_testing()
 	add_subdirectory("tests")
-endif ()
 
-install(TARGETS nanotekspice)
+	install(TARGETS unit_tests COMPONENT tests EXCLUDE_FROM_ALL)
+endif ()
