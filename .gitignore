@@ -1,6 +1,9 @@
+.vs
 .vscode
 *.o
 *.d
 nanotekspice
 libnts.a
 unit_tests
+build
+CMakeSettings.json

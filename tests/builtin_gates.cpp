@@ -20,9 +20,9 @@ Test(builtin_gates, and_gate)
     nts::AndGate gate;
 
     assert_truth(gate, {
-                           .inputs = { 1, 2 },
-                           .outputs = { 3 },
-                           .truthTable = {
+                           /*.inputs = */{ 1, 2 },
+                           /*.outputs = */{ 3 },
+                           /*.truthTable = */{
                                { { U, U }, { U } },
                                { { U, F }, { F } },
                                { { U, T }, { U } },
@@ -41,9 +41,9 @@ Test(builtin_gates, not_gate)
     nts::NotGate gate;
 
     assert_truth<1, 1>(gate, {
-                                 .inputs = { 1 },
-                                 .outputs = { 2 },
-                                 .truthTable = {
+                                 /*.inputs = */{ 1 },
+                                 /*.outputs = */{ 2 },
+                                 /*.truthTable = */{
                                      { { U }, { U } },
                                      { { F }, { T } },
                                      { { T }, { F } },
