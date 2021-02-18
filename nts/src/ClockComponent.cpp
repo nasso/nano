@@ -9,9 +9,10 @@
 
 namespace nts {
 
-ClockComponent::ClockComponent()
+ClockComponent::ClockComponent(nts::Tristate init)
 {
     output(1);
+    *this = init;
 }
 
 ClockComponent& ClockComponent::operator=(nts::Tristate value)

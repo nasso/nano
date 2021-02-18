@@ -110,17 +110,7 @@ Theory(
     .timeout = 5)
 {
     nts::NTSCircuit gate("components/4008.nts");
-    nts::InputComponent inputs[] = {
-        c1,
-        a1,
-        a2,
-        a3,
-        a4,
-        b1,
-        b2,
-        b3,
-        b4,
-    };
+    nts::InputComponent inputs[] = { c1, a1, a2, a3, a4, b1, b2, b3, b4 };
     nts::OutputComponent s1, s2, s3, s4, co;
 
     // initialize inputs

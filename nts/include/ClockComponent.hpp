@@ -15,7 +15,7 @@ namespace nts {
 
 class ClockComponent : public AComponent, public IInputComponent {
 public:
-    ClockComponent();
+    ClockComponent(nts::Tristate init = UNDEFINED);
 
     virtual ClockComponent& operator=(nts::Tristate value) override;
 
