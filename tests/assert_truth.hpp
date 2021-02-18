@@ -15,6 +15,13 @@
 #include <criterion/criterion.h>
 #include <cstddef>
 
+static constexpr std::size_t spow(std::size_t x, int n, std::size_t acc = 1)
+{
+    return n < 1
+		? acc
+        : spow(x*x, n/2, (n % 2) ? acc*x : acc);
+}
+
 template <std::size_t I, std::size_t O, std::size_t B, typename V>
 struct GateSpec {
     std::size_t inputs[I];
@@ -22,7 +29,7 @@ struct GateSpec {
     struct {
         V inputs[I];
         V outputs[O];
-    } truthTable[(std::size_t)std::pow(B, I)];
+    } truthTable[spow(B, I)];
 };
 
 template <

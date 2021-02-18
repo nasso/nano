@@ -25,9 +25,11 @@ std::unique_ptr<nts::IComponent> BuiltInComponentFactory::createComponent(
     } else if (name == "not") {
         return std::unique_ptr<nts::IComponent>(new NotGate);
     } else if (name == "true") {
-        return std::unique_ptr<nts::IComponent>(new ConstComponent(TRUE));
+        return std::unique_ptr<nts::IComponent>(new ConstComponent(
+            Tristate::TRUE));
     } else if (name == "false") {
-        return std::unique_ptr<nts::IComponent>(new ConstComponent(FALSE));
+        return std::unique_ptr<nts::IComponent>(new ConstComponent(
+            Tristate::FALSE));
     }
     throw std::runtime_error("Error can't create component " + name);
 }

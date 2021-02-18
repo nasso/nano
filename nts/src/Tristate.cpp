@@ -11,11 +11,11 @@
 std::ostream& operator<<(std::ostream& os, const nts::Tristate& state)
 {
     switch (state) {
-    case nts::UNDEFINED:
+    case nts::Tristate::UNDEFINED:
         return os << 'U';
-    case nts::TRUE:
+    case nts::Tristate::TRUE:
         return os << '1';
-    case nts::FALSE:
+    case nts::Tristate::FALSE:
         return os << '0';
     }
     return os;

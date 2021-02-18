@@ -20,14 +20,14 @@ void NotGate::_compute(PinSetter set)
     auto in = compute(1);
 
     switch (in) {
-    case UNDEFINED:
-        set(2, UNDEFINED);
+    case Tristate::UNDEFINED:
+        set(2, Tristate::UNDEFINED);
         break;
-    case TRUE:
-        set(2, FALSE);
+    case Tristate::TRUE:
+        set(2, Tristate::FALSE);
         break;
-    case FALSE:
-        set(2, TRUE);
+    case Tristate::FALSE:
+        set(2, Tristate::TRUE);
         break;
     }
 }

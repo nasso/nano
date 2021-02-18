@@ -83,12 +83,12 @@ private:
     };
 
     struct Input {
-        nts::Tristate value = UNDEFINED;
+        Tristate value = Tristate::UNDEFINED;
         Link link;
     };
 
     struct Output {
-        nts::Tristate value = UNDEFINED;
+        Tristate value = Tristate::UNDEFINED;
         std::unordered_set<Link, LinkHash> links;
         std::unordered_set<Link, LinkHash> newlinks;
     };

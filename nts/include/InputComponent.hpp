@@ -18,7 +18,7 @@ namespace nts {
  */
 class InputComponent : public AComponent, public IInputComponent {
 public:
-    InputComponent(nts::Tristate value = UNDEFINED);
+    InputComponent(nts::Tristate value = Tristate::UNDEFINED);
 
     InputComponent& operator=(nts::Tristate value);
 
@@ -26,7 +26,7 @@ protected:
     void _compute(PinSetter tick) override;
 
 private:
-    nts::Tristate m_value = UNDEFINED;
+    nts::Tristate m_value = Tristate::UNDEFINED;
 };
 
 }

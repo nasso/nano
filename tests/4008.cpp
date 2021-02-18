@@ -21,9 +21,9 @@ Test(components_4008, adder_binary)
     nts::NTSCircuit gate("components/adder.nts");
 
     assert_truth<3, 2, 2>(gate, {
-                                    .inputs = { 1, 2, 3 },
-                                    .outputs = { 4, 5 },
-                                    .truthTable = {
+                                    /*.inputs = */{ 1, 2, 3 },
+                                    /*.outputs = */{ 4, 5 },
+                                    /*.truthTable = */{
                                         { { F, F, F }, { F, F } },
                                         { { T, F, F }, { F, T } },
                                         { { F, T, F }, { F, T } },
@@ -42,9 +42,9 @@ Test(components_4008, adder_tristate, .disabled = true)
 
     if (!test_gate<3, 2>(gate,
             {
-                .inputs = { 1, 2, 3 },
-                .outputs = { 4, 5 },
-                .truthTable = {
+                /*.inputs = */{ 1, 2, 3 },
+                /*.outputs = */{ 4, 5 },
+                /*.truthTable = */{
                     { { U, U, U }, { U, U } },
                     { { F, U, U }, { U, U } },
                     { { T, U, U }, { U, U } },

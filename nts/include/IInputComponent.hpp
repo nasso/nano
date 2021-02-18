@@ -21,7 +21,7 @@ public:
 
     Kind kind() const final override
     {
-        return INPUT;
+        return Kind::INPUT;
     }
 };
 
