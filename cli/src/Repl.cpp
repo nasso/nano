@@ -49,11 +49,11 @@ void set_component(nts::MainCircuit& circuit, std::string component, std::string
     value = std::regex_replace(value, trim_r, "");
 
     if (value == "0")
-        circuit.setInputPin(component, nts::FALSE);
+        circuit.setInputPin(component, nts::Tristate::FALSE);
     else if (value == "1")
-        circuit.setInputPin(component, nts::TRUE);
+        circuit.setInputPin(component, nts::Tristate::TRUE);
     else if (value == "U")
-        circuit.setInputPin(component, nts::UNDEFINED);
+        circuit.setInputPin(component, nts::Tristate::UNDEFINED);
     else
         std::cout << "Value: " << value << " is not a valid value (must be 0, 1 or U)" << std::endl;
 }

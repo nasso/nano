@@ -15,10 +15,10 @@ namespace nts {
 
 class Pin;
 
-enum Tristate {
-    UNDEFINED = (-true),
-    TRUE = true,
-    FALSE = false
+enum class Tristate {
+    UNDEFINED = -1,
+    FALSE = 0,
+    TRUE = 1,
 };
 
 class IComponent {

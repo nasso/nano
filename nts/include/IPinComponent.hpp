@@ -14,7 +14,7 @@ namespace nts {
 
 class IPinComponent : virtual public IComponent {
 public:
-    enum Kind {
+    enum class Kind {
         INPUT,
         OUTPUT,
     };

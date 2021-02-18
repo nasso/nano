@@ -23,8 +23,8 @@ ClockComponent& ClockComponent::operator=(nts::Tristate value)
 void ClockComponent::_compute(PinSetter set)
 {
     set(1, m_value);
-    if (m_value != UNDEFINED) {
-        m_value = m_value == TRUE ? FALSE : TRUE;
+    if (m_value != Tristate::UNDEFINED) {
+        m_value = m_value == Tristate::TRUE ? Tristate::FALSE : Tristate::TRUE;
     }
 }
 

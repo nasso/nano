@@ -23,7 +23,7 @@ protected:
     void _compute(PinSetter) override;
 
 private:
-    nts::Tristate m_value = UNDEFINED;
+    Tristate m_value = Tristate::UNDEFINED;
 };
 
 }

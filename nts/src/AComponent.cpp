@@ -51,7 +51,7 @@ void AComponent::simulate(std::size_t tick)
         auto& in = input.second;
         auto val = in.link.comp
             ? in.link.comp->compute(in.link.pin)
-            : UNDEFINED;
+            : Tristate::UNDEFINED;
 
         inputsDirty |= in.value != val;
         in.value = val;
@@ -179,7 +179,7 @@ void AComponent::input(std::size_t pin)
 void AComponent::output(std::size_t pin)
 {
     remove(pin);
-    m_outputs[pin].value = UNDEFINED;
+    m_outputs[pin].value = Tristate::UNDEFINED;
 }
 
 void AComponent::remove(std::size_t pin)

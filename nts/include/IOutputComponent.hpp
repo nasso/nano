@@ -18,7 +18,7 @@ public:
 
     Kind kind() const final override
     {
-        return OUTPUT;
+        return Kind::OUTPUT;
     }
 };
 

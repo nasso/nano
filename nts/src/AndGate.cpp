@@ -21,12 +21,12 @@ void AndGate::_compute(PinSetter set)
     auto a = compute(1);
     auto b = compute(2);
 
-    if (a == FALSE || b == FALSE) {
-        set(3, FALSE);
-    } else if (a == UNDEFINED || b == UNDEFINED) {
-        set(3, UNDEFINED);
+    if (a == Tristate::FALSE || b == Tristate::FALSE) {
+        set(3, Tristate::FALSE);
+    } else if (a == Tristate::UNDEFINED || b == Tristate::UNDEFINED) {
+        set(3, Tristate::UNDEFINED);
     } else {
-        set(3, TRUE);
+        set(3, Tristate::TRUE);
     }
 }
 

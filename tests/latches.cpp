@@ -11,9 +11,9 @@
 #include <criterion/criterion.h>
 #include <cstddef>
 
-const auto U = nts::UNDEFINED;
-const auto F = nts::FALSE;
-const auto T = nts::TRUE;
+const auto U = nts::Tristate::UNDEFINED;
+const auto F = nts::Tristate::FALSE;
+const auto T = nts::Tristate::TRUE;
 
 Test(latches, srlatch)
 {

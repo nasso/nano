@@ -53,9 +53,13 @@ Test(builtin_gates, not_gate)
 
 Test(builtin_gates, constants)
 {
-    nts::ConstComponent constants[] = { nts::TRUE, nts::FALSE, nts::UNDEFINED };
+    nts::ConstComponent constants[] = {
+        nts::Tristate::TRUE,
+        nts::Tristate::FALSE,
+        nts::Tristate::UNDEFINED,
+    };
 
-    cr_assert_eq(constants[0].compute(1), nts::TRUE);
-    cr_assert_eq(constants[1].compute(1), nts::FALSE);
-    cr_assert_eq(constants[2].compute(1), nts::UNDEFINED);
+    cr_assert_eq(constants[0].compute(1), nts::Tristate::TRUE);
+    cr_assert_eq(constants[1].compute(1), nts::Tristate::FALSE);
+    cr_assert_eq(constants[2].compute(1), nts::Tristate::UNDEFINED);
 }
