@@ -7,7 +7,7 @@ User -> Simulator ** : Create breadboard
 User -> Simulator ++ : ""> open "nand.nts"""
   Simulator -> NtsCircuit ** : Create NtsCircuit
   NtsCircuit -> IComponent ** : Create chipsets
-  NtsCircuit -> StaticPinout ** : Create chipsets pinout states
+  NtsCircuit -> StaticPinoutBuffer ** : Create chipsets pinout states
   NtsCircuit -> Link ** : Create links
   Simulator -> NtsCircuit ++ : Get pinout
   return ""NtsPinout {in={a=1, b=2}, out={c=3}}""
@@ -37,7 +37,7 @@ User -> Simulator ++ : ""> simulate""
         NtsCircuit -> Link ++ : Get pins connected to //link//
         return Connected pins
 
-        NtsCircuit -> StaticPinout ++ : Spread the link value to all pins
+        NtsCircuit -> StaticPinoutBuffer ++ : Spread the link value to all pins
         return ok
       end
 
@@ -60,5 +60,9 @@ User -> Simulator ++ : ""> dump""
 return """(circuit ...)"""
 
 User -> Simulator !! : ""> exit""
+Simulator -> NtsCircuit !!
+NtsCircuit -> IComponent !!
+NtsCircuit -> StaticPinoutBuffer !!
+NtsCircuit -> Link !!
 
 @enduml

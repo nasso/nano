@@ -16,13 +16,13 @@ class PinId <<type>> {
     std::size_t
 }
 
-interface IPinoutState {
+interface IPinoutBuffer {
     + Tristate read(PinId)
     + void write(PinId, Tristate)
 }
-IPinoutState <|.. StaticPinout
-IPinoutState <|.. DynamicPinout
-IPinoutState <|.. LinkedPinout
+IPinoutBuffer <|.. StaticPinoutBuffer
+IPinoutBuffer <|.. DynamicPinoutBuffer
+IPinoutBuffer <|.. LinkedPinoutBuffer
 
 enum PinFlags <<bitfield>> {
     NONE = 0
@@ -37,7 +37,7 @@ PinFlags +- Pinout
 
 interface IComponent {
     + Pinout pinout() const
-    + void simulate(IPinoutState&)
+    + void simulate(IPinoutBuffer&)
     + void display(std::ostream&) const
 }
 Pinout +- IComponent
