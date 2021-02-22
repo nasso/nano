@@ -16,18 +16,30 @@ class PinId <<type>> {
     std::size_t
 }
 
-interface IPinout {
+interface IPinoutState {
     + Tristate read(PinId)
     + void write(PinId, Tristate)
 }
-IPinout <|.. StaticPinout
-IPinout <|.. DynamicPinout
-IPinout <|.. LinkedPinout
+IPinoutState <|.. StaticPinout
+IPinoutState <|.. DynamicPinout
+IPinoutState <|.. LinkedPinout
+
+enum PinFlags <<bitfield>> {
+    NONE = 0
+    INPUT = 1
+    OUTPUT = 2
+}
+
+class Pinout <<type>> {
+    std::unordered_map<PinId, PinFlags>
+}
 
 interface IComponent {
-    + void simulate(IPinout&)
+    + Pinout pinout() const
+    + void simulate(IPinoutState&)
     + void display(std::ostream&) const
 }
+PinFlags +- IComponent
 IComponent <|.. NotGate
 IComponent <|.. AndGate
 IComponent <|.. FunctionalComponent
