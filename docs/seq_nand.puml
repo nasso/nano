@@ -1,0 +1,64 @@
+@startuml NAND Gate
+
+participant User
+
+User -> Simulator ** : Create breadboard
+
+User -> Simulator ++ : ""> open "nand.nts"""
+  Simulator -> NtsCircuit ** : Create NtsCircuit
+  NtsCircuit -> IComponent ** : Create chipsets
+  NtsCircuit -> StaticPinout ** : Create chipsets pinout states
+  NtsCircuit -> Link ** : Create links
+  Simulator -> NtsCircuit ++ : Get pinout
+  return ""NtsPinout {in={a=1, b=2}, out={c=3}}""
+
+  Simulator -> Simulator : Init //last pinout state// to ""UNDEFINED""
+  Simulator -> Simulator : Init //next pinout state// to ""UNDEFINED""
+return ok
+
+User -> Simulator ++ : ""> a=1""
+  Simulator -> Simulator : set //a// in //next pinout state// to ""TRUE""
+return ok
+
+User -> Simulator ++ : ""> b=0""
+  Simulator -> Simulator : set //b// in //next pinout state// to ""FALSE""
+return ok
+
+User -> Simulator ++ : ""> display""
+return """a=U, b=U, c=U"""
+note right: displays //last pinout state//
+
+User -> Simulator ++ : ""> simulate""
+  Simulator -> NtsCircuit ++ : Simulate with //next pinout state//
+    NtsCircuit -> NtsCircuit : Let //stable// be ""false""
+    loop while not //stable//
+      NtsCircuit -> NtsCircuit : Set //stable// to ""true""
+      loop for each link //link//
+        NtsCircuit -> Link ++ : Get pins connected to //link//
+        return Connected pins
+
+        NtsCircuit -> StaticPinout ++ : Spread the link value to all pins
+        return ok
+      end
+
+      loop for each chipset //chipset//
+        NtsCircuit -> IComponent ++ : Simulate with its //pinout state//
+        return ok
+      end
+    end
+  return ok
+  Simulator -> Simulator : Set //last pinout state// to //next pinout state//
+return ok
+
+User -> Simulator ++ : ""> display""
+return """a=1, b=0, c=0"""
+note right: displays //last pinout state//
+
+User -> Simulator ++ : ""> dump""
+  Simulator -> NtsCircuit ++ : Dump to standard output
+  return """(circuit ...)"""
+return """(circuit ...)"""
+
+User -> Simulator !! : ""> exit""
+
+@enduml
