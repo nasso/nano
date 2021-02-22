@@ -33,13 +33,14 @@ enum PinFlags <<bitfield>> {
 class Pinout <<type>> {
     std::unordered_map<PinId, PinFlags>
 }
+PinFlags +- Pinout
 
 interface IComponent {
     + Pinout pinout() const
     + void simulate(IPinoutState&)
     + void display(std::ostream&) const
 }
-PinFlags +- IComponent
+Pinout +- IComponent
 IComponent <|.. NotGate
 IComponent <|.. AndGate
 IComponent <|.. FunctionalComponent
