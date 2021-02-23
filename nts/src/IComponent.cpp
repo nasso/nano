@@ -9,6 +9,6 @@
 
 std::ostream& operator<<(std::ostream& os, const nts::IComponent& comp)
 {
-    comp.dump(os);
+    comp.display(os);
     return os;
 }

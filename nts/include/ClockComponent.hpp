@@ -8,19 +8,20 @@
 #ifndef CLOCKCOMPONENT_HPP_
 #define CLOCKCOMPONENT_HPP_
 
-#include "AComponent.hpp"
+#include "IComponent.hpp"
 #include "IInputComponent.hpp"
 
 namespace nts {
 
-class ClockComponent : public AComponent, public IInputComponent {
+class ClockComponent : public IComponent {
 public:
     ClockComponent(Tristate init = Tristate::UNDEFINED);
 
-    virtual ClockComponent& operator=(Tristate value) override;
+    ClockComponent& operator=(Tristate value);
 
-protected:
-    void _compute(PinSetter) override;
+    Pinout pinout() const override;
+    void simulate(IPinoutBuffer&) override;
+    void display(std::ostream&) const override;
 
 private:
     Tristate m_value = Tristate::UNDEFINED;

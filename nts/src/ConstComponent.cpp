@@ -12,13 +12,21 @@ namespace nts {
 ConstComponent::ConstComponent(nts::Tristate value)
     : m_value(value)
 {
-    output(1);
-    simulate(1);
 }
 
-void ConstComponent::_compute(PinSetter set)
+Pinout ConstComponent::pinout() const
 {
-    set(1, m_value);
+    return Pinout({ { 1, PinFlags::OUTPUT } });
+}
+
+void ConstComponent::simulate(IPinoutBuffer& pinout)
+{
+    pinout.write(1, m_value);
+}
+
+void ConstComponent::display(std::ostream& os) const
+{
+    os << "const " << m_value;
 }
 
 }

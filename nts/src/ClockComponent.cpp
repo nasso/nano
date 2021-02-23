@@ -11,7 +11,6 @@ namespace nts {
 
 ClockComponent::ClockComponent(nts::Tristate init)
 {
-    output(1);
     *this = init;
 }
 
@@ -21,12 +20,20 @@ ClockComponent& ClockComponent::operator=(nts::Tristate value)
     return *this;
 }
 
-void ClockComponent::_compute(PinSetter set)
+Pinout ClockComponent::pinout() const
 {
-    set(1, m_value);
-    if (m_value != Tristate::UNDEFINED) {
-        m_value = m_value == Tristate::TRUE ? Tristate::FALSE : Tristate::TRUE;
-    }
+    return Pinout({ { 1, PinFlags::OUTPUT } });
+}
+
+void ClockComponent::simulate(IPinoutBuffer& buf)
+{
+    buf.write(1, m_value);
+    m_value = !m_value;
+}
+
+void ClockComponent::display(std::ostream& os) const
+{
+    os << "clock " << m_value;
 }
 
 }

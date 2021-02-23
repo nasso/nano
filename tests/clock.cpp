@@ -6,86 +6,70 @@
 */
 
 #include "ClockComponent.hpp"
-#include "OutputComponent.hpp"
+#include "StaticPinoutBuffer.hpp"
 #include <criterion/criterion.h>
 #include <cstddef>
-
-Test(clock, starts_undefined)
-{
-    nts::ClockComponent clock;
-    nts::OutputComponent out;
-    clock.setLink(1, out, 1);
-
-    cr_assert_eq(out, nts::Tristate::UNDEFINED);
-    clock.simulate(1);
-    cr_assert_eq(out, nts::Tristate::UNDEFINED);
-}
 
 Test(clock, stays_undefined)
 {
     nts::ClockComponent clock;
-    nts::OutputComponent out;
-    clock.setLink(1, out, 1);
+    nts::StaticPinoutBuffer buf({ { 1, nts::Tristate::UNDEFINED } });
 
-    cr_assert_eq(out, nts::Tristate::UNDEFINED);
-    clock.simulate(1);
-    cr_assert_eq(out, nts::Tristate::UNDEFINED);
+    clock.simulate(buf);
+    cr_assert_eq(buf.read(1), nts::Tristate::UNDEFINED);
 }
 
-Test(clock, inverts_non_undefined_after_simulation)
+Test(clock, toggles_after_simulation)
 {
     nts::ClockComponent clock;
-    nts::OutputComponent out;
-    clock.setLink(1, out, 1);
+    nts::StaticPinoutBuffer buf({ { 1, nts::Tristate::UNDEFINED } });
 
     clock = nts::Tristate::FALSE;
 
-    clock.simulate(1);
-    cr_assert_eq(out, nts::Tristate::FALSE);
+    clock.simulate(buf);
+    cr_assert_eq(buf.read(1), nts::Tristate::FALSE);
 
-    clock.simulate(2);
-    cr_assert_eq(out, nts::Tristate::TRUE);
+    clock.simulate(buf);
+    cr_assert_eq(buf.read(1), nts::Tristate::TRUE);
 
-    clock.simulate(3);
-    cr_assert_eq(out, nts::Tristate::FALSE);
+    clock.simulate(buf);
+    cr_assert_eq(buf.read(1), nts::Tristate::FALSE);
 }
 
 Test(clock, emits_last_set_value)
 {
     nts::ClockComponent clock;
-    nts::OutputComponent out;
-    clock.setLink(1, out, 1);
+    nts::StaticPinoutBuffer buf({ { 1, nts::Tristate::UNDEFINED } });
 
     clock = nts::Tristate::FALSE;
 
-    clock.simulate(1);
-    cr_assert_eq(out, nts::Tristate::FALSE);
+    clock.simulate(buf);
+    cr_assert_eq(buf.read(1), nts::Tristate::FALSE);
 
     clock = nts::Tristate::FALSE;
 
-    clock.simulate(2);
-    cr_assert_eq(out, nts::Tristate::FALSE);
+    clock.simulate(buf);
+    cr_assert_eq(buf.read(1), nts::Tristate::FALSE);
 
-    clock.simulate(3);
-    cr_assert_eq(out, nts::Tristate::TRUE);
+    clock.simulate(buf);
+    cr_assert_eq(buf.read(1), nts::Tristate::TRUE);
 }
 
 Test(clock, stays_undefined_when_set)
 {
     nts::ClockComponent clock;
-    nts::OutputComponent out;
-    clock.setLink(1, out, 1);
+    nts::StaticPinoutBuffer buf({ { 1, nts::Tristate::UNDEFINED } });
 
     clock = nts::Tristate::FALSE;
 
-    clock.simulate(1);
-    cr_assert_eq(out, nts::Tristate::FALSE);
+    clock.simulate(buf);
+    cr_assert_eq(buf.read(1), nts::Tristate::FALSE);
 
     clock = nts::Tristate::UNDEFINED;
 
-    clock.simulate(2);
-    cr_assert_eq(out, nts::Tristate::UNDEFINED);
+    clock.simulate(buf);
+    cr_assert_eq(buf.read(1), nts::Tristate::UNDEFINED);
 
-    clock.simulate(3);
-    cr_assert_eq(out, nts::Tristate::UNDEFINED);
+    clock.simulate(buf);
+    cr_assert_eq(buf.read(1), nts::Tristate::UNDEFINED);
 }

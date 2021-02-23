@@ -6,28 +6,30 @@
 */
 
 #include "AndGate.hpp"
+#include "IComponent.hpp"
 
 namespace nts {
 
-AndGate::AndGate()
+Pinout AndGate::pinout() const
 {
-    input(1);
-    input(2);
-    output(3);
+    return Pinout({
+        { 1, PinFlags::INPUT },
+        { 2, PinFlags::INPUT },
+        { 3, PinFlags::OUTPUT },
+    });
 }
 
-void AndGate::_compute(PinSetter set)
+void AndGate::simulate(IPinoutBuffer& pinout)
 {
-    auto a = compute(1);
-    auto b = compute(2);
+    auto a = pinout.read(1);
+    auto b = pinout.read(2);
 
-    if (a == Tristate::FALSE || b == Tristate::FALSE) {
-        set(3, Tristate::FALSE);
-    } else if (a == Tristate::UNDEFINED || b == Tristate::UNDEFINED) {
-        set(3, Tristate::UNDEFINED);
-    } else {
-        set(3, Tristate::TRUE);
-    }
+    pinout.write(3, a && b);
+}
+
+void AndGate::display(std::ostream& os) const
+{
+    os << "and";
 }
 
 }

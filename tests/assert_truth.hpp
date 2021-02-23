@@ -9,17 +9,17 @@
 #define ASSERT_TRUTH_HPP_
 
 #include "IComponent.hpp"
-#include "InputComponent.hpp"
-#include "OutputComponent.hpp"
+#include "StaticPinoutBuffer.hpp"
 #include <cmath>
 #include <criterion/criterion.h>
 #include <cstddef>
+#include <unordered_map>
 
 static constexpr std::size_t spow(std::size_t x, int n, std::size_t acc = 1)
 {
     return n < 1
-		? acc
-        : spow(x*x, n/2, (n % 2) ? acc*x : acc);
+        ? acc
+        : spow(x * x, n / 2, (n % 2) ? acc * x : acc);
 }
 
 template <std::size_t I, std::size_t O, std::size_t B, typename V>
@@ -39,27 +39,27 @@ template <
     typename V = nts::Tristate>
 static bool test_gate(nts::IComponent& gate, GateSpec<I, O, B, V> spec)
 {
-    std::size_t tick = 0;
-    nts::InputComponent inputs[I] = {};
-    nts::OutputComponent outputs[O] = {};
+    std::unordered_map<std::size_t, nts::Tristate> pinout;
 
     for (std::size_t i = 0; i < I; i++) {
-        inputs[i].setLink(1, gate, spec.inputs[i]);
+        pinout[spec.inputs[i]] = nts::Tristate::UNDEFINED;
     }
 
     for (std::size_t i = 0; i < O; i++) {
-        outputs[i].setLink(1, gate, spec.outputs[i]);
+        pinout[spec.outputs[i]] = nts::Tristate::UNDEFINED;
     }
 
+    nts::StaticPinoutBuffer buf(std::move(pinout));
+
     for (auto& case_ : spec.truthTable) {
-        tick++;
         for (std::size_t i = 0; i < I; i++) {
-            inputs[i] = case_.inputs[i];
-            inputs[i].simulate(tick);
+            buf.write(spec.inputs[i], case_.inputs[i]);
         }
 
+        gate.simulate(buf);
+
         for (std::size_t i = 0; i < O; i++) {
-            if (outputs[i] != case_.outputs[i]) {
+            if (buf.read(spec.outputs[i]) != case_.outputs[i]) {
                 return false;
             }
         }

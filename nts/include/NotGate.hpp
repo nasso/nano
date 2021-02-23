@@ -8,16 +8,16 @@
 #ifndef NOTGATE_HPP_
 #define NOTGATE_HPP_
 
-#include "AComponent.hpp"
+#include "IComponent.hpp"
+#include <iostream>
 
 namespace nts {
 
-class NotGate : public AComponent {
+class NotGate : public IComponent {
 public:
-    NotGate();
-
-protected:
-    void _compute(PinSetter set) override;
+    Pinout pinout() const override;
+    void simulate(IPinoutBuffer&) override;
+    void display(std::ostream&) const override;
 };
 
 }

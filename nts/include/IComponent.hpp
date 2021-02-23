@@ -8,17 +8,28 @@
 #ifndef ICOMPONENT_HPP_
 #define ICOMPONENT_HPP_
 
-#include <cstddef>
+#include "Tristate.hpp"
 #include <iostream>
+#include <unordered_map>
 
 namespace nts {
 
-class Pin;
+enum class PinFlags {
+    NONE = 0,
+    INPUT = 1,
+    OUTPUT = 2,
+    IO = INPUT | OUTPUT,
+};
 
-enum class Tristate {
-    UNDEFINED = -1,
-    FALSE = 0,
-    TRUE = 1,
+using PinId = std::size_t;
+using Pinout = std::unordered_map<PinId, PinFlags>;
+
+class IPinoutBuffer {
+public:
+    virtual ~IPinoutBuffer() = default;
+
+    virtual Tristate read(PinId) const = 0;
+    virtual void write(PinId, Tristate) = 0;
 };
 
 class IComponent {
@@ -26,63 +37,27 @@ public:
     virtual ~IComponent() = default;
 
     /**
-     * @brief Reset the state of the Component if tick is different than the
-     * currentSimulateTick.
+     * @brief Get pinout information
+     *
+     * @return PinFlags
+     */
+    virtual Pinout pinout() const = 0;
+
+    /**
+     * @brief Compute a step of simulation on the given pinout buffer.
      *
      * @param tick simulation tick
      */
-    virtual void simulate(std::size_t tick) = 0;
+    virtual void simulate(IPinoutBuffer&) = 0;
 
     /**
-     * @brief Get the value of a pin.
-     *
-     * @param pin The output pin for which to get the value.
-     * @return nts::Tristate The current value of the pin.
+     * @brief Display a description of the component.
      */
-    virtual nts::Tristate compute(std::size_t pin) = 0;
-
-    /**
-     * @brief Link a pin of this component to the pin of another component.
-     *
-     * The internal graph is bi-directional. This method can be called in either
-     * direction, but it will automatically call itself on the other component
-     * if the link didn't already exist.
-     *
-     * @param pin The pin of this component to be linked
-     * @param other The other component
-     * @param otherPin The other component's pin to link to
-     */
-    virtual void setLink(std::size_t pin, nts::IComponent& other,
-        std::size_t otherPin)
-        = 0;
-
-    /**
-     * @brief Remove a link between a pin of this component and another.
-     *
-     * @param pin The pin of this component to disconnect
-     * @param other The other component
-     * @param otherPin The other component's pin to disconnect from
-     */
-    virtual void unsetLink(std::size_t pin, nts::IComponent& other,
-        std::size_t otherPin)
-        = 0;
-
-    /**
-     * @brief Dump stuff in some way.
-     */
-    virtual void dump() const = 0;
-
-    /**
-     * @brief Dump stuff to the given output.
-     *
-     * @param os
-     */
-    virtual void dump(std::ostream& os) const = 0;
+    virtual void display(std::ostream&) const = 0;
 };
 
 }
 
-std::ostream& operator<<(std::ostream& os, const nts::Tristate& state);
 std::ostream& operator<<(std::ostream& os, const nts::IComponent& comp);
 
 #endif /* !ICOMPONENT_HPP_ */
