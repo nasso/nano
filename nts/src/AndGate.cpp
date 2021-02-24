@@ -13,9 +13,9 @@ namespace nts {
 Pinout AndGate::pinout() const
 {
     return Pinout({
-        { 1, PinFlags::INPUT },
-        { 2, PinFlags::INPUT },
-        { 3, PinFlags::OUTPUT },
+        { 1, PinUsage::INPUT },
+        { 2, PinUsage::INPUT },
+        { 3, PinUsage::OUTPUT },
     });
 }
 

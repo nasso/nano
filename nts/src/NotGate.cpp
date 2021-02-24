@@ -13,8 +13,8 @@ namespace nts {
 Pinout NotGate::pinout() const
 {
     return Pinout({
-        { 1, PinFlags::INPUT },
-        { 2, PinFlags::OUTPUT },
+        { 1, PinUsage::INPUT },
+        { 2, PinUsage::OUTPUT },
     });
 }
 

@@ -16,7 +16,7 @@ ConstComponent::ConstComponent(nts::Tristate value)
 
 Pinout ConstComponent::pinout() const
 {
-    return Pinout({ { 1, PinFlags::OUTPUT } });
+    return Pinout({ { 1, PinUsage::OUTPUT } });
 }
 
 void ConstComponent::simulate(IPinoutBuffer& pinout)

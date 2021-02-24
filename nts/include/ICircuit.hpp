@@ -8,7 +8,6 @@
 #ifndef ICIRCUIT_HPP_
 #define ICIRCUIT_HPP_
 
-#include "IPinout.hpp"
 #include "IComponent.hpp"
 #include <memory>
 
@@ -19,8 +18,8 @@ class ICircuit : public IComponent {
 public:
     // Components
     virtual void insert(const K&, std::unique_ptr<IComponent>) = 0;
-    virtual IComponent &operator[](const K&) = 0;
-    virtual const IComponent &operator[](const K&) const = 0;
+    virtual IComponent& operator[](const K&) = 0;
+    virtual const IComponent& operator[](const K&) const = 0;
 
     // Links
     virtual void connect(const K&, PinId, const K&, PinId) = 0;

@@ -2,26 +2,27 @@
 ** EPITECH PROJECT, 2021
 ** B-OOP-400-TLS-4-1-tekspice-nassim.gharbaoui
 ** File description:
-** StaticPinoutBuffer
+** DynamicPinoutBuffer
 */
 
-#ifndef STATICPINOUTBUFFER_HPP_
-#define STATICPINOUTBUFFER_HPP_
+#ifndef DYNAMICPINOUTBUFFER_HPP_
+#define DYNAMICPINOUTBUFFER_HPP_
 
 #include "IComponent.hpp"
 #include <unordered_map>
 
 namespace nts {
 
-class StaticPinoutBuffer : public IPinoutBuffer {
+class DynamicPinoutBuffer : public IPinoutBuffer {
 public:
     using Buffer = std::unordered_map<PinId, Tristate>;
 
-    StaticPinoutBuffer(Buffer);
-    StaticPinoutBuffer(Pinout);
+    DynamicPinoutBuffer(Buffer = {});
 
     Tristate read(PinId) const override;
     void write(PinId, Tristate) override;
+
+    void clear();
 
 private:
     Buffer m_buffer;
@@ -29,4 +30,4 @@ private:
 
 }
 
-#endif /* !STATICPINOUTBUFFER_HPP_ */
+#endif /* !DYNAMICPINOUTBUFFER_HPP_ */

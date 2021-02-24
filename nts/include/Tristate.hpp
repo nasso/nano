@@ -30,6 +30,9 @@ public:
     Tristate operator||(const Tristate&) const;
     Tristate operator!() const;
 
+    Tristate& operator|=(const Tristate&);
+    Tristate& operator&=(const Tristate&);
+
 private:
     Value m_value;
 };

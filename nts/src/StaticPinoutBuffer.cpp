@@ -14,6 +14,13 @@ StaticPinoutBuffer::StaticPinoutBuffer(Buffer buf)
 {
 }
 
+StaticPinoutBuffer::StaticPinoutBuffer(Pinout pinout)
+{
+    for (auto& pin : pinout) {
+        m_buffer[pin.first] = nts::Tristate::UNDEFINED;
+    }
+}
+
 Tristate StaticPinoutBuffer::read(PinId pin) const
 {
     return m_buffer.at(pin);

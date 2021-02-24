@@ -45,13 +45,23 @@ Tristate Tristate::operator||(const Tristate& other) const
 Tristate Tristate::operator!() const
 {
     switch (*this) {
-    case UNDEFINED:
-        return UNDEFINED;
     case FALSE:
         return TRUE;
     case TRUE:
         return FALSE;
+    default:
+        return UNDEFINED;
     }
+}
+
+Tristate& Tristate::operator|=(const Tristate& other)
+{
+    return *this = *this || other;
+}
+
+Tristate& Tristate::operator&=(const Tristate& other)
+{
+    return *this = *this && other;
 }
 
 std::ostream& operator<<(std::ostream& os, const nts::Tristate& state)

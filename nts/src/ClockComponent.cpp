@@ -22,7 +22,7 @@ ClockComponent& ClockComponent::operator=(nts::Tristate value)
 
 Pinout ClockComponent::pinout() const
 {
-    return Pinout({ { 1, PinFlags::OUTPUT } });
+    return Pinout({ { 1, PinUsage::OUTPUT } });
 }
 
 void ClockComponent::simulate(IPinoutBuffer& buf)

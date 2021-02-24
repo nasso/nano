@@ -10,6 +10,7 @@ add_executable(unit_tests
     # "4008.cpp"
     # "4013.cpp"
     "builtin_gates.cpp"
+    "circuit.cpp"
     "clock.cpp"
     # "graph.cpp"
     # "latches.cpp"

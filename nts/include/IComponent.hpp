@@ -9,12 +9,13 @@
 #define ICOMPONENT_HPP_
 
 #include "Tristate.hpp"
+#include <cstdint>
 #include <iostream>
 #include <unordered_map>
 
 namespace nts {
 
-enum class PinFlags {
+enum PinUsage : std::uint8_t {
     NONE = 0,
     INPUT = 1,
     OUTPUT = 2,
@@ -22,7 +23,7 @@ enum class PinFlags {
 };
 
 using PinId = std::size_t;
-using Pinout = std::unordered_map<PinId, PinFlags>;
+using Pinout = std::unordered_map<PinId, PinUsage>;
 
 class IPinoutBuffer {
 public:
@@ -39,7 +40,7 @@ public:
     /**
      * @brief Get pinout information
      *
-     * @return PinFlags
+     * @return Pinout
      */
     virtual Pinout pinout() const = 0;
 
