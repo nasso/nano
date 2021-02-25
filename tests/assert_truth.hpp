@@ -21,7 +21,11 @@ static constexpr std::size_t spow(std::size_t x, int n, std::size_t acc = 1)
         : spow(x * x, n / 2, (n % 2) ? acc * x : acc);
 }
 
-template <std::size_t I, std::size_t O, std::size_t B, typename V>
+template <
+    std::size_t I,
+    std::size_t O,
+    std::size_t B = 3,
+    typename V = nts::Tristate>
 struct GateSpec {
     std::size_t inputs[I];
     std::size_t outputs[O];

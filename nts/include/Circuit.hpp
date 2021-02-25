@@ -67,8 +67,8 @@ public:
 
     void disconnect(const K& name1, PinId pin1, const K& name2, PinId pin2)
     {
-        auto& chip1 = m_chipsets.at(name1);
-        auto& chip2 = m_chipsets.at(name2);
+        auto& chip1 = *m_chipsets.at(name1);
+        auto& chip2 = *m_chipsets.at(name2);
 
         m_adjencyList[{ chip1, pin1 }].erase({ chip2, pin2 });
         m_adjencyList[{ chip2, pin2 }].erase({ chip1, pin1 });
@@ -76,7 +76,7 @@ public:
 
     void disconnect(PinId pin, const K& compName, PinId compPin)
     {
-        auto& chip = m_chipsets.at(compName);
+        auto& chip = *m_chipsets.at(compName);
 
         m_pinLinks[pin].erase({ chip, compPin });
 
