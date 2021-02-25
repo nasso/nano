@@ -27,6 +27,15 @@ public:
         m_chipsets.emplace(name, std::move(component));
     }
 
+    std::unique_ptr<IComponent> remove(const K& name)
+    {
+        std::unique_ptr<IComponent> chip(std::move(m_chipsets.at(name)));
+
+        m_chipsets.erase(name);
+
+        return std::move(chip);
+    }
+
     IComponent& operator[](const K& name)
     {
         return *m_chipsets.at(name);

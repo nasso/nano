@@ -113,10 +113,13 @@ Test(circuit, remove_component)
 {
     nts::Circuit<std::string> circuit;
     auto and_gate_ptr = new nts::AndGate;
-    std::unique_ptr<nts::AndGate> and_gate(and_gate_ptr);
+    std::unique_ptr<nts::IComponent> and_gate(and_gate_ptr);
 
     circuit.insert("and", std::move(and_gate));
-    cr_assert_eq(&circuit["and"], and_gate_ptr);
+
+    and_gate = circuit.remove("and");
+
+    cr_assert_eq(and_gate.get(), and_gate_ptr);
 }
 
 Test(circuit, remove_link_pinout)
