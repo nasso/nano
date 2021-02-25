@@ -10,22 +10,15 @@
 
 namespace nts {
 
-Pinout NotGate::pinout() const
+NotGate::NotGate()
 {
-    return Pinout({
-        { 1, PinUsage::INPUT },
-        { 2, PinUsage::OUTPUT },
-    });
+    pinMode(1, INPUT);
+    pinMode(2, OUTPUT);
 }
 
-void NotGate::simulate(IPinoutBuffer& pinout)
+void NotGate::simulate()
 {
-    pinout.write(2, !pinout.read(1));
-}
-
-void NotGate::display(std::ostream& os) const
-{
-    os << "not";
+    write(2, !read(1));
 }
 
 }

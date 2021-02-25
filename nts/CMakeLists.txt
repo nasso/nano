@@ -10,13 +10,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add source to this project's executable.
 add_library(nts STATIC
+    "include/AComponent.hpp"
     "include/AndGate.hpp"
     # "include/BuiltInComponentFactory.hpp"
     "include/Circuit.hpp"
     "include/ClockComponent.hpp"
     "include/ConstComponent.hpp"
-    "include/DynamicPinoutBuffer.hpp"
-    # "include/ICircuit.hpp"
     "include/IComponent.hpp"
     # "include/IComponentFactory.hpp"
     # "include/IInputComponent.hpp"
@@ -29,13 +28,12 @@ add_library(nts STATIC
     # "include/NTSCircuit.hpp"
     # "include/NTSComponentFactory.hpp"
     # "include/OutputComponent.hpp"
-    "include/StaticPinoutBuffer.hpp"
     "include/Tristate.hpp"
+    "src/AComponent.cpp"
     "src/AndGate.cpp"
     # "src/BuiltInComponentFactory.cpp"
     "src/ClockComponent.cpp"
     "src/ConstComponent.cpp"
-    "src/DynamicPinoutBuffer.cpp"
     "src/IComponent.cpp"
     # "src/InputComponent.cpp"
     # "src/MainCircuit.cpp"
@@ -44,7 +42,6 @@ add_library(nts STATIC
     # "src/NTSCircuit.cpp"
     # "src/NTSComponentFactory.cpp"
     # "src/OutputComponent.cpp"
-    "src/StaticPinoutBuffer.cpp"
     "src/Tristate.cpp"
 )
 target_include_directories(nts PUBLIC "include")

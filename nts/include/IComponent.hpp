@@ -15,46 +15,58 @@
 
 namespace nts {
 
-enum PinUsage : std::uint8_t {
+enum PinMode : std::uint8_t {
     NONE = 0,
-    INPUT = 1,
-    OUTPUT = 2,
-    IO = INPUT | OUTPUT,
+    INPUT = 1 << 1,
+    OUTPUT = 1 << 2,
 };
+
+inline PinMode operator|(PinMode a, PinMode b)
+{
+    return static_cast<PinMode>(static_cast<int>(a) | static_cast<int>(b));
+}
 
 using PinId = std::size_t;
-using Pinout = std::unordered_map<PinId, PinUsage>;
-
-class IPinoutBuffer {
-public:
-    virtual ~IPinoutBuffer() = default;
-
-    virtual Tristate read(PinId) const = 0;
-    virtual void write(PinId, Tristate) = 0;
-};
+using Pinout = std::unordered_map<PinId, PinMode>;
 
 class IComponent {
 public:
     virtual ~IComponent() = default;
 
     /**
+     * @brief Compute a step of simulation.
+     */
+    virtual void simulate() = 0;
+
+    /**
      * @brief Get pinout information
      *
      * @return Pinout
      */
-    virtual Pinout pinout() const = 0;
+    virtual const Pinout& pinout() const = 0;
 
     /**
-     * @brief Compute a step of simulation on the given pinout buffer.
+     * @brief Read the value of a pin.
      *
-     * @param tick simulation tick
+     * @param pin The pin to read
+     * @return Tristate
      */
-    virtual void simulate(IPinoutBuffer&) = 0;
+    virtual Tristate read(PinId pin) const = 0;
+
+    /**
+     * @brief Write a value to a pin.
+     *
+     * @param pin The pin to write to
+     * @param value The value to write
+     */
+    virtual void write(PinId pin, Tristate value) = 0;
 
     /**
      * @brief Display a description of the component.
+     *
+     * @param os The output stream
      */
-    virtual void display(std::ostream&) const = 0;
+    virtual void display(std::ostream& os) const = 0;
 };
 
 }

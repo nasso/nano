@@ -12,6 +12,7 @@ namespace nts {
 ClockComponent::ClockComponent(nts::Tristate init)
 {
     *this = init;
+    pinMode(1, OUTPUT);
 }
 
 ClockComponent& ClockComponent::operator=(nts::Tristate value)
@@ -20,20 +21,10 @@ ClockComponent& ClockComponent::operator=(nts::Tristate value)
     return *this;
 }
 
-Pinout ClockComponent::pinout() const
+void ClockComponent::simulate()
 {
-    return Pinout({ { 1, PinUsage::OUTPUT } });
-}
-
-void ClockComponent::simulate(IPinoutBuffer& buf)
-{
-    buf.write(1, m_value);
+    write(1, m_value);
     m_value = !m_value;
-}
-
-void ClockComponent::display(std::ostream& os) const
-{
-    os << "clock " << m_value;
 }
 
 }

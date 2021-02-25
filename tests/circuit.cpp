@@ -8,7 +8,6 @@
 #include "Circuit.hpp"
 #include "AndGate.hpp"
 #include "NotGate.hpp"
-#include "StaticPinoutBuffer.hpp"
 #include <criterion/criterion.h>
 #include <memory>
 
@@ -38,13 +37,13 @@ Test(circuit, single_component_pinout)
     circuit.connect(3, "and", 3);
 
     auto pinout = circuit.pinout();
-    cr_assert(pinout.at(1) & nts::PinUsage::INPUT);
-    cr_assert(pinout.at(2) & nts::PinUsage::INPUT);
-    cr_assert(pinout.at(3) & nts::PinUsage::OUTPUT);
+    cr_assert(pinout.at(1) & nts::PinMode::INPUT);
+    cr_assert(pinout.at(2) & nts::PinMode::INPUT);
+    cr_assert(pinout.at(3) & nts::PinMode::OUTPUT);
     cr_assert_eq(pinout.size(), 3);
 }
 
-Test(circuit, single_component_simulate)
+Test(circuit, single_component_simulation)
 {
     nts::Circuit<std::string> circuit;
     std::unique_ptr<nts::AndGate> and_gate(new nts::AndGate);
@@ -54,14 +53,39 @@ Test(circuit, single_component_simulate)
     circuit.connect(2, "and", 2);
     circuit.connect(3, "and", 3);
 
-    nts::StaticPinoutBuffer pbuf({
-        { 1, nts::Tristate::FALSE },
-        { 2, nts::Tristate::TRUE },
-        { 3, nts::Tristate::UNDEFINED },
-    });
-    circuit.simulate(pbuf);
-    cr_assert_eq(pbuf.read(3), nts::Tristate::FALSE);
-    pbuf.write(1, nts::Tristate::TRUE);
-    circuit.simulate(pbuf);
-    cr_assert_eq(pbuf.read(3), nts::Tristate::TRUE);
+    circuit.write(1, nts::Tristate::FALSE);
+    circuit.write(2, nts::Tristate::TRUE);
+    circuit.simulate();
+    cr_assert_eq(circuit.read(3), nts::Tristate::FALSE);
+
+    circuit.write(1, nts::Tristate::TRUE);
+    circuit.simulate();
+    cr_assert_eq(circuit.read(3), nts::Tristate::TRUE);
+}
+
+Test(circuit, multi_component_simulation)
+{
+    nts::Circuit<std::string> circuit;
+    std::unique_ptr<nts::IComponent> and_gate(new nts::AndGate);
+    std::unique_ptr<nts::IComponent> not_gate(new nts::NotGate);
+
+    circuit.insert("and", std::move(and_gate));
+    circuit.insert("not", std::move(not_gate));
+    circuit.connect(1, "and", 1);
+    circuit.connect(2, "and", 2);
+    circuit.connect("and", 3, "not", 1);
+    circuit.connect(3, "not", 2);
+
+    circuit.write(1, nts::Tristate::FALSE);
+    circuit.write(2, nts::Tristate::TRUE);
+    circuit.simulate();
+    cr_assert_eq(circuit.read(3), nts::Tristate::TRUE);
+
+    circuit.write(1, nts::Tristate::TRUE);
+    circuit.simulate();
+    cr_assert_eq(circuit.read(3), nts::Tristate::FALSE);
+
+    circuit.write(1, nts::Tristate::UNDEFINED);
+    circuit.simulate();
+    cr_assert_eq(circuit.read(3), nts::Tristate::UNDEFINED);
 }

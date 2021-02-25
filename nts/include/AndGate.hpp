@@ -8,16 +8,16 @@
 #ifndef ANDGATE_HPP_
 #define ANDGATE_HPP_
 
-#include "IComponent.hpp"
+#include "AComponent.hpp"
 #include <iostream>
 
 namespace nts {
 
-class AndGate : public IComponent {
+class AndGate : public AComponent {
 public:
-    Pinout pinout() const override;
-    void simulate(IPinoutBuffer&) override;
-    void display(std::ostream&) const override;
+    AndGate();
+
+    void simulate() override;
 };
 
 }

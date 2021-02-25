@@ -9,7 +9,6 @@
 #define ASSERT_TRUTH_HPP_
 
 #include "IComponent.hpp"
-#include "StaticPinoutBuffer.hpp"
 #include <cmath>
 #include <criterion/criterion.h>
 #include <cstddef>
@@ -49,17 +48,15 @@ static bool test_gate(nts::IComponent& gate, GateSpec<I, O, B, V> spec)
         pinout[spec.outputs[i]] = nts::Tristate::UNDEFINED;
     }
 
-    nts::StaticPinoutBuffer buf(std::move(pinout));
-
     for (auto& case_ : spec.truthTable) {
         for (std::size_t i = 0; i < I; i++) {
-            buf.write(spec.inputs[i], case_.inputs[i]);
+            gate.write(spec.inputs[i], case_.inputs[i]);
         }
 
-        gate.simulate(buf);
+        gate.simulate();
 
         for (std::size_t i = 0; i < O; i++) {
-            if (buf.read(spec.outputs[i]) != case_.outputs[i]) {
+            if (gate.read(spec.outputs[i]) != case_.outputs[i]) {
                 return false;
             }
         }

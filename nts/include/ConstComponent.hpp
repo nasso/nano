@@ -8,17 +8,15 @@
 #ifndef CONSTCOMPONENT_HPP_
 #define CONSTCOMPONENT_HPP_
 
-#include "IComponent.hpp"
+#include "AComponent.hpp"
 
 namespace nts {
 
-class ConstComponent : public IComponent {
+class ConstComponent : public AComponent {
 public:
     ConstComponent(nts::Tristate value);
 
-    Pinout pinout() const override;
-    void simulate(IPinoutBuffer&) override;
-    void display(std::ostream&) const override;
+    void simulate() override;
 
 private:
     const nts::Tristate m_value;

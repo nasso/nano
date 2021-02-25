@@ -6,30 +6,22 @@
 */
 
 #include "AndGate.hpp"
-#include "IComponent.hpp"
 
 namespace nts {
 
-Pinout AndGate::pinout() const
+AndGate::AndGate()
 {
-    return Pinout({
-        { 1, PinUsage::INPUT },
-        { 2, PinUsage::INPUT },
-        { 3, PinUsage::OUTPUT },
-    });
+    pinMode(1, INPUT);
+    pinMode(2, INPUT);
+    pinMode(3, OUTPUT);
 }
 
-void AndGate::simulate(IPinoutBuffer& pinout)
+void AndGate::simulate()
 {
-    auto a = pinout.read(1);
-    auto b = pinout.read(2);
+    auto a = read(1);
+    auto b = read(2);
 
-    pinout.write(3, a && b);
-}
-
-void AndGate::display(std::ostream& os) const
-{
-    os << "and";
+    write(3, a && b);
 }
 
 }

@@ -8,7 +8,6 @@
 #include "AndGate.hpp"
 #include "ConstComponent.hpp"
 #include "NotGate.hpp"
-#include "StaticPinoutBuffer.hpp"
 #include "assert_truth.hpp"
 #include <criterion/criterion.h>
 
@@ -56,17 +55,16 @@ Test(builtin_gates, not_gate)
 
 Test(builtin_gates, constants)
 {
-    nts::StaticPinoutBuffer buf({ { 1, nts::Tristate::UNDEFINED } });
     nts::ConstComponent constants[] = {
         nts::Tristate::TRUE,
         nts::Tristate::FALSE,
         nts::Tristate::UNDEFINED,
     };
 
-    constants[0].simulate(buf);
-    cr_assert_eq(buf.read(1), nts::Tristate::TRUE);
-    constants[1].simulate(buf);
-    cr_assert_eq(buf.read(1), nts::Tristate::FALSE);
-    constants[2].simulate(buf);
-    cr_assert_eq(buf.read(1), nts::Tristate::UNDEFINED);
+    constants[0].simulate();
+    cr_assert_eq(constants[0].read(1), nts::Tristate::TRUE);
+    constants[1].simulate();
+    cr_assert_eq(constants[1].read(1), nts::Tristate::FALSE);
+    constants[2].simulate();
+    cr_assert_eq(constants[2].read(1), nts::Tristate::UNDEFINED);
 }
