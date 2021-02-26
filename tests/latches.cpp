@@ -164,165 +164,111 @@ Test(latches, dflipflop)
     cr_assert_eq(gate.read(3), T);
 }
 
-/*
 Test(latches, adflipflop_set)
 {
-    std::size_t tick = 0;
-    nts::NtsCircuit gate("components/adflipflop.nts");
-    nts::InputComponent idata;
-    nts::InputComponent iclock;
-    nts::InputComponent ipreset;
-    nts::InputComponent iclear;
-    nts::OutputComponent out[2];
+    auto gate = nts::NtsCircuit::load("components/adflipflop.nts",
+        { "components" });
 
-    auto step = [&]() {
-        tick++;
-        idata.simulate(tick);
-        iclock.simulate(tick);
-        ipreset.simulate(tick);
-        iclear.simulate(tick);
-    };
+    gate.simulate();
+    cr_assert_eq(gate.read(3), U);
+    cr_assert_eq(gate.read(4), U);
 
-    idata.setLink(1, gate, 1);
-    iclock.setLink(1, gate, 2);
-    out[0].setLink(1, gate, 3);
-    out[1].setLink(1, gate, 4);
-    ipreset.setLink(1, gate, 5);
-    iclear.setLink(1, gate, 6);
+    gate.write(5, T);
+    gate.simulate();
+    cr_assert_eq(gate.read(3), U);
+    cr_assert_eq(gate.read(4), U);
 
-    step();
-    cr_assert_eq(out[0], U);
-    cr_assert_eq(out[1], U);
-
-    ipreset = T;
-    step();
-    cr_assert_eq(out[0], U);
-    cr_assert_eq(out[1], U);
-
-    ipreset = F;
-    step();
-    cr_assert_eq(out[0], T);
-    cr_assert_eq(out[1], U);
+    gate.write(5, F);
+    gate.simulate();
+    cr_assert_eq(gate.read(3), T);
+    cr_assert_eq(gate.read(4), U);
 
     // it is impossible to initialize the gate with data and clock to Hi-Z
-    ipreset = T;
-    step();
-    cr_assert_eq(out[0], U);
-    cr_assert_eq(out[1], U);
+    gate.write(5, T);
+    gate.simulate();
+    cr_assert_eq(gate.read(3), U);
+    cr_assert_eq(gate.read(4), U);
 }
 
 Test(latches, adflipflop_reset)
 {
-    std::size_t tick = 0;
-    nts::NtsCircuit gate("components/adflipflop.nts");
-    nts::InputComponent idata;
-    nts::InputComponent iclock;
-    nts::InputComponent ipreset;
-    nts::InputComponent iclear;
-    nts::OutputComponent out[2];
+    auto gate = nts::NtsCircuit::load("components/adflipflop.nts",
+        { "components" });
 
-    auto step = [&]() {
-        tick++;
-        idata.simulate(tick);
-        iclock.simulate(tick);
-        ipreset.simulate(tick);
-        iclear.simulate(tick);
-    };
+    gate.simulate();
+    cr_assert_eq(gate.read(3), U);
+    cr_assert_eq(gate.read(4), U);
 
-    idata.setLink(1, gate, 1);
-    iclock.setLink(1, gate, 2);
-    out[0].setLink(1, gate, 3);
-    out[1].setLink(1, gate, 4);
-    ipreset.setLink(1, gate, 5);
-    iclear.setLink(1, gate, 6);
+    gate.write(6, T);
+    gate.simulate();
+    cr_assert_eq(gate.read(3), U);
+    cr_assert_eq(gate.read(4), U);
 
-    step();
-    cr_assert_eq(out[0], U);
-    cr_assert_eq(out[1], U);
-
-    iclear = T;
-    step();
-    cr_assert_eq(out[0], U);
-    cr_assert_eq(out[1], U);
-
-    iclear = F;
-    step();
-    cr_assert_eq(out[0], U);
-    cr_assert_eq(out[1], T);
+    gate.write(6, F);
+    gate.simulate();
+    cr_assert_eq(gate.read(3), U);
+    cr_assert_eq(gate.read(4), T);
 
     // it is impossible to initialize the gate with data and clock to Hi-Z
-    iclear = T;
-    step();
-    cr_assert_eq(out[0], U);
-    cr_assert_eq(out[1], U);
+    gate.write(6, T);
+    gate.simulate();
+    cr_assert_eq(gate.read(3), U);
+    cr_assert_eq(gate.read(4), U);
 }
 
+// FIXME
 Test(latches, reg1, .disabled = true)
 {
-    std::size_t tick = 0;
-    nts::NtsCircuit gate("components/reg1.nts");
-    nts::InputComponent idata;
-    nts::InputComponent istore;
-    nts::InputComponent iclock;
-    nts::OutputComponent out;
+    auto gate = nts::NtsCircuit::load("components/reg1.nts",
+        { "components" });
 
     auto step = [&](nts::Tristate data, nts::Tristate store, nts::Tristate cl) {
-        idata = data;
-        istore = store;
-        iclock = cl;
-
-        tick++;
-        idata.simulate(tick);
-        istore.simulate(tick);
-        iclock.simulate(tick);
+        gate.write(1, data);
+        gate.write(2, store);
+        gate.write(3, cl);
+        gate.simulate();
     };
 
-    idata.setLink(1, gate, 1);
-    istore.setLink(1, gate, 2);
-    iclock.setLink(1, gate, 3);
-    gate.setLink(4, out, 1);
-
     step(U, U, U);
-    cr_assert_eq(out, U);
+    cr_assert_eq(gate.read(4), U);
 
     // cycle the clock with undefined values
     step(U, U, F);
-    cr_assert_eq(out, U);
+    cr_assert_eq(gate.read(4), U);
     step(U, U, T);
-    cr_assert_eq(out, U);
+    cr_assert_eq(gate.read(4), U);
     step(U, U, F);
-    cr_assert_eq(out, U);
+    cr_assert_eq(gate.read(4), U);
 
     // cycle the clock with (T, F)
     step(T, F, F);
-    cr_assert_eq(out, U);
+    cr_assert_eq(gate.read(4), U);
     step(T, F, T);
-    cr_assert_eq(out, U);
+    cr_assert_eq(gate.read(4), U);
     step(T, F, F);
-    cr_assert_eq(out, U);
+    cr_assert_eq(gate.read(4), U);
 
     // cycle the clock with (T, T)
     step(T, T, F);
-    cr_assert_eq(out, U);
+    cr_assert_eq(gate.read(4), U);
     step(T, T, T);
-    cr_assert_eq(out, T);
+    cr_assert_eq(gate.read(4), T);
     step(T, T, F);
-    cr_assert_eq(out, T);
+    cr_assert_eq(gate.read(4), T);
 
     // cycle the clock with (F, T)
     step(F, T, F);
-    cr_assert_eq(out, T);
+    cr_assert_eq(gate.read(4), T);
     step(F, T, T);
-    cr_assert_eq(out, F);
+    cr_assert_eq(gate.read(4), F);
     step(F, T, F);
-    cr_assert_eq(out, F);
+    cr_assert_eq(gate.read(4), F);
 
     // keep the clock low and cycle the store!
     step(T, F, F);
-    cr_assert_eq(out, F);
+    cr_assert_eq(gate.read(4), F);
     step(T, T, F);
-    cr_assert_eq(out, F);
+    cr_assert_eq(gate.read(4), F);
     step(T, F, F);
-    cr_assert_eq(out, F);
+    cr_assert_eq(gate.read(4), F);
 }
-*/
