@@ -19,16 +19,15 @@ std::unique_ptr<nts::IComponent> BuiltInComponentFactory::createComponent(
     const std::string& name)
 {
     if (name == "and") {
-        return std::unique_ptr<nts::IComponent>(new AndGate);
+        return std::make_unique<AndGate>();
     } else if (name == "not") {
-        return std::unique_ptr<nts::IComponent>(new NotGate);
+        return std::make_unique<NotGate>();
     } else if (name == "true") {
-        return std::unique_ptr<nts::IComponent>(new ConstComponent(
-            Tristate::TRUE));
+        return std::make_unique<ConstComponent>(Tristate::TRUE);
     } else if (name == "false") {
-        return std::unique_ptr<nts::IComponent>(new ConstComponent(
-            Tristate::FALSE));
+        return std::make_unique<ConstComponent>(Tristate::FALSE);
     }
+
     throw std::runtime_error("Error can't create component " + name);
 }
 
