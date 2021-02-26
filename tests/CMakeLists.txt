@@ -15,7 +15,7 @@ add_executable(unit_tests
     "latches.cpp"
     "nts_gates.cpp"
     "parser.cpp"
-    # "4017.cpp"
+    "4017.cpp"
 )
 target_link_libraries(unit_tests nts)
 target_link_libraries(unit_tests ${CRITERION_LIBRARIES})

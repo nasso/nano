@@ -5,51 +5,49 @@
 ** 4017
 */
 
-#include "ClockComponent.hpp"
-#include "InputComponent.hpp"
-#include "NTSCircuit.hpp"
+#include "nts/Circuit.hpp"
+#include "nts/ClockComponent.hpp"
+#include "nts/NtsCircuit.hpp"
 #include <criterion/criterion.h>
 #include <cstddef>
 
+const auto T = nts::Tristate::TRUE;
+const auto F = nts::Tristate::FALSE;
+const auto U = nts::Tristate::UNDEFINED;
+
 Test(components_4017, timing_diagram)
 {
-    nts::ClockComponent cl = nts::Tristate::FALSE;
-    nts::InputComponent cpx_ = nts::Tristate::FALSE;
-    nts::InputComponent mr = nts::Tristate::TRUE;
-    nts::OutputComponent outputs[11] = {};
-    std::size_t outputPins[11] = { 3, 2, 4, 7, 10, 1, 5, 6, 9, 11, 12 };
-    nts::NTSCircuit johnson("components/4017.nts");
+    const nts::PinId PIN_CP1 = 13;
+    const nts::PinId PIN_CP0 = 14;
+    const nts::PinId PIN_MR = 15;
+    const nts::PinId PIN_OUTS[11] = { 3, 2, 4, 7, 10, 1, 5, 6, 9, 11, 12 };
 
-    std::size_t tick = 0;
+    nts::Tristate nextClockValue;
+    nts::PinId clockPin;
+
+    nts::NtsCircuit gate("components/4017.nts", { "components" });
+
     auto sim = [&]() {
-        tick++;
-        cl.simulate(tick);
-        cpx_.simulate(tick);
-        mr.simulate(tick);
+        gate.write(clockPin, nextClockValue);
+        gate.simulate();
+        nextClockValue = !nextClockValue;
 
         std::uint16_t out = 0;
 
         for (std::size_t i = 0; i < 11; i++) {
-            out |= (outputs[i] == nts::Tristate::TRUE) << (10 - i);
+            out |= (gate.read(PIN_OUTS[i]) == nts::Tristate::TRUE) << (10 - i);
         }
 
         return out;
     };
 
-    cpx_.setLink(1, johnson, 13);
-    cl.setLink(1, johnson, 14);
-    mr.setLink(1, johnson, 15);
-
-    for (std::size_t i = 0; i < 11; i++) {
-        outputs[i].setLink(1, johnson, outputPins[i]);
-    }
-
-    cpx_ = nts::Tristate::FALSE;
-    cl = nts::Tristate::TRUE;
-    mr = nts::Tristate::TRUE;
+    nextClockValue = T;
+    clockPin = PIN_CP0;
+    gate.write(PIN_CP1, F);
+    gate.write(PIN_MR, T);
     cr_assert_eq(sim(), 0b10000000001);
     // clock is high here, so next sim isn't a rising edge
-    mr = nts::Tristate::FALSE;
+    gate.write(PIN_MR, F);
     cr_assert_eq(sim(), 0b10000000001);
     // from now on, the clock will rise every other simulation
     cr_assert_eq(sim(), 0b01000000001);
@@ -72,12 +70,12 @@ Test(components_4017, timing_diagram)
     cr_assert_eq(sim(), 0b00000000010);
     cr_assert_eq(sim(), 0b10000000001);
 
-    // swap the clocks!
-    cl.setLink(1, johnson, 13);
-    cpx_.setLink(1, johnson, 14);
-    // keep the first one high
-    cpx_ = nts::Tristate::TRUE;
-    cl = nts::Tristate::TRUE;
+    // now testing the second clock
+    clockPin = PIN_CP1;
+    // make it start as high
+    nextClockValue = T;
+
+    // same thing should happen
     cr_assert_eq(sim(), 0b10000000001);
     cr_assert_eq(sim(), 0b01000000001);
     cr_assert_eq(sim(), 0b01000000001);
@@ -103,7 +101,9 @@ Test(components_4017, timing_diagram)
     cr_assert_eq(sim(), 0b01000000001);
     cr_assert_eq(sim(), 0b00100000001);
     cr_assert_eq(sim(), 0b00100000001);
-    mr = nts::Tristate::TRUE;
+
+    // try to master reset everything
+    gate.write(PIN_MR, T);
     cr_assert_eq(sim(), 0b10000000001);
     cr_assert_eq(sim(), 0b10000000001);
 }
