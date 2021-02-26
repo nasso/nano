@@ -49,7 +49,7 @@ void Repl::eval(const std::string& cmd, std::ostream& out)
     } else if (cmd == "display") {
         display(out);
     } else if (cmd == "simulate") {
-        tick();
+        simulate(out);
     } else if (cmd == "loop") {
         gSigintReceived = false;
         std::signal(SIGINT, [](int) {
@@ -57,7 +57,7 @@ void Repl::eval(const std::string& cmd, std::ostream& out)
         });
 
         while (!gSigintReceived) {
-            tick();
+            simulate(out);
             display(out);
         }
 
@@ -86,13 +86,19 @@ void Repl::eval(const std::string& cmd, std::ostream& out)
     }
 }
 
-void Repl::tick()
+void Repl::simulate(std::ostream& out)
 {
     m_inputs.clear();
     m_outputs.clear();
 
     readPins(m_inputs, nts::INPUT);
-    m_circuit.simulate();
+
+    try {
+        m_circuit.simulate();
+    } catch (const std::exception& e) {
+        out << e.what() << std::endl;
+    }
+
     readPins(m_outputs, nts::OUTPUT);
     m_tick++;
 }

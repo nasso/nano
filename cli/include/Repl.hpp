@@ -25,7 +25,7 @@ private:
 
     void eval(const std::string& command, std::ostream& out);
     void display(std::ostream& out);
-    void tick();
+    void simulate(std::ostream& out);
     void readPins(TristateMap& dest, nts::PinMode filter);
 
     TristateMap m_inputs;
