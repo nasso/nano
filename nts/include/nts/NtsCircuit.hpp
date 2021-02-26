@@ -23,6 +23,8 @@ namespace nts {
 
 class NtsCircuit : public Circuit<std::string> {
 public:
+    NtsCircuit(const std::string& path,
+        const std::vector<std::string>& includePaths = {});
     NtsCircuit(std::istream& in,
         IComponentFactory& factory = BuiltInComponentFactory());
 
@@ -30,26 +32,9 @@ public:
 
     virtual void simulate() override;
 
-    template <class T = const std::vector<const char*>&>
-    static NtsCircuit load(const std::string& path, T includePaths = {})
-    {
-        std::ifstream file(path);
-
-        if (!file.is_open()) {
-            throw new std::runtime_error("Couldn't open file: " + path);
-        }
-
-        MultiComponentFactory mcf;
-        mcf.addFactory(std::make_unique<BuiltInComponentFactory>());
-
-        for (const auto& path : includePaths) {
-            mcf.addFactory(std::make_unique<NtsComponentFactory>(path));
-        }
-
-        return NtsCircuit(file, mcf);
-    }
-
 private:
+    void build(std::istream& in, IComponentFactory& factory);
+
     std::unordered_map<std::string, PinId> m_pins;
     std::unordered_set<PinId> m_clocks;
 };

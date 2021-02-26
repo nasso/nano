@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_executable(unit_tests
     "assert_truth.hpp"
     "4008.cpp"
-    # "4013.cpp"
+    "4013.cpp"
     "builtin_gates.cpp"
     "circuit.cpp"
     "clock.cpp"

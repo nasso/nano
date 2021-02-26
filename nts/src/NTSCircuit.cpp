@@ -15,7 +15,40 @@
 
 namespace nts {
 
+NtsCircuit::NtsCircuit(const std::string& path,
+    const std::vector<std::string>& includePaths)
+{
+    std::ifstream file(path);
+
+    if (!file.is_open()) {
+        throw new std::runtime_error("Couldn't open file: " + path);
+    }
+
+    MultiComponentFactory mcf;
+    mcf.addFactory(std::make_unique<BuiltInComponentFactory>());
+
+    for (const auto& path : includePaths) {
+        mcf.addFactory(std::make_unique<NtsComponentFactory>(path));
+    }
+
+    build(file, mcf);
+}
+
 NtsCircuit::NtsCircuit(std::istream& in, IComponentFactory& factory)
+{
+    build(in, factory);
+}
+
+void NtsCircuit::simulate()
+{
+    Circuit::simulate();
+
+    for (PinId pin : m_clocks) {
+        write(pin, !read(pin));
+    }
+}
+
+void NtsCircuit::build(std::istream& in, IComponentFactory& factory)
 {
     const std::regex comment_r("(#.*)");
     const std::regex trim_r("^\\s*|\\s*$");
@@ -110,15 +143,6 @@ NtsCircuit::NtsCircuit(std::istream& in, IComponentFactory& factory)
             connect(link.first.chip, link.first.id, link.second.chip,
                 link.second.id);
         }
-    }
-}
-
-void NtsCircuit::simulate()
-{
-    Circuit::simulate();
-
-    for (PinId pin : m_clocks) {
-        write(pin, !read(pin));
     }
 }
 

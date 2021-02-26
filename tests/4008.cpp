@@ -16,7 +16,7 @@ const auto U = nts::Tristate::UNDEFINED;
 
 Test(components_4008, adder_binary)
 {
-    auto gate = nts::NtsCircuit::load("components/adder.nts", { "components" });
+    nts::NtsCircuit gate("components/adder.nts", { "components" });
 
     assert_truth<3, 2, 2>(gate, {
                                     /*.inputs = */ { 1, 2, 3 },
@@ -37,7 +37,7 @@ Test(components_4008, adder_binary)
 // maybe FIXME
 Test(components_4008, adder_tristate, .disabled = true)
 {
-    auto gate = nts::NtsCircuit::load("components/adder.nts", { "components" });
+    nts::NtsCircuit gate("components/adder.nts", { "components" });
 
     if (!test_gate<3, 2>(gate,
             {
@@ -108,7 +108,7 @@ Theory(
     .disabled = true,
     .timeout = 10)
 {
-    auto gate = nts::NtsCircuit::load("components/4008.nts", { "components" });
+    nts::NtsCircuit gate("components/4008.nts", { "components" });
 
     gate.write(9, c1);
     gate.write(7, a1);

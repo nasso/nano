@@ -15,7 +15,7 @@ const auto T = nts::Tristate::TRUE;
 
 Test(latches, srlatch)
 {
-    auto gate = nts::NtsCircuit::load("components/srlatch.nts",
+    nts::NtsCircuit gate("components/srlatch.nts",
         { "components" });
 
     gate.write(1, F);
@@ -43,7 +43,7 @@ Test(latches, srlatch)
 
 Test(latches, dlatch)
 {
-    auto gate = nts::NtsCircuit::load("components/dlatch.nts",
+    nts::NtsCircuit gate("components/dlatch.nts",
         { "components" });
 
     gate.write(1, F);
@@ -103,7 +103,7 @@ Test(latches, dlatch)
 
 Test(latches, dflipflop)
 {
-    auto gate = nts::NtsCircuit::load("components/dflipflop.nts",
+    nts::NtsCircuit gate("components/dflipflop.nts",
         { "components" });
 
     gate.simulate();
@@ -166,7 +166,7 @@ Test(latches, dflipflop)
 
 Test(latches, adflipflop_set)
 {
-    auto gate = nts::NtsCircuit::load("components/adflipflop.nts",
+    nts::NtsCircuit gate("components/adflipflop.nts",
         { "components" });
 
     gate.simulate();
@@ -192,7 +192,7 @@ Test(latches, adflipflop_set)
 
 Test(latches, adflipflop_reset)
 {
-    auto gate = nts::NtsCircuit::load("components/adflipflop.nts",
+    nts::NtsCircuit gate("components/adflipflop.nts",
         { "components" });
 
     gate.simulate();
@@ -219,7 +219,7 @@ Test(latches, adflipflop_reset)
 // FIXME
 Test(latches, reg1, .disabled = true)
 {
-    auto gate = nts::NtsCircuit::load("components/reg1.nts",
+    nts::NtsCircuit gate("components/reg1.nts",
         { "components" });
 
     auto step = [&](nts::Tristate data, nts::Tristate store, nts::Tristate cl) {

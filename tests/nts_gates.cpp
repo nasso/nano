@@ -15,7 +15,7 @@ const auto U = nts::Tristate::UNDEFINED;
 
 Test(logic_gates, nand)
 {
-    auto gate = nts::NtsCircuit::load("components/nand.nts", { "components" });
+    nts::NtsCircuit gate("components/nand.nts", { "components" });
 
     assert_truth(gate, {
                            /*.inputs = */ { 1, 2 },
@@ -36,7 +36,7 @@ Test(logic_gates, nand)
 
 Test(logic_gates, nor)
 {
-    auto gate = nts::NtsCircuit::load("components/nor.nts", { "components" });
+    nts::NtsCircuit gate("components/nor.nts", { "components" });
 
     assert_truth(gate, {
                            /*.inputs = */ { 1, 2 },
@@ -57,7 +57,7 @@ Test(logic_gates, nor)
 
 Test(logic_gates, or)
 {
-    auto gate = nts::NtsCircuit::load("components/or.nts", { "components" });
+    nts::NtsCircuit gate("components/or.nts", { "components" });
 
     assert_truth(gate, {
                            /*.inputs = */ { 1, 2 },
@@ -78,7 +78,7 @@ Test(logic_gates, or)
 
 Test(logic_gates, xor)
 {
-    auto gate = nts::NtsCircuit::load("components/xor.nts", { "components" });
+    nts::NtsCircuit gate("components/xor.nts", { "components" });
 
     assert_truth(gate, {
                            /*.inputs = */ { 1, 2 },
@@ -99,7 +99,7 @@ Test(logic_gates, xor)
 
 Test(logic_gates, xnor)
 {
-    auto gate = nts::NtsCircuit::load("components/xnor.nts", { "components" });
+    nts::NtsCircuit gate("components/xnor.nts", { "components" });
 
     assert_truth(gate, {
                            /*.inputs = */ { 1, 2 },
@@ -120,7 +120,7 @@ Test(logic_gates, xnor)
 
 Test(logic_gates, multiplexer)
 {
-    auto gate = nts::NtsCircuit::load("components/mux.nts", { "components" });
+    nts::NtsCircuit gate("components/mux.nts", { "components" });
 
     assert_truth<3>(gate, {
                               /*.inputs = */ { 1, 2, 3 },
@@ -159,7 +159,7 @@ Test(logic_gates, multiplexer)
 
 Test(logic_gates, and3)
 {
-    auto gate = nts::NtsCircuit::load("components/and3.nts", { "components" });
+    nts::NtsCircuit gate("components/and3.nts", { "components" });
 
     assert_truth<3>(gate, {
                               /*.inputs = */ { 1, 2, 3 },
