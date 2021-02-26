@@ -170,19 +170,16 @@ static void link_components()
     }
 }
 
-NtsCircuit::NtsCircuit(const std::string& filename)
+NTSCircuit::NTSCircuit(const std::string& filename,
+    std::vector<std::unique_ptr<IComponentFactory>>& factories)
+    : m_file(filename)
 {
-    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
-        new BuiltInComponentFactory)));
-    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
-        new NtsComponentFactory("./components/"))));
-
-    std::ifstream file(filename);
-
-    if (!file.is_open()) {
-        throw std::runtime_error("Error");
+    for (auto& factory : factories) {
+        m_factory.addFactory(std::move(factory));
     }
-    parse(file);
+    if (!m_file.is_open())
+        throw std::runtime_error("Error");
+    parse();
 }
 
 }

@@ -22,9 +22,11 @@ public:
 
     std::unique_ptr<nts::IComponent> createComponent(const std::string& name)
         override;
+    void addException(const std::string& name);
 
 private:
     std::string m_dirpath;
+    std::vector<std::string> m_exceptions;
 };
 
 }
