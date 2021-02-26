@@ -47,6 +47,16 @@ NtsCircuit::NtsCircuit(std::istream& in)
     build(in, builtins);
 }
 
+PinId NtsCircuit::input(const std::string& pinName) const
+{
+    return m_pins.at(pinName);
+}
+
+const NtsCircuit::PinMap& NtsCircuit::pins() const
+{
+    return m_pins;
+}
+
 void NtsCircuit::simulate()
 {
     Circuit::simulate();

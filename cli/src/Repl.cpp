@@ -2,90 +2,136 @@
 ** EPITECH PROJECT, 2021
 ** B-OOP-400-TLS-4-1-tekspice-nassim.gharbaoui
 ** File description:
-** Relp
+** Repl
 */
 
-#include "IInputComponent.hpp"
-#include "Relp.hpp"
+#include "Repl.hpp"
+#include "nts/NtsCircuit.hpp"
+#include <csignal>
 #include <iostream>
 #include <regex>
-#include <signal.h>
 #include <string>
+#include <vector>
 
-bool Relp::m_stopLoop = false;
+thread_local bool gSigintReceived = false;
 
-void dump(const nts::MainCircuit& circuit)
+Repl::Repl(const std::string& path,
+    const std::vector<std::string>& includePaths)
+    : m_circuit(path, includePaths)
 {
-    circuit.dump();
+    readPins(m_inputs, nts::INPUT);
+    readPins(m_outputs, nts::OUTPUT);
 }
 
-void display(const nts::MainCircuit& circuit)
+void Repl::run(std::istream& in, std::ostream& out)
 {
-    circuit.display();
-}
+    m_shouldQuit = false;
 
-void loop(nts::MainCircuit& circuit)
-{
-    signal(SIGINT, [](int) {
-        Relp::m_stopLoop = true;
-    });
-    while (!Relp::m_stopLoop) {
-        circuit.simulate();
-        circuit.display();
-    }
-    signal(SIGINT, NULL);
-}
-
-void simulate(nts::MainCircuit& circuit)
-{
-    circuit.simulate();
-}
-
-void set_component(nts::MainCircuit& circuit, std::string component, std::string value)
-{
-    std::regex trim_r("^\\s*|\\s*$");
-
-    component = std::regex_replace(component, trim_r, "");
-    value = std::regex_replace(value, trim_r, "");
-
-    if (value == "0")
-        circuit.setInputPin(component, nts::Tristate::FALSE);
-    else if (value == "1")
-        circuit.setInputPin(component, nts::Tristate::TRUE);
-    else if (value == "U")
-        circuit.setInputPin(component, nts::Tristate::UNDEFINED);
-    else
-        std::cout << "Value: " << value << " is not a valid value (must be 0, 1 or U)" << std::endl;
-}
-
-bool exec(nts::MainCircuit& circuit, std::string input)
-{
-    if (input == "exit") {
-        return 1;
-    } else if (input == "display") {
-        display(circuit);
-    } else if (input == "simulate") {
-        simulate(circuit);
-    } else if (input == "loop") {
-        loop(circuit);
-    } else if (input == "dump") {
-        dump(circuit);
-    } else if (std::regex_match(input, std::regex("\\w+\\s*\\t*=\\s*\\t*.+"))) {
-        set_component(circuit, input.substr(0, input.find("=")), input.substr(input.find("=") + 1, input.length()));
-    } else {
-        std::cout << "Unknown command " + input << std::endl;
-    }
-    return 0;
-}
-
-void Relp::run(nts::MainCircuit& circuit)
-{
     std::string input;
+    while (!m_shouldQuit) {
+        out << "> ";
 
-    std::cout << "> ";
-    while (std::getline(std::cin, input)) {
-        if (exec(circuit, input))
-            return;
-        std::cout << "> ";
+        if (!std::getline(in, input)) {
+            break;
+        }
+
+        eval(input, out);
     }
+}
+
+void Repl::eval(const std::string& cmd, std::ostream& out)
+{
+    const std::regex assignment_r("^\\s*(\\w+)\\s*=\\s*(U|1|0)\\s*$");
+    std::smatch m;
+
+    if (cmd == "exit") {
+        m_shouldQuit = true;
+    } else if (cmd == "display") {
+        display(out);
+    } else if (cmd == "simulate") {
+        tick();
+    } else if (cmd == "loop") {
+        gSigintReceived = false;
+        std::signal(SIGINT, [](int) {
+            gSigintReceived = true;
+        });
+
+        while (!gSigintReceived) {
+            tick();
+            display(out);
+        }
+
+        signal(SIGINT, nullptr);
+    } else if (cmd == "dump") {
+        out << m_circuit << std::endl;
+    } else if (std::regex_match(cmd, m, assignment_r)) {
+        try {
+            nts::PinId pin(m_circuit.input(m[1]));
+            nts::Tristate value;
+
+            if (m[2] == "U") {
+                value = nts::Tristate::UNDEFINED;
+            } else if (m[2] == "0") {
+                value = nts::Tristate::FALSE;
+            } else if (m[2] == "1") {
+                value = nts::Tristate::TRUE;
+            }
+
+            m_circuit.write(pin, value);
+        } catch (...) {
+            out << "Can't find a pin named \"" << m[1] << "\"" << std::endl;
+        }
+    } else {
+        out << "Unknown command: " + cmd << std::endl;
+    }
+}
+
+void Repl::tick()
+{
+    m_inputs.clear();
+    m_outputs.clear();
+
+    readPins(m_inputs, nts::INPUT);
+    m_circuit.simulate();
+    readPins(m_outputs, nts::OUTPUT);
+    m_tick++;
+}
+
+void Repl::readPins(Repl::TristateMap& dest, nts::PinMode filter)
+{
+    nts::Pinout pinout(m_circuit.pinout());
+    const auto& pinNames = m_circuit.pins();
+
+    for (const auto& pair : pinNames) {
+        const std::string& name = pair.first;
+        nts::PinId pin = pair.second;
+        nts::PinMode mode = pinout.at(pin);
+
+        if (mode & filter) {
+            dest[name] = m_circuit.read(pin);
+        }
+    }
+}
+
+void Repl::display(std::ostream& out)
+{
+    out << "tick: " << m_tick << std::endl;
+
+    out << "input(s):" << std::endl;
+    for (const auto& pair : m_inputs) {
+        const std::string& name = pair.first;
+        nts::Tristate value = pair.second;
+
+        out << "\t" << name << ": " << value << "\n";
+    }
+
+    out << "output(s):" << std::endl;
+    for (const auto& pair : m_outputs) {
+        const std::string& name = pair.first;
+        nts::Tristate value = pair.second;
+
+        out << "\t" << name << ": " << value << "\n";
+    }
+
+    out << std::flush;
 }

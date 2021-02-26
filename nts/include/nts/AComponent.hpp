@@ -23,8 +23,6 @@ public:
     Tristate read(PinId pin) const override final;
     void write(PinId pin, Tristate value) override final;
 
-    virtual void display(std::ostream& os) const override;
-
 private:
     Pinout m_pinout;
     std::unordered_map<PinId, Tristate> m_pins;

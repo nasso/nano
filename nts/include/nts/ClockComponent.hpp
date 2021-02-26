@@ -9,6 +9,7 @@
 #define CLOCKCOMPONENT_HPP_
 
 #include "AComponent.hpp"
+#include <iostream>
 
 namespace nts {
 
@@ -19,6 +20,8 @@ public:
     ClockComponent& operator=(Tristate value);
 
     void simulate() override;
+
+    virtual void display(std::ostream&) const override;
 
 private:
     Tristate m_value = Tristate::UNDEFINED;

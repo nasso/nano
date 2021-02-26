@@ -20,19 +20,22 @@ namespace nts {
 
 class NtsCircuit : public Circuit<std::string> {
 public:
+    using PinMap = std::unordered_map<std::string, PinId>;
+
     NtsCircuit(const std::string& path,
         const std::vector<std::string>& includePaths = {});
     NtsCircuit(std::istream& in, IComponentFactory& factory);
     NtsCircuit(std::istream& in);
 
-    PinId input(const std::string& pinName);
+    PinId input(const std::string& pinName) const;
+    const PinMap& pins() const;
 
     virtual void simulate() override;
 
 private:
     void build(std::istream& in, IComponentFactory& factory);
 
-    std::unordered_map<std::string, PinId> m_pins;
+    PinMap m_pins;
     std::unordered_set<PinId> m_clocks;
 };
 

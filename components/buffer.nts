@@ -1,0 +1,13 @@
+# buffer
+
+.chipsets:
+input in
+output out
+
+not not1
+not not2
+
+.links:
+in:1 not1:1
+not1:2 not2:1
+not2:2 out:1

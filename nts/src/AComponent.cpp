@@ -15,7 +15,7 @@ AComponent::AComponent()
 
 AComponent::AComponent(Pinout pinout)
 {
-    for (auto& pin : pinout) {
+    for (const auto& pin : pinout) {
         pinMode(pin.first, pin.second);
     }
 }
@@ -44,11 +44,6 @@ Tristate AComponent::read(PinId pin) const
 void AComponent::write(PinId pin, Tristate value)
 {
     m_pins.at(pin) = value;
-}
-
-void AComponent::display(std::ostream& os) const
-{
-    os << "(a component)";
 }
 
 }

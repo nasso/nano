@@ -27,4 +27,9 @@ void ClockComponent::simulate()
     m_value = !m_value;
 }
 
+void ClockComponent::display(std::ostream& out) const
+{
+    out << "(clock " << m_value << ")";
+}
+
 }

@@ -5,11 +5,8 @@
 ** main
 */
 
-#include "BuiltInComponentFactory.hpp"
-#include "IComponentFactory.hpp"
-#include "IOComponentFactory.hpp"
-#include "NTSComponentFactory.hpp"
-#include "Relp.hpp"
+#include "Repl.hpp"
+#include "nts/NtsCircuit.hpp"
 #include <iostream>
 
 static void usage(const std::string& name)
@@ -25,17 +22,10 @@ int main(int argc, char** argv)
     }
 
     try {
-        std::vector<std::unique_ptr<nts::IComponentFactory>> factories;
-        factories.emplace_back(
-            new nts::IOComponentFactory);
-        factories.emplace_back(
-            new nts::NTSComponentFactory("./components/"));
-        factories.emplace_back(
-            new nts::BuiltInComponentFactory);
-        nts::MainCircuit circuit(argv[1], factories);
+        Repl repl(argv[1], { "components" });
 
-        Relp::run(circuit);
-    } catch (std::exception& e) {
+        repl.run(std::cin, std::cout);
+    } catch (const std::exception& e) {
         std::cout << e.what() << std::endl;
         return (84);
     }

@@ -22,6 +22,50 @@ namespace nts {
 template <typename K>
 class Circuit : public AComponent {
 public:
+    /**
+     * @brief Construct a new Circuit
+     *
+     * @param maxTickPerSimulation Maximum iteration count for the simulation
+     *  loop.
+     */
+    Circuit(std::size_t maxTickPerSimulation = 100)
+        : m_maxTickPerSimulation(maxTickPerSimulation)
+    {
+    }
+
+    /**
+     * @return The current value for `maxTickPerSimulation`
+     * @see Circuit::maxTickPerSimulation(std::size_t)
+     */
+    std::size_t maxTickPerSimulation() const
+    {
+        return m_maxTickPerSimulation;
+    }
+
+    /**
+     * @brief Set the maximum iteration count of the internal simulation loop.
+     *
+     * When the circuit is simulated, its sub-components are simulated in a loop
+     * until the circuit reaches a "stable" state. Sometimes, ambiguous inputs
+     * or wiring can lead to an infinite loop.
+     *
+     * This value dictates how many times the simulation loop of this circuit
+     * is allowed to run for a single call to the `Circuit::simulate()` method.
+     *
+     * Note that this value is local to this instance: if this `Circuit`
+     * contains another `Circuit`, the contained `Circuit` will be allowed to
+     * iterate as many times as its own `maxTickPerSimulation` allows it to,
+     * during a single micro-tick of the parent `Circuit`. For this reason, you
+     * are encouraged to keep maxTickPerSimulation relatively small, as most
+     * circuits will settle on a stable state in less than 10 iterations.
+     *
+     * @param maxTickPerSimulation
+     */
+    void maxTickPerSimulation(std::size_t maxTickPerSimulation)
+    {
+        m_maxTickPerSimulation = maxTickPerSimulation;
+    }
+
     // Components
     void insert(const K& name, std::unique_ptr<IComponent> component)
     {
@@ -89,7 +133,7 @@ public:
     {
         bool stable = false;
 
-        for (std::size_t i = 0; i < 10000 && !stable; i++) {
+        for (std::size_t i = 0; i < m_maxTickPerSimulation && !stable; i++) {
             stable = tick();
         }
 
@@ -214,9 +258,41 @@ private:
 
     using PinSet = std::unordered_set<Pin, PinHash>;
 
+    std::size_t m_maxTickPerSimulation;
     std::unordered_map<K, std::unique_ptr<IComponent>> m_chipsets;
     std::unordered_map<Pin, PinSet, PinHash> m_adjencyList;
     std::unordered_map<PinId, PinSet> m_pinLinks;
+
+    /**
+     * @brief Simulates one micro-step of the entire circuitry.
+     *
+     * This method will return a boolean value indicating if the circuit is
+     * currently stable. A circuit is considered to be stable if simulating
+     * it twice with the same input values doesn't change the output values.
+     *
+     * @return true The circuit is stable (no sub-component was simulated)
+     * @return false At least one sub-component was simulated
+     */
+    bool tick()
+    {
+        std::unordered_set<IComponent*> updateList;
+
+        // step 1: propagate our pins to our components' pins
+        propagateFromCircuitPins(updateList);
+
+        // step 2: propagate values through inner links
+        propagateLinks(updateList);
+
+        // step 3: simulate chips for which at least one pin changed
+        for (auto& component : updateList) {
+            component->simulate();
+        }
+
+        // step 4: propagate components' pins back to our own pins
+        propagateToCircuitPins();
+
+        return updateList.empty();
+    }
 
     PinSet findConnectedPins(Pin pin)
     {
@@ -329,6 +405,11 @@ private:
 
                 // propagate the value to all connected pins
                 for (auto pin : linkedPins) {
+                    // only set INPUT pins
+                    if (~pin.mode() & INPUT) {
+                        continue;
+                    }
+
                     // if its value changes, add it to the updateList
                     if (pin.read() != linkValue) {
                         updateList.insert(&pin.component());
@@ -340,33 +421,6 @@ private:
                 visitedPins.insert(linkedPins.begin(), linkedPins.end());
             }
         }
-    }
-
-    /**
-     * @brief Simulates one micro-step of the entire circuitry.
-     *
-     * @return true At least one sub-component was simulated
-     * @return false No sub-component was simulated.
-     */
-    bool tick()
-    {
-        std::unordered_set<IComponent*> updateList;
-
-        // step 1: propagate our pins to our components' pins
-        propagateFromCircuitPins(updateList);
-
-        // step 2: propagate values through inner links
-        propagateLinks(updateList);
-
-        // step 3: simulate chips for which at least one pin changed
-        for (auto& component : updateList) {
-            component->simulate();
-        }
-
-        // step 4: propagate components' pins back to our own pins
-        propagateToCircuitPins();
-
-        return updateList.empty();
     }
 };
 
