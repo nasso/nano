@@ -5,7 +5,7 @@
 ** AComponent
 */
 
-#include "AComponent.hpp"
+#include "nts/AComponent.hpp"
 
 namespace nts {
 

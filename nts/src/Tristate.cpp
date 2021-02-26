@@ -5,7 +5,7 @@
 ** Tristate
 */
 
-#include "Tristate.hpp"
+#include "nts/Tristate.hpp"
 #include <iostream>
 
 namespace nts {

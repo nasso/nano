@@ -2,32 +2,48 @@
 ** EPITECH PROJECT, 2021
 ** B-OOP-400-TLS-4-1-tekspice-nassim.gharbaoui
 ** File description:
-** NTSCircuit
+** NtsCircuit
 */
 
-#include "NTSCircuit.hpp"
-#include "BuiltInComponentFactory.hpp"
-#include "ClockComponent.hpp"
-#include "NTSComponentFactory.hpp"
+#include "nts/NtsCircuit.hpp"
+#include "nts/BuiltInComponentFactory.hpp"
+#include "nts/ClockComponent.hpp"
+#include "nts/NtsComponentFactory.hpp"
 #include <iostream>
 #include <regex>
 #include <vector>
 
 namespace nts {
 
-NTSCircuit::NTSCircuit(const std::string& filename)
-    : m_file(filename)
+static void parse(std::ifstream& file)
 {
-    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
-        new BuiltInComponentFactory)));
-    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
-        new NTSComponentFactory("./components/"))));
-    if (!m_file.is_open())
-        throw std::runtime_error("Error");
-    parse();
+    std::string str;
+    std::regex comment_r("(#.*)");
+    std::regex trim_r("^\\s*|\\s*$");
+    std::regex links_r("^\\.links\\:$");
+    std::regex chipsets_r("^\\.chipsets\\:$");
+
+    while (getline(file, str)) {
+        str = std::regex_replace(str, comment_r, "");
+        str = std::regex_replace(str, trim_r, "");
+
+        if (str.empty()) {
+            continue;
+        }
+
+        if (std::regex_match(str, chipsets_r)) {
+            parseChips(file);
+        } else if (std::regex_match(str, links_r)) {
+            parseLinks(file);
+        } else {
+            throw std::runtime_error(
+                "Error with parsing config file unreconized string: " + str);
+        }
+    }
+    link_components(file);
 }
 
-void NTSCircuit::createChip(std::string& str)
+static void createChip(std::string& str)
 {
     std::regex component_type("\\w+");
     std::string name;
@@ -55,7 +71,7 @@ void NTSCircuit::createChip(std::string& str)
     }
 }
 
-void NTSCircuit::createLink(std::string& str)
+static void createLink(std::string& str)
 {
     std::regex components_r("(\\w+\\:[0-9]+)");
     std::regex component_r("\\w+");
@@ -84,71 +100,47 @@ void NTSCircuit::createLink(std::string& str)
     m_links.push_back(link);
 }
 
-void NTSCircuit::parseChips()
+static void parseChips(std::ifstream& file)
 {
     std::string str;
     std::regex comment_r("#.*");
     std::regex trim_r("^\\s*|\\s*$");
     std::regex links_r("^\\.links\\:$");
 
-    while (getline(m_file, str)) {
+    while (getline(file, str)) {
         str = std::regex_replace(str, comment_r, "");
         str = std::regex_replace(str, trim_r, "");
         if (str.empty())
             continue;
         else if (std::regex_match(str, links_r)) {
-            parseLinks();
+            parseLinks(file);
         } else {
             createChip(str);
         }
     }
 }
 
-void NTSCircuit::parseLinks()
+static void parseLinks(std::ifstream& file)
 {
     std::string str;
     std::regex comment_r("#.*");
     std::regex trim_r("^\\s*|\\s*$");
     std::regex chipsets_r("^\\.chipsets\\:$");
 
-    while (getline(m_file, str)) {
+    while (getline(file, str)) {
         str = std::regex_replace(str, comment_r, "");
         str = std::regex_replace(str, trim_r, "");
         if (str.empty())
             continue;
         else if (std::regex_match(str, chipsets_r)) {
-            parseChips();
+            parseChips(file);
         } else {
             createLink(str);
         }
     }
 }
 
-void NTSCircuit::parse()
-{
-    std::string str;
-    std::regex comment_r("(#.*)");
-    std::regex trim_r("^\\s*|\\s*$");
-    std::regex links_r("^\\.links\\:$");
-    std::regex chipsets_r("^\\.chipsets\\:$");
-
-    while (getline(m_file, str)) {
-        str = std::regex_replace(str, comment_r, "");
-        str = std::regex_replace(str, trim_r, "");
-        if (str.empty())
-            continue;
-        if (std::regex_match(str, chipsets_r)) {
-            parseChips();
-        } else if (std::regex_match(str, links_r))
-            parseLinks();
-        else
-            throw std::runtime_error(
-                "Error with parsing config file unreconized string: " + str);
-    }
-    link_components();
-}
-
-void NTSCircuit::link_components()
+static void link_components()
 {
     for (auto link : m_links) {
         IComponent* from = nullptr;
@@ -178,49 +170,19 @@ void NTSCircuit::link_components()
     }
 }
 
-void NTSCircuit::dump(std::ostream& os) const
+NtsCircuit::NtsCircuit(const std::string& filename)
 {
-    static const std::size_t shiftWidth = 1;
-    static const std::string shift(shiftWidth, ' ');
-    thread_local std::size_t level = 0;
+    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
+        new BuiltInComponentFactory)));
+    m_factory.addFactory(std::move(std::unique_ptr<IComponentFactory>(
+        new NtsComponentFactory("./components/"))));
 
-    const std::string curShift(level * 2 * shiftWidth, ' ');
+    std::ifstream file(filename);
 
-    // circuit
-    os << "(circuit\n";
-
-    // pins
-    bool breakPins = m_pins.size() >= 6;
-
-    os << curShift << shift << "(pins";
-    for (const auto& pin : m_pins) {
-        if (breakPins) {
-            os << "\n";
-            os << curShift << shift << shift;
-        } else {
-            os << " ";
-        }
-
-        os << "(" << pin.first << " " << pin.second->compute(1) << ")";
+    if (!file.is_open()) {
+        throw std::runtime_error("Error");
     }
-    if (breakPins) {
-        os << "\n";
-        os << curShift << shift;
-    }
-    os << ")\n";
-
-    // chipsets
-    os << curShift << shift << "(chipsets\n";
-    level++;
-    for (const auto& c : m_ownedComponents) {
-        os << curShift << shift << shift;
-        os << "(" << c.first << " " << *c.second << ")\n";
-    }
-    level--;
-    os << curShift << shift << ")\n";
-
-    // end circuit
-    os << curShift << ")";
+    parse(file);
 }
 
 }

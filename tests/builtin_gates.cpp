@@ -5,10 +5,10 @@
 ** logic_gates
 */
 
-#include "AndGate.hpp"
-#include "ConstComponent.hpp"
-#include "NotGate.hpp"
 #include "assert_truth.hpp"
+#include "nts/AndGate.hpp"
+#include "nts/ConstComponent.hpp"
+#include "nts/NotGate.hpp"
 #include <criterion/criterion.h>
 
 const auto T = nts::Tristate::TRUE;

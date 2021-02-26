@@ -9,6 +9,7 @@
 #define CIRCUIT_HPP_
 
 #include "AComponent.hpp"
+#include "IComponent.hpp"
 #include <algorithm>
 #include <functional>
 #include <memory>
@@ -110,6 +111,51 @@ public:
 
     virtual void display(std::ostream& os) const override
     {
+        thread_local const std::size_t shiftWidth = 1;
+        thread_local const std::string shift(shiftWidth, ' ');
+        thread_local std::size_t level = 0;
+
+        const std::string curShift(level * 2 * shiftWidth, ' ');
+
+        // circuit
+        os << "(circuit\n";
+
+        // pins
+        const auto& circuitPinout = pinout();
+        bool breakPins = circuitPinout.size() >= 6;
+
+        os << curShift << shift << "(pins";
+        for (const auto& pin : circuitPinout) {
+            if (breakPins) {
+                os << "\n";
+                os << curShift << shift << shift;
+            } else {
+                os << " ";
+            }
+
+            os << "(" << pin.first << " " << read(pin.first) << ")";
+        }
+        if (breakPins) {
+            os << "\n";
+            os << curShift << shift;
+        }
+        os << ")\n";
+
+        // chipsets
+        os << curShift << shift << "(chipsets\n";
+        level++;
+        for (const auto& c : m_chipsets) {
+            os << curShift << shift << shift;
+
+            os << "(" << c.first << " ";
+            c.second->display(os);
+            os << ")\n";
+        }
+        level--;
+        os << curShift << shift << ")\n";
+
+        // end circuit
+        os << curShift << ")";
     }
 
 private:

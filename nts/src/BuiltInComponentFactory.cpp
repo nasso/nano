@@ -5,13 +5,13 @@
 ** ComponentFactory
 */
 
-#include "BuiltInComponentFactory.hpp"
-#include "AndGate.hpp"
-#include "ClockComponent.hpp"
-#include "ConstComponent.hpp"
-#include "InputComponent.hpp"
-#include "NotGate.hpp"
-#include "OutputComponent.hpp"
+#include "nts/BuiltInComponentFactory.hpp"
+#include "nts/AndGate.hpp"
+#include "nts/ClockComponent.hpp"
+#include "nts/ConstComponent.hpp"
+#include "nts/InputComponent.hpp"
+#include "nts/NotGate.hpp"
+#include "nts/OutputComponent.hpp"
 #include <fstream>
 #include <stdexcept>
 

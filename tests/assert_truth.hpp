@@ -8,7 +8,7 @@
 #ifndef ASSERT_TRUTH_HPP_
 #define ASSERT_TRUTH_HPP_
 
-#include "IComponent.hpp"
+#include "nts/IComponent.hpp"
 #include <cmath>
 #include <criterion/criterion.h>
 #include <cstddef>

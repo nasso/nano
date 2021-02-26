@@ -11,7 +11,6 @@
 #include "IComponentFactory.hpp"
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace nts {
 
@@ -21,8 +20,6 @@ public:
 
     std::unique_ptr<nts::IComponent> createComponent(const std::string& name)
         override;
-
-private:
 };
 
 }

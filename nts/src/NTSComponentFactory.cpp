@@ -5,17 +5,17 @@
 ** ComponentFactory
 */
 
-#include "NTSComponentFactory.hpp"
-#include "NTSCircuit.hpp"
+#include "nts/NtsComponentFactory.hpp"
+#include "nts/NtsCircuit.hpp"
 #include <fstream>
 #include <stdexcept>
 
-nts::NTSComponentFactory::NTSComponentFactory(std::string dirpath)
+nts::NtsComponentFactory::NtsComponentFactory(std::string dirpath)
 {
     m_dirpath = dirpath;
 }
 
-std::unique_ptr<nts::IComponent> nts::NTSComponentFactory::createComponent(
+std::unique_ptr<nts::IComponent> nts::NtsComponentFactory::createComponent(
     const std::string& name)
 {
     std::fstream file(m_dirpath + name + ".nts");

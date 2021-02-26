@@ -12,7 +12,6 @@ add_executable(unit_tests
     "builtin_gates.cpp"
     "circuit.cpp"
     "clock.cpp"
-    # "graph.cpp"
     # "latches.cpp"
     # "nts_gates.cpp"
     # "parser.cpp"

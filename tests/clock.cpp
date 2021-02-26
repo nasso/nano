@@ -5,7 +5,7 @@
 ** clock
 */
 
-#include "ClockComponent.hpp"
+#include "nts/ClockComponent.hpp"
 #include <criterion/criterion.h>
 #include <cstddef>
 

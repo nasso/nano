@@ -5,7 +5,7 @@
 ** IComponent
 */
 
-#include "IComponent.hpp"
+#include "nts/IComponent.hpp"
 
 std::ostream& operator<<(std::ostream& os, const nts::IComponent& comp)
 {

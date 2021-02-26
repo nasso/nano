@@ -5,7 +5,7 @@
 ** ClockComponent
 */
 
-#include "ClockComponent.hpp"
+#include "nts/ClockComponent.hpp"
 
 namespace nts {
 

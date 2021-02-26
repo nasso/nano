@@ -15,12 +15,13 @@
 
 namespace nts {
 
-class NTSComponentFactory : public IComponentFactory {
+class NtsComponentFactory : public IComponentFactory {
 public:
-    NTSComponentFactory(std::string dirpath);
-    ~NTSComponentFactory() = default;
+    NtsComponentFactory(std::string dirpath);
+    ~NtsComponentFactory() = default;
 
-    std::unique_ptr<nts::IComponent> createComponent(const std::string& name) override;
+    std::unique_ptr<nts::IComponent> createComponent(const std::string& name)
+        override;
 
 private:
     std::string m_dirpath;

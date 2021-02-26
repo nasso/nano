@@ -5,10 +5,10 @@
 ** circuit
 */
 
-#include "Circuit.hpp"
-#include "AndGate.hpp"
-#include "NotGate.hpp"
+#include "nts/Circuit.hpp"
 #include "assert_truth.hpp"
+#include "nts/AndGate.hpp"
+#include "nts/NotGate.hpp"
 #include <criterion/criterion.h>
 #include <memory>
 

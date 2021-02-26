@@ -5,7 +5,7 @@
 ** ComponentFactory
 */
 
-#include "MultiComponentFactory.hpp"
+#include "nts/MultiComponentFactory.hpp"
 #include <stdexcept>
 
 void nts::MultiComponentFactory::addFactory(

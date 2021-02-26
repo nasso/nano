@@ -10,6 +10,7 @@
 
 #include "IComponent.hpp"
 #include <memory>
+#include <string>
 
 namespace nts {
 
@@ -23,7 +24,9 @@ public:
      * @param name The name of the component to return an instance of
      * @return An new instance of the component with the given name
      */
-    virtual std::unique_ptr<nts::IComponent> createComponent(const std::string& name) = 0;
+    virtual std::unique_ptr<nts::IComponent> createComponent(
+        const std::string& name)
+        = 0;
 };
 
 }
