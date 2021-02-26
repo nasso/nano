@@ -149,8 +149,7 @@ void NtsCircuit::build(std::istream& in, IComponentFactory& factory)
         }
 
         if (firstIsPin && secondIsPin) {
-            // TODO: special case where a moron decided to wire some pointless
-            // circuitry that goes from an input straight to an output
+            connect(m_pins.at(link.first.chip), m_pins.at(link.second.chip));
         } else if (firstIsPin) {
             connect(m_pins.at(link.first.chip), link.second.chip,
                 link.second.id);

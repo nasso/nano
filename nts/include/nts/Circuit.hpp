@@ -93,20 +93,12 @@ public:
 
     // Links
     void connect(const K& name1, PinId pin1, const K& name2, PinId pin2)
-
     {
         auto& chip1 = *m_chipsets.at(name1);
         auto& chip2 = *m_chipsets.at(name2);
 
         m_adjencyList[{ chip1, pin1 }].insert({ chip2, pin2 });
         m_adjencyList[{ chip2, pin2 }].insert({ chip1, pin1 });
-    }
-
-    void connect(PinId pin, const K& compName, PinId compPin)
-    {
-        auto& chip = *m_chipsets.at(compName);
-
-        m_pinLinks[pin].insert({ chip, compPin });
     }
 
     void disconnect(const K& name1, PinId pin1, const K& name2, PinId pin2)
@@ -118,6 +110,13 @@ public:
         m_adjencyList[{ chip2, pin2 }].erase({ chip1, pin1 });
     }
 
+    void connect(PinId pin, const K& compName, PinId compPin)
+    {
+        auto& chip = *m_chipsets.at(compName);
+
+        m_pinLinks[pin].insert({ chip, compPin });
+    }
+
     void disconnect(PinId pin, const K& compName, PinId compPin)
     {
         auto& chip = *m_chipsets.at(compName);
@@ -126,6 +125,29 @@ public:
 
         if (m_pinLinks[pin].empty()) {
             m_pinLinks.erase(pin);
+        }
+    }
+
+    void connect(PinId pin1, PinId pin2)
+    {
+        if (pin1 != pin2) {
+            m_directPinLinks[pin1].insert(pin2);
+            m_directPinLinks[pin2].insert(pin1);
+        }
+    }
+
+    void disconnect(PinId pin1, PinId pin2)
+    {
+        if (pin1 != pin2) {
+            m_directPinLinks[pin1].erase(pin2);
+            if (m_directPinLinks[pin1].empty()) {
+                m_directPinLinks.erase(pin1);
+            }
+
+            m_directPinLinks[pin2].erase(pin1);
+            if (m_directPinLinks[pin2].empty()) {
+                m_directPinLinks.erase(pin2);
+            }
         }
     }
 
@@ -257,11 +279,16 @@ private:
     };
 
     using PinSet = std::unordered_set<Pin, PinHash>;
+    using PinAdjencyList = std::unordered_map<Pin, PinSet, PinHash>;
+    using PinIdSet = std::unordered_set<PinId>;
+    using PinIdAdjencyList = std::unordered_map<PinId, PinIdSet>;
+
+    std::unordered_map<K, std::unique_ptr<IComponent>> m_chipsets;
+    std::unordered_map<PinId, PinSet> m_pinLinks;
+    PinAdjencyList m_adjencyList;
+    PinIdAdjencyList m_directPinLinks;
 
     std::size_t m_maxTickPerSimulation;
-    std::unordered_map<K, std::unique_ptr<IComponent>> m_chipsets;
-    std::unordered_map<Pin, PinSet, PinHash> m_adjencyList;
-    std::unordered_map<PinId, PinSet> m_pinLinks;
 
     /**
      * @brief Simulates one micro-step of the entire circuitry.
@@ -277,49 +304,54 @@ private:
     {
         std::unordered_set<IComponent*> updateList;
 
-        // step 1: propagate our pins to our components' pins
+        // step 1: propagate directly connected pins (i.e. buffers)
+        // this step doesn't cause any update
+        propagateDirectLinks();
+
+        // step 2: propagate our pins to our components' pins
         propagateFromCircuitPins(updateList);
 
-        // step 2: propagate values through inner links
+        // step 3: propagate values through inner links
         propagateLinks(updateList);
 
-        // step 3: simulate chips for which at least one pin changed
+        // step 4: simulate chips for which at least one pin changed
         for (auto& component : updateList) {
             component->simulate();
         }
 
-        // step 4: propagate components' pins back to our own pins
+        // step 5: propagate components' pins back to our own pins
         propagateToCircuitPins();
 
         return updateList.empty();
     }
 
-    PinSet findConnectedPins(Pin pin)
+    template <typename Node, typename Set, typename AdjencyList>
+    Set adhocSearch(Node node, AdjencyList adjencyList)
     {
-        PinSet connected;
-        PinSet pool = { pin };
+        Set connected;
+        Set pool = { node };
 
         while (!pool.empty()) {
-            Pin pin = *pool.begin();
+            Node node = *pool.begin();
 
             try {
-                PinSet& links = m_adjencyList.at(pin);
+                Set& links = adjencyList.at(node);
 
                 auto mbConnectedPin = std::find_if(links.begin(), links.end(),
-                    [&](auto pin) {
-                        return connected.find(pin) == connected.end()
-                            && pool.find(pin) == pool.end();
+                    [&](auto node) {
+                        return connected.find(node) == connected.end()
+                            && pool.find(node) == pool.end();
                     });
 
                 if (mbConnectedPin != links.end()) {
                     pool.insert(*mbConnectedPin);
                 } else {
-                    pool.erase(pin);
-                    connected.insert(pin);
+                    pool.erase(node);
+                    connected.insert(node);
                 }
             } catch (std::out_of_range&) {
-                pool.erase(pin);
-                connected.insert(pin);
+                pool.erase(node);
+                connected.insert(node);
             }
         }
 
@@ -380,16 +412,15 @@ private:
     {
         PinSet visitedPins;
 
-        for (auto& adjency : m_adjencyList) {
+        for (const auto& adjency : m_adjencyList) {
             Pin pin = adjency.first;
-            PinSet& links = adjency.second;
 
             if (visitedPins.find(pin) == visitedPins.end()) {
-                PinSet linkedPins = findConnectedPins(pin);
+                PinSet links = adhocSearch<Pin, PinSet>(pin, m_adjencyList);
                 Tristate linkValue;
 
                 // compute the common link value
-                for (const auto& pin : linkedPins) {
+                for (const auto& pin : links) {
                     // only take OUTPUT pins into account
                     if (~pin.mode() & OUTPUT) {
                         continue;
@@ -397,14 +428,14 @@ private:
 
                     linkValue = propagate(linkValue, pin.read());
 
-                    // early-break if we find a high signal
+                    // break early if we find a high signal
                     if (linkValue == Tristate::TRUE) {
                         break;
                     }
                 }
 
                 // propagate the value to all connected pins
-                for (auto pin : linkedPins) {
+                for (auto pin : links) {
                     // only set INPUT pins
                     if (~pin.mode() & INPUT) {
                         continue;
@@ -418,7 +449,50 @@ private:
                     pin.write(linkValue);
                 }
 
-                visitedPins.insert(linkedPins.begin(), linkedPins.end());
+                visitedPins.insert(links.begin(), links.end());
+            }
+        }
+    }
+
+    void propagateDirectLinks()
+    {
+        PinIdSet visitedPins;
+        const Pinout& myPinout = pinout();
+
+        for (const auto& link : m_directPinLinks) {
+            PinId pin = link.first;
+
+            if (visitedPins.find(pin) == visitedPins.end()) {
+                PinIdSet links = adhocSearch<PinId, PinIdSet>(pin,
+                    m_directPinLinks);
+                Tristate linkValue;
+
+                // compute the common link value
+                for (const auto& pin : links) {
+                    // only take INPUT pins into account: *INPUT* => OUTPUT
+                    if (~myPinout.at(pin) & INPUT) {
+                        continue;
+                    }
+
+                    linkValue = propagate(linkValue, read(pin));
+
+                    // break early if we find a high signal
+                    if (linkValue == Tristate::TRUE) {
+                        break;
+                    }
+                }
+
+                // propagate the value to all connected pins
+                for (auto pin : links) {
+                    // only set OUTPUT pins: INPUT => *OUTPUT*
+                    if (~myPinout.at(pin) & OUTPUT) {
+                        continue;
+                    }
+
+                    write(pin, linkValue);
+                }
+
+                visitedPins.insert(links.begin(), links.end());
             }
         }
     }
