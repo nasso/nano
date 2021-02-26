@@ -9,9 +9,7 @@
 #include "nts/AndGate.hpp"
 #include "nts/ClockComponent.hpp"
 #include "nts/ConstComponent.hpp"
-#include "nts/InputComponent.hpp"
 #include "nts/NotGate.hpp"
-#include "nts/OutputComponent.hpp"
 #include <fstream>
 #include <stdexcept>
 

@@ -61,16 +61,6 @@ public:
     void connect(PinId pin, const K& compName, PinId compPin)
     {
         auto& chip = *m_chipsets.at(compName);
-        auto mode = chip.pinout().at(compPin);
-
-        const auto& circuitPinout = pinout();
-
-        auto myMode = circuitPinout.find(pin);
-        if (myMode != circuitPinout.end()) {
-            mode = mode | myMode->second;
-        }
-
-        pinMode(pin, mode);
 
         m_pinLinks[pin].insert({ chip, compPin });
     }
@@ -92,11 +82,10 @@ public:
 
         if (m_pinLinks[pin].empty()) {
             m_pinLinks.erase(pin);
-            pinMode(pin, NONE);
         }
     }
 
-    void simulate() override
+    virtual void simulate() override
     {
         bool stable = false;
 

@@ -18,6 +18,7 @@ public:
     NotGate();
 
     void simulate() override;
+    virtual void display(std::ostream& os) const override;
 };
 
 }

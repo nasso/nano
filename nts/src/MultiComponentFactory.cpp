@@ -20,7 +20,7 @@ std::unique_ptr<nts::IComponent> nts::MultiComponentFactory::createComponent(
     for (auto& factory : m_factories) {
         try {
             return factory->createComponent(name);
-        } catch (std::exception&) {
+        } catch (...) {
         }
     }
 

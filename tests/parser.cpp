@@ -1,13 +1,66 @@
+/*
+** EPITECH PROJECT, 2021
+** B-OOP-400-TLS-4-1-tekspice-nassim.gharbaoui
+** File description:
+** parser
+*/
+
+#include "assert_truth.hpp"
+#include "nts/NtsCircuit.hpp"
 #include <criterion/criterion.h>
+#include <sstream>
 
-#include "NTSCircuit.hpp"
-#include <iostream>
+const auto U = nts::Tristate::UNDEFINED;
+const auto F = nts::Tristate::FALSE;
+const auto T = nts::Tristate::TRUE;
 
-Test(test_parser, parser)
+const GateSpec<2, 1> AND_GATE_SPEC = {
+    /*.inputs = */ { 1, 2 },
+    /*.outputs = */ { 3 },
+    /*.truthTable = */ {
+        { { U, U }, { U } },
+        { { U, F }, { F } },
+        { { U, T }, { U } },
+        { { F, U }, { F } },
+        { { F, F }, { F } },
+        { { F, T }, { F } },
+        { { T, U }, { U } },
+        { { T, F }, { F } },
+        { { T, T }, { T } },
+    },
+};
+
+const GateSpec<2, 1> NAND_GATE_SPEC = {
+    /*.inputs = */ { 1, 2 },
+    /*.outputs = */ { 3 },
+    /*.truthTable = */ {
+        { { U, U }, { U } },
+        { { U, F }, { T } },
+        { { U, T }, { U } },
+        { { F, U }, { T } },
+        { { F, F }, { T } },
+        { { F, T }, { T } },
+        { { T, U }, { U } },
+        { { T, F }, { T } },
+        { { T, T }, { F } },
+    },
+};
+
+Test(nts_parser, simple_and_gate)
 {
-    try {
-        nts::NTSCircuit m("components/4081.nts");
-    } catch (std::runtime_error& e) {
-        cr_assert_fail("%s", e.what());
-    }
+    std::istringstream source(
+        ".chipsets:\n"
+        "input a\n"
+        "input b\n"
+        "output c\n"
+        "and and\n"
+        "\n"
+        ".links:\n"
+        "a:1 and:1\n"
+        "b:1 and:2\n"
+        "c:1 and:3\n");
+
+    nts::NtsCircuit circuit(source);
+
+    assert_truth(circuit, AND_GATE_SPEC);
 }

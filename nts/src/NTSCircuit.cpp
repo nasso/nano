@@ -9,177 +9,116 @@
 #include "nts/BuiltInComponentFactory.hpp"
 #include "nts/ClockComponent.hpp"
 #include "nts/NtsComponentFactory.hpp"
+#include <fstream>
 #include <iostream>
 #include <regex>
 #include <vector>
 
 namespace nts {
 
-static void parse(std::ifstream& file)
+NtsCircuit::NtsCircuit(std::istream& in, IComponentFactory& factory)
 {
-    std::string str;
-    std::regex comment_r("(#.*)");
-    std::regex trim_r("^\\s*|\\s*$");
-    std::regex links_r("^\\.links\\:$");
-    std::regex chipsets_r("^\\.chipsets\\:$");
+    const std::regex comment_r("(#.*)");
+    const std::regex trim_r("^\\s*|\\s*$");
+    const std::regex sec_links_r("^\\.links\\:$");
+    const std::regex sec_chipsets_r("^\\.chipsets\\:$");
+    const std::regex link_r("^([^:]+):(\\d+)\\s+([^:]+):(\\d+)$");
+    const std::regex chip_r("^(\\w+)\\s+([^:]+)$");
 
-    while (getline(file, str)) {
-        str = std::regex_replace(str, comment_r, "");
-        str = std::regex_replace(str, trim_r, "");
+    struct Pin {
+        std::string chip;
+        PinId id;
+    };
 
-        if (str.empty()) {
+    using Link = std::pair<Pin, Pin>;
+
+    enum {
+        LINKS,
+        CHIPSETS,
+    } section;
+
+    std::vector<Link> links;
+
+    PinId pinCounter = 0;
+    std::string line;
+    std::smatch m;
+
+    while (std::getline(in, line)) {
+        line = std::regex_replace(line, comment_r, "");
+        line = std::regex_replace(line, trim_r, "");
+
+        if (line.empty()) {
             continue;
         }
 
-        if (std::regex_match(str, chipsets_r)) {
-            parseChips(file);
-        } else if (std::regex_match(str, links_r)) {
-            parseLinks(file);
+        if (std::regex_match(line, sec_chipsets_r)) {
+            section = CHIPSETS;
+        } else if (std::regex_match(line, sec_links_r)) {
+            section = LINKS;
+        } else if (section == CHIPSETS && std::regex_match(line, m, chip_r)) {
+            std::string type(m[1]);
+            std::string name(m[2]);
+
+            if (type == "input") {
+                pinMode(++pinCounter, INPUT);
+                m_pins.emplace(name, pinCounter);
+            } else if (type == "clock") {
+                pinMode(++pinCounter, INPUT);
+                m_pins.emplace(name, pinCounter);
+                m_clocks.insert(pinCounter);
+            } else if (type == "output") {
+                pinMode(++pinCounter, OUTPUT);
+                m_pins.emplace(name, pinCounter);
+            } else {
+                insert(name, factory.createComponent(type));
+            }
+        } else if (section == LINKS && std::regex_match(line, m, link_r)) {
+            links.push_back({
+                { m[1], std::stoull(m[2]) },
+                { m[3], std::stoull(m[4]) },
+            });
         } else {
-            throw std::runtime_error(
-                "Error with parsing config file unreconized string: " + str);
+            throw std::runtime_error("syntax error: " + line);
         }
     }
-    link_components(file);
-}
 
-static void createChip(std::string& str)
-{
-    std::regex component_type("\\w+");
-    std::string name;
-    std::string type;
-    std::vector<std::string> res;
-    std::sregex_iterator it(str.begin(), str.end(), component_type);
+    for (const auto& link : links) {
+        bool firstIsPin = m_pins.find(link.first.chip) != m_pins.end();
+        bool secondIsPin = m_pins.find(link.second.chip) != m_pins.end();
 
-    for (std::sregex_iterator it_end; it != it_end; ++it)
-        res.push_back((*it)[0]);
-    if (res.size() != 2)
-        throw std::runtime_error(
-            "Error with parsing config file unreconized string: " + str);
-    type = res[0];
-    name = res[1];
-    if (type == "ignored") {
-        m_currentPin++;
-    } else if (type == "input") {
-        m_pins.emplace(name, &input(++m_currentPin));
-    } else if (type == "clock") {
-        m_pins.emplace(name, &input<ClockComponent>(++m_currentPin));
-    } else if (type == "output") {
-        m_pins.emplace(name, &output(++m_currentPin));
-    } else {
-        m_ownedComponents.emplace(name, m_factory.createComponent(type));
-    }
-}
+        if (firstIsPin && link.first.id != 1) {
+            throw std::runtime_error("invalid pin: " + link.first.chip + ":"
+                + std::to_string(link.first.id));
+        }
 
-static void createLink(std::string& str)
-{
-    std::regex components_r("(\\w+\\:[0-9]+)");
-    std::regex component_r("\\w+");
-    std::string tmp_str;
-    std::vector<std::vector<std::string>> components;
-    std::sregex_iterator it(str.begin(), str.end(), components_r);
-    Link link;
+        if (secondIsPin && link.second.id != 1) {
+            throw std::runtime_error("invalid pin: " + link.second.chip + ":"
+                + std::to_string(link.second.id));
+        }
 
-    for (std::sregex_iterator it_end; it != it_end; ++it) {
-        tmp_str = (*it)[0];
-        std::sregex_iterator it2(tmp_str.begin(), tmp_str.end(), component_r);
-        std::vector<std::string> tmp;
-        for (std::sregex_iterator it2_end; it2 != it2_end; ++it2)
-            tmp.push_back((*it2)[0]);
-        components.push_back(tmp);
-    }
-    if (components.size() != 2
-        || components[0].size() != 2
-        || components[1].size() != 2)
-        throw std::runtime_error(
-            "Error with parsing config file unreconized string: " + str);
-    link.name1 = components[0][0];
-    link.name2 = components[1][0];
-    link.pin1 = std::stoul(components[0][1]);
-    link.pin2 = std::stoul(components[1][1]);
-    m_links.push_back(link);
-}
-
-static void parseChips(std::ifstream& file)
-{
-    std::string str;
-    std::regex comment_r("#.*");
-    std::regex trim_r("^\\s*|\\s*$");
-    std::regex links_r("^\\.links\\:$");
-
-    while (getline(file, str)) {
-        str = std::regex_replace(str, comment_r, "");
-        str = std::regex_replace(str, trim_r, "");
-        if (str.empty())
-            continue;
-        else if (std::regex_match(str, links_r)) {
-            parseLinks(file);
+        if (firstIsPin && secondIsPin) {
+            // TODO: special case where a moron decided to wire some pointless
+            // circuitry that goes from an input straight to an output
+        } else if (firstIsPin) {
+            connect(m_pins.at(link.first.chip), link.second.chip,
+                link.second.id);
+        } else if (secondIsPin) {
+            connect(m_pins.at(link.second.chip), link.first.chip,
+                link.first.id);
         } else {
-            createChip(str);
+            connect(link.first.chip, link.first.id, link.second.chip,
+                link.second.id);
         }
     }
 }
 
-static void parseLinks(std::ifstream& file)
+void NtsCircuit::simulate()
 {
-    std::string str;
-    std::regex comment_r("#.*");
-    std::regex trim_r("^\\s*|\\s*$");
-    std::regex chipsets_r("^\\.chipsets\\:$");
+    Circuit::simulate();
 
-    while (getline(file, str)) {
-        str = std::regex_replace(str, comment_r, "");
-        str = std::regex_replace(str, trim_r, "");
-        if (str.empty())
-            continue;
-        else if (std::regex_match(str, chipsets_r)) {
-            parseChips(file);
-        } else {
-            createLink(str);
-        }
+    for (PinId pin : m_clocks) {
+        write(pin, !read(pin));
     }
-}
-
-static void link_components()
-{
-    for (auto link : m_links) {
-        IComponent* from = nullptr;
-        IComponent* to = nullptr;
-
-        if (m_pins.find(link.name1) != m_pins.end())
-            from = m_pins.at(link.name1);
-        else if (m_ownedComponents.find(link.name1) != m_ownedComponents.end())
-            from = m_ownedComponents.at(link.name1).get();
-
-        if (m_pins.find(link.name2) != m_pins.end())
-            to = m_pins.at(link.name2);
-        else if (m_ownedComponents.find(link.name2) != m_ownedComponents.end())
-            to = m_ownedComponents.at(link.name2).get();
-
-        if (from == nullptr) {
-            throw std::runtime_error("Not found component with name "
-                + link.name1);
-        }
-
-        if (to == nullptr) {
-            throw std::runtime_error("Not found component with name "
-                + link.name2);
-        }
-
-        from->setLink(link.pin1, *to, link.pin2);
-    }
-}
-
-NTSCircuit::NTSCircuit(const std::string& filename,
-    std::vector<std::unique_ptr<IComponentFactory>>& factories)
-    : m_file(filename)
-{
-    for (auto& factory : factories) {
-        m_factory.addFactory(std::move(factory));
-    }
-    if (!m_file.is_open())
-        throw std::runtime_error("Error");
-    parse();
 }
 
 }

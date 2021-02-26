@@ -14,7 +14,7 @@ add_executable(unit_tests
     "clock.cpp"
     # "latches.cpp"
     # "nts_gates.cpp"
-    # "parser.cpp"
+    "parser.cpp"
     # "4017.cpp"
 )
 target_link_libraries(unit_tests nts)

@@ -11,7 +11,7 @@
 #include "IComponentFactory.hpp"
 #include <memory>
 #include <string>
-#include <vector>
+#include <unordered_set>
 
 namespace nts {
 
@@ -20,13 +20,15 @@ public:
     NtsComponentFactory(std::string dirpath);
     ~NtsComponentFactory() = default;
 
-    std::unique_ptr<nts::IComponent> createComponent(const std::string& name)
+    std::unique_ptr<IComponent> createComponent(const std::string& name)
         override;
-    void addException(const std::string& name);
 
 private:
+    NtsComponentFactory(const NtsComponentFactory& base,
+        const std::string& except);
+
     std::string m_dirpath;
-    std::vector<std::string> m_exceptions;
+    std::unordered_set<std::string> m_exceptions;
 };
 
 }

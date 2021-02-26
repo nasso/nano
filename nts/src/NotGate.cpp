@@ -21,4 +21,11 @@ void NotGate::simulate()
     write(2, !read(1));
 }
 
+void NotGate::display(std::ostream& os) const
+{
+    auto a = read(1);
+
+    os << "(!" << read(1) << ")";
+}
+
 }

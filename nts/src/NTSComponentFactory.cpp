@@ -7,43 +7,50 @@
 
 #include "nts/NtsComponentFactory.hpp"
 #include "nts/BuiltInComponentFactory.hpp"
+#include "nts/MultiComponentFactory.hpp"
 #include "nts/NtsCircuit.hpp"
+#include <exception>
 #include <fstream>
-#include <stdexcept>
+#include <memory>
 
-nts::NtsComponentFactory::NtsComponentFactory(std::string dirpath)
+namespace nts {
+
+NtsComponentFactory::NtsComponentFactory(std::string dirpath)
+    : m_dirpath(dirpath)
 {
-    m_dirpath = dirpath;
 }
 
-std::unique_ptr<nts::IComponent> nts::NtsComponentFactory::createComponent(
+NtsComponentFactory::NtsComponentFactory(const NtsComponentFactory& base,
+    const std::string& except)
+    : m_dirpath(base.m_dirpath)
+    , m_exceptions { base.m_exceptions }
+{
+    m_exceptions.insert(except);
+}
+
+std::unique_ptr<IComponent> NtsComponentFactory::createComponent(
     const std::string& name)
 {
-    std::fstream file(m_dirpath + name + ".nts");
+    std::string fname = m_dirpath + name + ".nts";
 
-    if (!file.is_open())
-        throw std::runtime_error("Error can't open file for component " + name);
-
-    for (const auto& exception : m_exceptions) {
-        if (exception == name)
-            throw std::runtime_error("Cyclique component " + name);
+    if (m_exceptions.find(fname) != m_exceptions.end()) {
+        throw std::runtime_error("Cyclic component: " + name);
     }
-    std::unique_ptr<nts::NTSComponentFactory> newfacto(
-        new nts::NTSComponentFactory("./components/"));
-    for (const auto& exception : m_exceptions)
-        newfacto->addException(exception);
-    newfacto->addException(name);
-    std::vector<std::unique_ptr<nts::IComponentFactory>> factories;
-    factories.emplace_back(new nts::BuiltInComponentFactory);
-    factories.emplace_back(std::move(newfacto));
 
-    std::unique_ptr<NTSCircuit> component(
-        new NTSCircuit(m_dirpath + name + ".nts", factories));
+    std::unique_ptr<NtsComponentFactory> subfactory(new NtsComponentFactory(
+        *this, name));
 
-    return component;
+    MultiComponentFactory mcf;
+    mcf.addFactory(std::make_unique<BuiltInComponentFactory>());
+    mcf.addFactory(std::move(subfactory));
+
+    std::ifstream file(fname);
+
+    if (!file.is_open()) {
+        throw std::runtime_error("Couldn't open " + fname);
+    }
+
+    return std::make_unique<NtsCircuit>(file, mcf);
 }
 
-void nts::NTSComponentFactory::addException(const std::string& name)
-{
-    m_exceptions.push_back(name);
 }

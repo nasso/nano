@@ -24,4 +24,12 @@ void AndGate::simulate()
     write(3, a && b);
 }
 
+void AndGate::display(std::ostream& os) const
+{
+    auto a = read(1);
+    auto b = read(2);
+
+    os << "(" << read(1) << " & " << read(2) << ")";
+}
+
 }

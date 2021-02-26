@@ -68,6 +68,10 @@ Test(circuit, single_component_pinout)
     nts::Circuit<std::string> circuit;
     std::unique_ptr<nts::AndGate> and_gate(new nts::AndGate);
 
+    circuit.pinMode(1, nts::PinMode::INPUT);
+    circuit.pinMode(2, nts::PinMode::INPUT);
+    circuit.pinMode(3, nts::PinMode::OUTPUT);
+
     circuit.insert("and", std::move(and_gate));
     circuit.connect(1, "and", 1);
     circuit.connect(2, "and", 2);
@@ -85,6 +89,10 @@ Test(circuit, single_component_simulation)
     nts::Circuit<std::string> circuit;
     std::unique_ptr<nts::AndGate> and_gate(new nts::AndGate);
 
+    circuit.pinMode(1, nts::PinMode::INPUT);
+    circuit.pinMode(2, nts::PinMode::INPUT);
+    circuit.pinMode(3, nts::PinMode::OUTPUT);
+
     circuit.insert("and", std::move(and_gate));
     circuit.connect(1, "and", 1);
     circuit.connect(2, "and", 2);
@@ -98,6 +106,10 @@ Test(circuit, multi_component_simulation)
     nts::Circuit<std::string> circuit;
     std::unique_ptr<nts::IComponent> and_gate(new nts::AndGate);
     std::unique_ptr<nts::IComponent> not_gate(new nts::NotGate);
+
+    circuit.pinMode(1, nts::PinMode::INPUT);
+    circuit.pinMode(2, nts::PinMode::INPUT);
+    circuit.pinMode(3, nts::PinMode::OUTPUT);
 
     circuit.insert("and", std::move(and_gate));
     circuit.insert("not", std::move(not_gate));
@@ -141,6 +153,10 @@ Test(circuit, remove_link_pinout)
     std::unique_ptr<nts::AndGate> and_gate(new nts::AndGate);
     std::unique_ptr<nts::IComponent> not_gate(new nts::NotGate);
 
+    circuit.pinMode(1, nts::PinMode::INPUT);
+    circuit.pinMode(2, nts::PinMode::INPUT);
+    circuit.pinMode(3, nts::PinMode::OUTPUT);
+
     circuit.insert("and", std::move(and_gate));
     circuit.connect(1, "and", 1);
     circuit.connect(2, "and", 2);
@@ -150,7 +166,8 @@ Test(circuit, remove_link_pinout)
     auto pinout = circuit.pinout();
     cr_assert(pinout.at(1) & nts::PinMode::INPUT);
     cr_assert(pinout.at(2) & nts::PinMode::INPUT);
-    cr_assert_eq(pinout.size(), 2);
+    cr_assert(pinout.at(3) & nts::PinMode::OUTPUT);
+    cr_assert_eq(pinout.size(), 3);
 }
 
 Test(circuit, remove_then_relink)
@@ -158,6 +175,10 @@ Test(circuit, remove_then_relink)
     nts::Circuit<std::string> circuit;
     std::unique_ptr<nts::IComponent> and_gate(new nts::AndGate);
     std::unique_ptr<nts::IComponent> not_gate(new nts::NotGate);
+
+    circuit.pinMode(1, nts::PinMode::INPUT);
+    circuit.pinMode(2, nts::PinMode::INPUT);
+    circuit.pinMode(3, nts::PinMode::OUTPUT);
 
     circuit.insert("and", std::move(and_gate));
     circuit.insert("not", std::move(not_gate));
