@@ -13,7 +13,7 @@ add_executable(unit_tests
     "circuit.cpp"
     "clock.cpp"
     # "latches.cpp"
-    # "nts_gates.cpp"
+    "nts_gates.cpp"
     "parser.cpp"
     # "4017.cpp"
 )

@@ -9,7 +9,6 @@
 #include "nts/BuiltInComponentFactory.hpp"
 #include "nts/ClockComponent.hpp"
 #include "nts/NtsComponentFactory.hpp"
-#include <fstream>
 #include <iostream>
 #include <regex>
 #include <vector>

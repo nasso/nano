@@ -31,7 +31,13 @@ NtsComponentFactory::NtsComponentFactory(const NtsComponentFactory& base,
 std::unique_ptr<IComponent> NtsComponentFactory::createComponent(
     const std::string& name)
 {
-    std::string fname = m_dirpath + name + ".nts";
+    std::string fname = m_dirpath;
+
+    if (!m_dirpath.empty() && m_dirpath[m_dirpath.size() - 1] != '/') {
+        fname += '/';
+    }
+
+    fname += name + ".nts";
 
     if (m_exceptions.find(fname) != m_exceptions.end()) {
         throw std::runtime_error("Cyclic component: " + name);

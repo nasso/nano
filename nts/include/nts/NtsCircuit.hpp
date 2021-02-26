@@ -11,6 +11,9 @@
 #include "BuiltInComponentFactory.hpp"
 #include "Circuit.hpp"
 #include "IComponentFactory.hpp"
+#include "MultiComponentFactory.hpp"
+#include "NtsComponentFactory.hpp"
+#include <fstream>
 #include <istream>
 #include <string>
 #include <unordered_map>
@@ -26,6 +29,25 @@ public:
     PinId input(const std::string& pinName);
 
     virtual void simulate() override;
+
+    template <class T = const std::vector<const char*>&>
+    static NtsCircuit load(const std::string& path, T includePaths = {})
+    {
+        std::ifstream file(path);
+
+        if (!file.is_open()) {
+            throw new std::runtime_error("Couldn't open file: " + path);
+        }
+
+        MultiComponentFactory mcf;
+        mcf.addFactory(std::make_unique<BuiltInComponentFactory>());
+
+        for (const auto& path : includePaths) {
+            mcf.addFactory(std::make_unique<NtsComponentFactory>(path));
+        }
+
+        return NtsCircuit(file, mcf);
+    }
 
 private:
     std::unordered_map<std::string, PinId> m_pins;

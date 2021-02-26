@@ -5,8 +5,8 @@
 ** nts_gates
 */
 
-#include "NTSCircuit.hpp"
 #include "assert_truth.hpp"
+#include "nts/NtsCircuit.hpp"
 #include <criterion/criterion.h>
 
 const auto T = nts::Tristate::TRUE;
@@ -15,12 +15,12 @@ const auto U = nts::Tristate::UNDEFINED;
 
 Test(logic_gates, nand)
 {
-    nts::NTSCircuit gate("components/nand.nts");
+    auto gate = nts::NtsCircuit::load("components/nand.nts", { "components" });
 
     assert_truth(gate, {
-                           /*.inputs = */{ 1, 2 },
-                           /*.outputs = */{ 3 },
-                           /*.truthTable = */{
+                           /*.inputs = */ { 1, 2 },
+                           /*.outputs = */ { 3 },
+                           /*.truthTable = */ {
                                { { U, U }, { U } },
                                { { U, F }, { T } },
                                { { U, T }, { U } },
@@ -36,12 +36,12 @@ Test(logic_gates, nand)
 
 Test(logic_gates, nor)
 {
-    nts::NTSCircuit gate("components/nor.nts");
+    auto gate = nts::NtsCircuit::load("components/nor.nts", { "components" });
 
     assert_truth(gate, {
-                           /*.inputs = */{ 1, 2 },
-                           /*.outputs = */{ 3 },
-                           /*.truthTable = */{
+                           /*.inputs = */ { 1, 2 },
+                           /*.outputs = */ { 3 },
+                           /*.truthTable = */ {
                                { { U, U }, { U } },
                                { { U, F }, { U } },
                                { { U, T }, { F } },
@@ -57,12 +57,12 @@ Test(logic_gates, nor)
 
 Test(logic_gates, or)
 {
-    nts::NTSCircuit gate("components/or.nts");
+    auto gate = nts::NtsCircuit::load("components/or.nts", { "components" });
 
     assert_truth(gate, {
-                           /*.inputs = */{ 1, 2 },
-                           /*.outputs = */{ 3 },
-                           /*.truthTable = */{
+                           /*.inputs = */ { 1, 2 },
+                           /*.outputs = */ { 3 },
+                           /*.truthTable = */ {
                                { { U, U }, { U } },
                                { { U, F }, { U } },
                                { { U, T }, { T } },
@@ -78,12 +78,12 @@ Test(logic_gates, or)
 
 Test(logic_gates, xor)
 {
-    nts::NTSCircuit gate("components/xor.nts");
+    auto gate = nts::NtsCircuit::load("components/xor.nts", { "components" });
 
     assert_truth(gate, {
-                           /*.inputs = */{ 1, 2 },
-                           /*.outputs = */{ 3 },
-                           /*.truthTable = */{
+                           /*.inputs = */ { 1, 2 },
+                           /*.outputs = */ { 3 },
+                           /*.truthTable = */ {
                                { { U, U }, { U } },
                                { { U, F }, { U } },
                                { { U, T }, { U } },
@@ -99,12 +99,12 @@ Test(logic_gates, xor)
 
 Test(logic_gates, xnor)
 {
-    nts::NTSCircuit gate("components/xnor.nts");
+    auto gate = nts::NtsCircuit::load("components/xnor.nts", { "components" });
 
     assert_truth(gate, {
-                           /*.inputs = */{ 1, 2 },
-                           /*.outputs = */{ 3 },
-                           /*.truthTable = */{
+                           /*.inputs = */ { 1, 2 },
+                           /*.outputs = */ { 3 },
+                           /*.truthTable = */ {
                                { { U, U }, { U } },
                                { { U, F }, { U } },
                                { { U, T }, { U } },
@@ -120,12 +120,12 @@ Test(logic_gates, xnor)
 
 Test(logic_gates, multiplexer)
 {
-    nts::NTSCircuit gate("components/mux.nts");
+    auto gate = nts::NtsCircuit::load("components/mux.nts", { "components" });
 
     assert_truth<3>(gate, {
-                              /*.inputs = */{ 1, 2, 3 },
-                              /*.outputs = */{ 4 },
-                              /*.truthTable = */{
+                              /*.inputs = */ { 1, 2, 3 },
+                              /*.outputs = */ { 4 },
+                              /*.truthTable = */ {
                                   { { U, U, U }, { U } },
                                   { { U, U, F }, { U } },
                                   { { U, U, T }, { U } },
@@ -159,12 +159,12 @@ Test(logic_gates, multiplexer)
 
 Test(logic_gates, and3)
 {
-    nts::NTSCircuit gate("components/and3.nts");
+    auto gate = nts::NtsCircuit::load("components/and3.nts", { "components" });
 
     assert_truth<3>(gate, {
-                              /*.inputs = */{ 1, 2, 3 },
-                              /*.outputs = */{ 4 },
-                              /*.truthTable = */{
+                              /*.inputs = */ { 1, 2, 3 },
+                              /*.outputs = */ { 4 },
+                              /*.truthTable = */ {
                                   { { U, U, U }, { U } },
                                   { { U, U, F }, { F } },
                                   { { U, U, T }, { U } },
