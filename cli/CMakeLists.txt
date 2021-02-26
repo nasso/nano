@@ -10,3 +10,10 @@ add_executable(nanotekspice
 )
 target_link_libraries(nanotekspice nts)
 target_include_directories(nanotekspice PRIVATE "include")
+
+add_custom_command(
+	TARGET nanotekspice POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_SOURCE_DIR}/components
+        $<TARGET_FILE_DIR:nanotekspice>/components
+)

@@ -10,14 +10,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 option(ENABLE_TESTS "Build tests along with the library" ON)
 
 # Include sub-projects.
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/nts")
-add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/cli")
+add_subdirectory(nts)
+add_subdirectory(cli)
 
-install(TARGETS nanotekspice)
-
-if (ENABLE_TESTS)
+if(ENABLE_TESTS)
 	enable_testing()
-	add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/tests")
-
-	install(TARGETS unit_tests COMPONENT tests EXCLUDE_FROM_ALL)
-endif ()
+	add_subdirectory(tests)
+endif()

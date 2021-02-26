@@ -20,3 +20,9 @@ add_executable(unit_tests
 target_link_libraries(unit_tests nts)
 target_link_libraries(unit_tests ${CRITERION_LIBRARIES})
 target_include_directories(unit_tests PRIVATE ${CRITERION_INCLUDE_DIRS})
+
+add_custom_command(
+	TARGET unit_tests POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		${CMAKE_SOURCE_DIR}/components $<TARGET_FILE_DIR:unit_tests>/components
+)
