@@ -8,11 +8,8 @@
 #ifndef NTSCIRCUIT_HPP_
 #define NTSCIRCUIT_HPP_
 
-#include "BuiltInComponentFactory.hpp"
 #include "Circuit.hpp"
 #include "IComponentFactory.hpp"
-#include "MultiComponentFactory.hpp"
-#include "NtsComponentFactory.hpp"
 #include <fstream>
 #include <istream>
 #include <string>
@@ -25,8 +22,8 @@ class NtsCircuit : public Circuit<std::string> {
 public:
     NtsCircuit(const std::string& path,
         const std::vector<std::string>& includePaths = {});
-    NtsCircuit(std::istream& in,
-        IComponentFactory& factory = BuiltInComponentFactory());
+    NtsCircuit(std::istream& in, IComponentFactory& factory);
+    NtsCircuit(std::istream& in);
 
     PinId input(const std::string& pinName);
 

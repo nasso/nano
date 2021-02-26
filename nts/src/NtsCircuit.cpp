@@ -8,6 +8,7 @@
 #include "nts/NtsCircuit.hpp"
 #include "nts/BuiltInComponentFactory.hpp"
 #include "nts/ClockComponent.hpp"
+#include "nts/MultiComponentFactory.hpp"
 #include "nts/NtsComponentFactory.hpp"
 #include <iostream>
 #include <regex>
@@ -37,6 +38,13 @@ NtsCircuit::NtsCircuit(const std::string& path,
 NtsCircuit::NtsCircuit(std::istream& in, IComponentFactory& factory)
 {
     build(in, factory);
+}
+
+NtsCircuit::NtsCircuit(std::istream& in)
+{
+    BuiltInComponentFactory builtins;
+
+    build(in, builtins);
 }
 
 void NtsCircuit::simulate()

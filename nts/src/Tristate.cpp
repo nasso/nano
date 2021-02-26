@@ -10,14 +10,18 @@
 
 namespace nts {
 
-constexpr Tristate::Tristate(Value val)
-    : m_value(val)
+const Tristate Tristate::UNDEFINED = Tristate(Tristate::Value::UNDEFINED);
+const Tristate Tristate::FALSE = Tristate(Tristate::Value::FALSE);
+const Tristate Tristate::TRUE = Tristate(Tristate::Value::TRUE);
+
+bool Tristate::operator==(const Tristate& other) const
 {
+    return m_value == other.m_value;
 }
 
-Tristate::operator Value() const
+bool Tristate::operator!=(const Tristate& other) const
 {
-    return m_value;
+    return m_value != other.m_value;
 }
 
 Tristate Tristate::operator&&(const Tristate& other) const
@@ -44,10 +48,10 @@ Tristate Tristate::operator||(const Tristate& other) const
 
 Tristate Tristate::operator!() const
 {
-    switch (*this) {
-    case FALSE:
+    switch (m_value) {
+    case Value::FALSE:
         return TRUE;
-    case TRUE:
+    case Value::TRUE:
         return FALSE;
     default:
         return UNDEFINED;
@@ -66,15 +70,13 @@ Tristate& Tristate::operator&=(const Tristate& other)
 
 std::ostream& operator<<(std::ostream& os, const nts::Tristate& state)
 {
-    switch (state) {
-    case Tristate::UNDEFINED:
-        return os << 'U';
-    case Tristate::TRUE:
-        return os << '1';
-    case Tristate::FALSE:
+    if (state == Tristate::FALSE) {
         return os << '0';
+    } else if (state == Tristate::TRUE) {
+        return os << '1';
+    } else {
+        return os << 'U';
     }
-    return os;
 }
 
 }

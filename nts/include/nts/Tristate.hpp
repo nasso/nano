@@ -15,16 +15,19 @@ namespace nts {
 
 class Tristate {
 public:
-    enum Value : std::uint8_t {
-        UNDEFINED = std::uint8_t(-1),
-        FALSE = 0,
-        TRUE = 1,
-    };
+    static const Tristate TRUE;
+    static const Tristate FALSE;
+    static const Tristate UNDEFINED;
 
-    constexpr Tristate(Value val = UNDEFINED);
+    constexpr Tristate()
+        : m_value(Value::UNDEFINED)
+    {
+    }
 
-    operator Value() const;
-    explicit operator bool() const = delete;
+    constexpr Tristate(const Tristate& other)
+        : m_value(other.m_value)
+    {
+    }
 
     Tristate operator&&(const Tristate&) const;
     Tristate operator||(const Tristate&) const;
@@ -33,7 +36,21 @@ public:
     Tristate& operator|=(const Tristate&);
     Tristate& operator&=(const Tristate&);
 
+    bool operator==(const Tristate&) const;
+    bool operator!=(const Tristate&) const;
+
 private:
+    enum class Value {
+        UNDEFINED = std::uint8_t(-1),
+        FALSE = 0,
+        TRUE = 1,
+    };
+
+    constexpr Tristate(Value val)
+        : m_value(val)
+    {
+    }
+
     Value m_value;
 };
 
