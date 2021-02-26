@@ -9,17 +9,18 @@
 #define BUILTINCOMPONENTFACTORY_HPP_
 
 #include "IComponentFactory.hpp"
-#include <memory>
-#include <string>
+#include "StaticComponentFactory.hpp"
 
 namespace nts {
 
 class BuiltInComponentFactory : public IComponentFactory {
 public:
-    ~BuiltInComponentFactory() = default;
+    BuiltInComponentFactory();
 
-    std::unique_ptr<nts::IComponent> createComponent(const std::string& name)
-        override;
+    virtual Output createComponent(const Name& name) override;
+
+private:
+    StaticComponentFactory m_scf;
 };
 
 }

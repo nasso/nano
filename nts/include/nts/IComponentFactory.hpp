@@ -16,6 +16,9 @@ namespace nts {
 
 class IComponentFactory {
 public:
+    using Output = std::unique_ptr<IComponent>;
+    using Name = std::string;
+
     virtual ~IComponentFactory() = default;
 
     /**
@@ -24,9 +27,7 @@ public:
      * @param name The name of the component to return an instance of
      * @return An new instance of the component with the given name
      */
-    virtual std::unique_ptr<nts::IComponent> createComponent(
-        const std::string& name)
-        = 0;
+    virtual Output createComponent(const Name& name) = 0;
 };
 
 }

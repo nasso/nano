@@ -22,6 +22,7 @@ add_library(nts STATIC
     "include/nts/NotGate.hpp"
     "include/nts/NtsCircuit.hpp"
     "include/nts/NtsComponentFactory.hpp"
+    "include/nts/StaticComponentFactory.hpp"
     "include/nts/Tristate.hpp"
     "src/AComponent.cpp"
     "src/AndGate.cpp"
@@ -33,6 +34,7 @@ add_library(nts STATIC
     "src/NotGate.cpp"
     "src/NtsCircuit.cpp"
     "src/NtsComponentFactory.cpp"
+    "src/StaticComponentFactory.cpp"
     "src/Tristate.cpp"
 )
 target_include_directories(nts PUBLIC "include")

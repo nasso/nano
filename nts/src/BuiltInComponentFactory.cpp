@@ -15,20 +15,22 @@
 
 namespace nts {
 
-std::unique_ptr<nts::IComponent> BuiltInComponentFactory::createComponent(
-    const std::string& name)
+BuiltInComponentFactory::BuiltInComponentFactory()
 {
-    if (name == "and") {
-        return std::make_unique<AndGate>();
-    } else if (name == "not") {
-        return std::make_unique<NotGate>();
-    } else if (name == "true") {
+    m_scf.add("and", std::make_unique<AndGate>);
+    m_scf.add("not", std::make_unique<NotGate>);
+    m_scf.add("true", []() {
         return std::make_unique<ConstComponent>(Tristate::TRUE);
-    } else if (name == "false") {
+    });
+    m_scf.add("false", []() {
         return std::make_unique<ConstComponent>(Tristate::FALSE);
-    }
+    });
+}
 
-    throw std::runtime_error("Error can't create component " + name);
+IComponentFactory::Output BuiltInComponentFactory::createComponent(
+    const IComponentFactory::Name& name)
+{
+    return m_scf.createComponent(name);
 }
 
 }
