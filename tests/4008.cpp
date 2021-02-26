@@ -5,10 +5,8 @@
 ** nts_components
 */
 
-#include "InputComponent.hpp"
-#include "NTSCircuit.hpp"
-#include "OutputComponent.hpp"
 #include "assert_truth.hpp"
+#include "nts/NtsCircuit.hpp"
 #include <criterion/criterion.h>
 #include <criterion/theories.h>
 
@@ -18,12 +16,12 @@ const auto U = nts::Tristate::UNDEFINED;
 
 Test(components_4008, adder_binary)
 {
-    nts::NTSCircuit gate("components/adder.nts");
+    auto gate = nts::NtsCircuit::load("components/adder.nts", { "components" });
 
     assert_truth<3, 2, 2>(gate, {
-                                    /*.inputs = */{ 1, 2, 3 },
-                                    /*.outputs = */{ 4, 5 },
-                                    /*.truthTable = */{
+                                    /*.inputs = */ { 1, 2, 3 },
+                                    /*.outputs = */ { 4, 5 },
+                                    /*.truthTable = */ {
                                         { { F, F, F }, { F, F } },
                                         { { T, F, F }, { F, T } },
                                         { { F, T, F }, { F, T } },
@@ -36,15 +34,16 @@ Test(components_4008, adder_binary)
                                 });
 }
 
+// maybe FIXME
 Test(components_4008, adder_tristate, .disabled = true)
 {
-    nts::NTSCircuit gate("components/adder.nts");
+    auto gate = nts::NtsCircuit::load("components/adder.nts", { "components" });
 
     if (!test_gate<3, 2>(gate,
             {
-                /*.inputs = */{ 1, 2, 3 },
-                /*.outputs = */{ 4, 5 },
-                /*.truthTable = */{
+                /*.inputs = */ { 1, 2, 3 },
+                /*.outputs = */ { 4, 5 },
+                /*.truthTable = */ {
                     { { U, U, U }, { U, U } },
                     { { F, U, U }, { U, U } },
                     { { T, U, U }, { U, U } },
@@ -107,33 +106,21 @@ Theory(
     components_4008,
     binary_4008,
     .disabled = true,
-    .timeout = 5)
+    .timeout = 10)
 {
-    nts::NTSCircuit gate("components/4008.nts");
-    nts::InputComponent inputs[] = { c1, a1, a2, a3, a4, b1, b2, b3, b4 };
-    nts::OutputComponent s1, s2, s3, s4, co;
+    auto gate = nts::NtsCircuit::load("components/4008.nts", { "components" });
 
-    // initialize inputs
-    for (auto& in : inputs) {
-        in.simulate(1);
-    }
+    gate.write(9, c1);
+    gate.write(7, a1);
+    gate.write(5, a2);
+    gate.write(3, a3);
+    gate.write(1, a4);
+    gate.write(6, b1);
+    gate.write(4, b2);
+    gate.write(2, b3);
+    gate.write(15, b4);
 
-    gate.setLink(9, inputs[0], 1);
-    gate.setLink(7, inputs[1], 1);
-    gate.setLink(5, inputs[2], 1);
-    gate.setLink(3, inputs[3], 1);
-    gate.setLink(1, inputs[4], 1);
-    gate.setLink(6, inputs[5], 1);
-    gate.setLink(4, inputs[6], 1);
-    gate.setLink(2, inputs[7], 1);
-    gate.setLink(15, inputs[8], 1);
-    gate.setLink(10, s1, 1);
-    gate.setLink(11, s2, 1);
-    gate.setLink(12, s3, 1);
-    gate.setLink(13, s4, 1);
-    gate.setLink(14, co, 1);
-
-    gate.simulate(1);
+    gate.simulate();
 
     std::uint8_t c = c1 == T;
     std::uint8_t a = 0
@@ -147,11 +134,11 @@ Theory(
         | ((b3 == T) << 2)
         | ((b4 == T) << 3);
     std::uint8_t s = 0
-        | ((s1 == T) << 0)
-        | ((s2 == T) << 1)
-        | ((s3 == T) << 2)
-        | ((s4 == T) << 3)
-        | ((co == T) << 4);
+        | ((gate.read(10) == T) << 0)
+        | ((gate.read(11) == T) << 1)
+        | ((gate.read(12) == T) << 2)
+        | ((gate.read(13) == T) << 3)
+        | ((gate.read(14) == T) << 4);
 
     cr_assert_eq(a + b + c, s);
 }

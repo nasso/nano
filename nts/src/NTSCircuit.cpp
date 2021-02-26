@@ -58,7 +58,9 @@ NtsCircuit::NtsCircuit(std::istream& in, IComponentFactory& factory)
             std::string type(m[1]);
             std::string name(m[2]);
 
-            if (type == "input") {
+            if (type == "ignored") {
+                pinCounter++;
+            } else if (type == "input") {
                 pinMode(++pinCounter, INPUT);
                 m_pins.emplace(name, pinCounter);
             } else if (type == "clock") {
