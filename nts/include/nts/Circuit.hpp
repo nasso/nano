@@ -33,6 +33,16 @@ public:
     {
     }
 
+    Circuit(Circuit&& other)
+        : AComponent(std::move(other))
+        , m_adjencyList(std::move(other.m_adjencyList))
+        , m_chipsets(std::move(other.m_chipsets))
+        , m_directPinLinks(std::move(other.m_directPinLinks))
+        , m_pinLinks(std::move(other.m_pinLinks))
+        , m_maxTickPerSimulation(other.m_maxTickPerSimulation)
+    {
+    }
+
     /**
      * @return The current value for `maxTickPerSimulation`
      * @see Circuit::maxTickPerSimulation(std::size_t)

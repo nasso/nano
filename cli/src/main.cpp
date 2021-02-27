@@ -6,8 +6,15 @@
 */
 
 #include "Repl.hpp"
+#include "nts/BuiltInComponentFactory.hpp"
+#include "nts/LoggerComponent.hpp"
+#include "nts/MultiComponentFactory.hpp"
 #include "nts/NtsCircuit.hpp"
+#include "nts/NtsComponentFactory.hpp"
+#include "nts/StaticComponentFactory.hpp"
+#include <fstream>
 #include <iostream>
+#include <memory>
 
 static void usage(const std::string& name)
 {
@@ -22,7 +29,33 @@ int main(int argc, char** argv)
     }
 
     try {
-        Repl repl(argv[1], { "components" });
+        std::ofstream logfile;
+        std::ifstream file(argv[1]);
+
+        auto builtins = std::make_unique<nts::BuiltInComponentFactory>();
+        auto chips = std::make_unique<nts::NtsComponentFactory>("components");
+        auto extras = std::make_unique<nts::StaticComponentFactory>();
+
+        extras->add("logger", [&]() {
+            if (!logfile.is_open()) {
+                logfile.open("log.bin");
+
+                if (!logfile.is_open()) {
+                    throw std::runtime_error("Can't open log file");
+                }
+            }
+
+            return std::make_unique<nts::LoggerComponent>(logfile);
+        });
+
+        nts::MultiComponentFactory mainFactory;
+        mainFactory.addFactory(std::move(builtins));
+        mainFactory.addFactory(std::move(extras));
+        mainFactory.addFactory(std::move(chips));
+
+        nts::NtsCircuit circuit(file, mainFactory);
+
+        Repl repl(std::move(circuit));
 
         repl.run(std::cin, std::cout);
     } catch (const std::exception& e) {

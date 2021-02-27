@@ -16,7 +16,7 @@
 
 class Repl {
 public:
-    Repl(const std::string& path, const std::vector<std::string>& includePaths);
+    Repl(nts::NtsCircuit&& circuit);
 
     void run(std::istream& in, std::ostream& out);
 

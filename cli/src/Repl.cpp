@@ -15,9 +15,8 @@
 
 thread_local bool gSigintReceived = false;
 
-Repl::Repl(const std::string& path,
-    const std::vector<std::string>& includePaths)
-    : m_circuit(path, includePaths)
+Repl::Repl(nts::NtsCircuit&& circuit)
+    : m_circuit(std::move(circuit))
 {
     readPins(m_inputs, nts::INPUT);
     readPins(m_outputs, nts::OUTPUT);

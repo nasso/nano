@@ -33,25 +33,27 @@ void LoggerComponent::simulate()
         m_rising = true;
     }
 
-    if (clock == Tristate::TRUE && inhibit == Tristate::FALSE && m_rising) {
+    if (clock == Tristate::TRUE && m_rising) {
         m_rising = false;
 
-        std::uint8_t val = 0;
-        std::size_t bitIndex = 0;
+        if (inhibit == Tristate::FALSE) {
+            std::uint8_t val = 0;
+            std::size_t bitIndex = 0;
 
-        for (PinId pin : PIN_DATA) {
-            Tristate bit = read(pin);
+            for (PinId pin : PIN_DATA) {
+                Tristate bit = read(pin);
 
-            if (bit == Tristate::UNDEFINED) {
-                return;
+                if (bit == Tristate::UNDEFINED) {
+                    return;
+                }
+
+                val |= (bit == Tristate::TRUE) << bitIndex;
+
+                bitIndex++;
             }
 
-            val |= (bit == Tristate::TRUE) << bitIndex;
-
-            bitIndex++;
+            m_output << val;
         }
-
-        m_output << val;
     }
 }
 
