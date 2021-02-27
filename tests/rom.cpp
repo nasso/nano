@@ -14,7 +14,7 @@ const auto T = nts::Tristate::TRUE;
 const auto F = nts::Tristate::FALSE;
 const auto U = nts::Tristate::UNDEFINED;
 
-std::uint8_t read(nts::RomComponent& rom, std::uint16_t addr)
+void fetch(nts::RomComponent& rom, std::uint16_t addr)
 {
     rom.write(8, addr & (1 << 0) ? T : F);
     rom.write(7, addr & (1 << 1) ? T : F);
@@ -29,6 +29,26 @@ std::uint8_t read(nts::RomComponent& rom, std::uint16_t addr)
     rom.write(19, addr & (1 << 10) ? T : F);
 
     rom.simulate();
+}
+
+bool readHiZ(nts::RomComponent& rom, std::uint16_t addr)
+{
+    fetch(rom, addr);
+
+    return true
+        && (rom.read(9) == U)
+        && (rom.read(10) == U)
+        && (rom.read(11) == U)
+        && (rom.read(13) == U)
+        && (rom.read(14) == U)
+        && (rom.read(15) == U)
+        && (rom.read(16) == U)
+        && (rom.read(17) == U);
+}
+
+std::uint8_t read(nts::RomComponent& rom, std::uint16_t addr)
+{
+    fetch(rom, addr);
 
     std::uint8_t val = 0
         | ((rom.read(9) == T) << 0)
@@ -81,18 +101,37 @@ Test(rom, out_of_bounds_is_zero)
     cr_assert_eq(read(rom, 1392), 0);
 }
 
-Test(rom, output_disable)
+Test(rom, output_tristate)
 {
     std::string text = "hello world!";
     std::vector<std::uint8_t> data(text.begin(), text.end());
     data.resize(2048);
     nts::RomComponent rom(data);
 
+    rom.write(20, F);
     rom.write(18, F);
+    cr_assert_eq(read(rom, 0), 'h');
+
     rom.write(20, T);
-    cr_assert_eq(read(rom, 0), 0);
-    cr_assert_eq(read(rom, 1), 0);
-    cr_assert_eq(read(rom, 13), 0);
-    cr_assert_eq(read(rom, 14), 0);
-    cr_assert_eq(read(rom, 1392), 0);
+    cr_assert(readHiZ(rom, 0));
+    cr_assert(readHiZ(rom, 1));
+    cr_assert(readHiZ(rom, 13));
+    cr_assert(readHiZ(rom, 14));
+    cr_assert(readHiZ(rom, 1392));
+
+    rom.write(18, T);
+    rom.write(20, F);
+    cr_assert(readHiZ(rom, 0));
+    cr_assert(readHiZ(rom, 1));
+    cr_assert(readHiZ(rom, 13));
+    cr_assert(readHiZ(rom, 14));
+    cr_assert(readHiZ(rom, 1392));
+
+    rom.write(18, T);
+    rom.write(20, T);
+    cr_assert(readHiZ(rom, 0));
+    cr_assert(readHiZ(rom, 1));
+    cr_assert(readHiZ(rom, 13));
+    cr_assert(readHiZ(rom, 14));
+    cr_assert(readHiZ(rom, 1392));
 }

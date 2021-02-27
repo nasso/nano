@@ -36,6 +36,10 @@ RomComponent::RomComponent(std::vector<std::uint8_t> data)
 
 void RomComponent::simulate()
 {
+    for (PinId pin : PINS_OUT) {
+        write(pin, Tristate::UNDEFINED);
+    }
+
     if (read(PIN_ENABLE_N) != Tristate::FALSE
         || read(PIN_READ_N) != Tristate::FALSE) {
         return;
@@ -48,9 +52,6 @@ void RomComponent::simulate()
         Tristate bit = read(pin);
 
         if (bit == Tristate::UNDEFINED) {
-            for (PinId pin : PINS_OUT) {
-                write(pin, Tristate::UNDEFINED);
-            }
             return;
         }
 
@@ -64,10 +65,6 @@ void RomComponent::simulate()
         for (PinId pin : PINS_OUT) {
             write(pin, val & 1 ? Tristate::TRUE : Tristate::FALSE);
             val >>= 1;
-        }
-    } else {
-        for (PinId pin : PINS_OUT) {
-            write(pin, Tristate::UNDEFINED);
         }
     }
 }
