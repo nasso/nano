@@ -13,17 +13,19 @@
 #include <vector>
 
 namespace nts {
+
 class LoggerComponent : public AComponent {
 public:
-    LoggerComponent(std::ostream& output_s);
-    ~LoggerComponent() = default;
+    LoggerComponent(std::ostream& out);
 
-protected:
-    void _compute(PinSetter set) override;
+    virtual void simulate() override;
+    virtual void display(std::ostream& os) const override;
 
 private:
+    bool m_rising = false;
     std::ostream& m_output;
 };
+
 }
 
 #endif /* !LOGGERCOMPONENT_HPP_ */

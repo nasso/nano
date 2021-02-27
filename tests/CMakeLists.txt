@@ -6,16 +6,17 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(unit_tests
-    "assert_truth.hpp"
     "4008.cpp"
     "4013.cpp"
+    "4017.cpp"
+    "assert_truth.hpp"
     "builtin_gates.cpp"
     "circuit.cpp"
     "clock.cpp"
     "latches.cpp"
+    "logger.cpp"
     "nts_gates.cpp"
     "parser.cpp"
-    "4017.cpp"
 )
 target_link_libraries(unit_tests nts)
 target_link_libraries(unit_tests ${CRITERION_LIBRARIES})
