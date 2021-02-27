@@ -17,6 +17,7 @@ add_executable(unit_tests
     "logger.cpp"
     "nts_gates.cpp"
     "parser.cpp"
+    "rom.cpp"
 )
 target_link_libraries(unit_tests nts)
 target_link_libraries(unit_tests ${CRITERION_LIBRARIES})
