@@ -6,6 +6,7 @@
 */
 
 #include "nts/AComponent.hpp"
+#include <string>
 
 namespace nts {
 
@@ -38,12 +39,20 @@ const Pinout& AComponent::pinout() const
 
 Tristate AComponent::read(PinId pin) const
 {
-    return m_pins.at(pin);
+    try {
+        return m_pins.at(pin);
+    } catch (...) {
+        throw std::out_of_range("No such pin: " + std::to_string(pin));
+    }
 }
 
 void AComponent::write(PinId pin, Tristate value)
 {
-    m_pins.at(pin) = value;
+    try {
+        m_pins.at(pin) = value;
+    } catch (...) {
+        throw std::out_of_range("No such pin: " + std::to_string(pin));
+    }
 }
 
 }

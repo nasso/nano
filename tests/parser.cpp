@@ -7,6 +7,7 @@
 
 #include "assert_truth.hpp"
 #include "nts/NtsCircuit.hpp"
+#include "nts/NtsComponentFactory.hpp"
 #include <criterion/criterion.h>
 #include <sstream>
 
@@ -96,7 +97,7 @@ Test(nts_parser, buffer)
         });
 }
 
-Test(nts_parser, clock)
+Test(nts_parser, clock_pin)
 {
     std::istringstream source(
         ".chipsets:\n"
@@ -130,4 +131,27 @@ Test(nts_parser, clock)
 
     circuit.simulate();
     cr_assert_eq(circuit.read(2), F);
+}
+
+Test(nts_parser, unstable_circuit)
+{
+    std::istringstream source(
+        ".chipsets:\n"
+        "input in\n"
+        "output out\n"
+        "nor nor\n"
+        ".links:\n"
+        "nor:1 in:1\n"
+        "nor:2 nor:3\n"
+        "out:1 nor:3\n");
+
+    nts::NtsComponentFactory factory("components");
+    nts::NtsCircuit circuit(source, factory);
+
+    circuit.write(1, T);
+    circuit.simulate();
+    cr_assert_eq(circuit.read(2), F);
+
+    circuit.write(1, F);
+    cr_assert_any_throw(circuit.simulate());
 }
