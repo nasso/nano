@@ -5,16 +5,16 @@
 ** ComponentFactory
 */
 
-#include "nts/MultiComponentFactory.hpp"
-#include <stdexcept>
+#include "nts/ComboComponentFactory.hpp"
 
-void nts::MultiComponentFactory::addFactory(
-    std::unique_ptr<IComponentFactory> factory)
+namespace nts {
+
+void ComboComponentFactory::add(std::unique_ptr<IComponentFactory> factory)
 {
     m_factories.push_back(std::move(factory));
 }
 
-std::unique_ptr<nts::IComponent> nts::MultiComponentFactory::createComponent(
+std::unique_ptr<IComponent> ComboComponentFactory::createComponent(
     const std::string& name)
 {
     for (auto& factory : m_factories) {
@@ -25,4 +25,6 @@ std::unique_ptr<nts::IComponent> nts::MultiComponentFactory::createComponent(
     }
 
     throw std::runtime_error("Error can't create component " + name);
+}
+
 }

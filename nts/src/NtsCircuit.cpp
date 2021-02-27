@@ -8,7 +8,7 @@
 #include "nts/NtsCircuit.hpp"
 #include "nts/BuiltInComponentFactory.hpp"
 #include "nts/ClockComponent.hpp"
-#include "nts/MultiComponentFactory.hpp"
+#include "nts/ComboComponentFactory.hpp"
 #include "nts/NtsComponentFactory.hpp"
 #include <iostream>
 #include <regex>
@@ -25,11 +25,11 @@ NtsCircuit::NtsCircuit(const std::string& path,
         throw new std::runtime_error("Couldn't open file: " + path);
     }
 
-    MultiComponentFactory mcf;
-    mcf.addFactory(std::make_unique<BuiltInComponentFactory>());
+    ComboComponentFactory mcf;
+    mcf.add(std::make_unique<BuiltInComponentFactory>());
 
     for (const auto& path : includePaths) {
-        mcf.addFactory(std::make_unique<NtsComponentFactory>(path));
+        mcf.add(std::make_unique<NtsComponentFactory>(path));
     }
 
     build(file, mcf);

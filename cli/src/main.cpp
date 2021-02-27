@@ -7,8 +7,8 @@
 
 #include "Repl.hpp"
 #include "nts/BuiltInComponentFactory.hpp"
+#include "nts/ComboComponentFactory.hpp"
 #include "nts/LoggerComponent.hpp"
-#include "nts/MultiComponentFactory.hpp"
 #include "nts/NtsCircuit.hpp"
 #include "nts/NtsComponentFactory.hpp"
 #include "nts/RomComponent.hpp"
@@ -62,10 +62,10 @@ int main(int argc, char** argv)
             return std::make_unique<nts::RomComponent>(rom);
         });
 
-        nts::MultiComponentFactory mainFactory;
-        mainFactory.addFactory(std::move(builtins));
-        mainFactory.addFactory(std::move(extras));
-        mainFactory.addFactory(std::move(chips));
+        nts::ComboComponentFactory mainFactory;
+        mainFactory.add(std::move(builtins));
+        mainFactory.add(std::move(extras));
+        mainFactory.add(std::move(chips));
 
         nts::NtsCircuit circuit(file, mainFactory);
 

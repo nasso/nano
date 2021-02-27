@@ -7,7 +7,7 @@
 
 #include "nts/NtsComponentFactory.hpp"
 #include "nts/BuiltInComponentFactory.hpp"
-#include "nts/MultiComponentFactory.hpp"
+#include "nts/ComboComponentFactory.hpp"
 #include "nts/NtsCircuit.hpp"
 #include <exception>
 #include <fstream>
@@ -46,9 +46,9 @@ std::unique_ptr<IComponent> NtsComponentFactory::createComponent(
     std::unique_ptr<NtsComponentFactory> subfactory(new NtsComponentFactory(
         *this, name));
 
-    MultiComponentFactory mcf;
-    mcf.addFactory(std::make_unique<BuiltInComponentFactory>());
-    mcf.addFactory(std::move(subfactory));
+    ComboComponentFactory mcf;
+    mcf.add(std::make_unique<BuiltInComponentFactory>());
+    mcf.add(std::move(subfactory));
 
     std::ifstream file(fname);
 

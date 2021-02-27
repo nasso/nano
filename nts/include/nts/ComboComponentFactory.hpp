@@ -5,8 +5,8 @@
 ** IComponentFactory
 */
 
-#ifndef MULTICOMPONENTFACTORY_HPP_
-#define MULTICOMPONENTFACTORY_HPP_
+#ifndef COMBOCOMPONENTFACTORY_HPP_
+#define COMBOCOMPONENTFACTORY_HPP_
 
 #include "IComponentFactory.hpp"
 #include <memory>
@@ -14,11 +14,11 @@
 
 namespace nts {
 
-class MultiComponentFactory : public IComponentFactory {
+class ComboComponentFactory : public IComponentFactory {
 public:
-    ~MultiComponentFactory() = default;
+    ~ComboComponentFactory() = default;
 
-    void addFactory(std::unique_ptr<IComponentFactory>);
+    void add(std::unique_ptr<IComponentFactory>);
 
     std::unique_ptr<nts::IComponent> createComponent(const std::string& name)
         override;
@@ -29,4 +29,4 @@ private:
 
 }
 
-#endif /* !MULTICOMPONENTFACTORY_HPP_ */
+#endif /* !COMBOCOMPONENTFACTORY_HPP_ */
