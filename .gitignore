@@ -3,6 +3,8 @@
 nanotekspice
 unit_tests
 build
+log.bin
+rom.bin
 
 # Visual Studio CMake configuration
 CMakeSettings.json

@@ -23,6 +23,7 @@ add_library(nts STATIC
     "include/nts/NotGate.hpp"
     "include/nts/NtsCircuit.hpp"
     "include/nts/NtsComponentFactory.hpp"
+    "include/nts/RomComponent.hpp"
     "include/nts/StaticComponentFactory.hpp"
     "include/nts/Tristate.hpp"
     "src/AComponent.cpp"
@@ -36,6 +37,7 @@ add_library(nts STATIC
     "src/NotGate.cpp"
     "src/NtsCircuit.cpp"
     "src/NtsComponentFactory.cpp"
+    "src/RomComponent.cpp"
     "src/StaticComponentFactory.cpp"
     "src/Tristate.cpp"
 )

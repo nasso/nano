@@ -5,49 +5,76 @@
 ** RomComponent
 */
 
-#include "RomComponent.hpp"
+#include "nts/RomComponent.hpp"
 
 namespace nts {
-RomComponent::RomComponent(std::vector<char> buff)
-    : m_buff(buff)
-{
-    std::vector<size_t> inputs_pin = { 8, 7, 6, 5, 4, 3, 2, 1, 23, 22, 19 };
-    std::vector<size_t> outputs_pin = { 9, 10, 11, 13, 14, 15, 16, 17 };
 
-    for (auto pin : inputs_pin)
-        input(pin);
-    for (auto pin : outputs_pin)
-        output(pin);
+const PinId PINS_ADDR[] = { 8, 7, 6, 5, 4, 3, 2, 1, 23, 22, 19 };
+const PinId PINS_OUT[] = { 9, 10, 11, 13, 14, 15, 16, 17 };
+const PinId PIN_ENABLE_N = 18;
+const PinId PIN_READ_N = 20;
+
+RomComponent::RomComponent(std::size_t size)
+    : m_data(size)
+{
 }
 
-bool RomComponent::_compute_addr(size_t& addr, size_t pin)
+RomComponent::RomComponent(std::vector<std::uint8_t> data)
+    : m_data(data)
 {
-    Tristate val = compute(pin);
-    if (val == UNDEFINED)
-        return true;
-    addr = (addr << 1) + val;
-    return false;
+    for (PinId pin : PINS_ADDR) {
+        pinMode(pin, INPUT);
+    }
+
+    for (PinId pin : PINS_OUT) {
+        pinMode(pin, OUTPUT);
+    }
+
+    pinMode(PIN_ENABLE_N, INPUT);
+    pinMode(PIN_READ_N, INPUT);
 }
 
-void RomComponent::_compute(PinSetter set)
+void RomComponent::simulate()
 {
-    size_t addr = 0;
-    char res = 0;
-    std::vector<size_t> inputs_pin = { 8, 7, 6, 5, 4, 3, 2, 1, 23, 22, 19 };
-    std::vector<size_t> outputs_pin = { 9, 10, 11, 13, 14, 15, 16, 17 };
+    if (read(PIN_ENABLE_N) != Tristate::FALSE
+        || read(PIN_READ_N) != Tristate::FALSE) {
+        return;
+    }
 
-    for (auto pin : inputs_pin) {
-        if (_compute_addr(addr, pin))
+    std::size_t addr = 0;
+    std::size_t bitIndex = 0;
+
+    for (PinId pin : PINS_ADDR) {
+        Tristate bit = read(pin);
+
+        if (bit == Tristate::UNDEFINED) {
+            for (PinId pin : PINS_OUT) {
+                write(pin, Tristate::UNDEFINED);
+            }
             return;
+        }
+
+        addr |= (bit == Tristate::TRUE) << bitIndex;
+        bitIndex++;
     }
-    if (addr >= m_buff.size()) {
-        for (auto pin : outputs_pin)
-            set(pin, UNDEFINED);
-    }
-    res = m_buff[addr];
-    for (auto pin : outputs_pin) {
-        set(pin, res & 1 ? TRUE : FALSE);
-        res = res >> 1;
+
+    if (addr < m_data.size()) {
+        std::uint8_t val = m_data[addr];
+
+        for (PinId pin : PINS_OUT) {
+            write(pin, val & 1 ? Tristate::TRUE : Tristate::FALSE);
+            val >>= 1;
+        }
+    } else {
+        for (PinId pin : PINS_OUT) {
+            write(pin, Tristate::UNDEFINED);
+        }
     }
 }
+
+void RomComponent::display(std::ostream& os) const
+{
+    os << "(rom of " << m_data.size() << " bytes)";
+}
+
 }

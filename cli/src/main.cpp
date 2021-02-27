@@ -11,6 +11,7 @@
 #include "nts/MultiComponentFactory.hpp"
 #include "nts/NtsCircuit.hpp"
 #include "nts/NtsComponentFactory.hpp"
+#include "nts/RomComponent.hpp"
 #include "nts/StaticComponentFactory.hpp"
 #include <fstream>
 #include <iostream>
@@ -46,6 +47,19 @@ int main(int argc, char** argv)
             }
 
             return std::make_unique<nts::LoggerComponent>(logfile);
+        });
+
+        extras->add("2716", []() {
+            std::ifstream romfile("rom.bin", std::ios::binary | std::ios::in);
+
+            if (!romfile.is_open()) {
+                throw std::runtime_error("Couldn't read \"rom.bin\"");
+            }
+
+            std::vector<std::uint8_t> rom(2048);
+            romfile.read(reinterpret_cast<char*>(rom.data()), rom.size());
+
+            return std::make_unique<nts::RomComponent>(rom);
         });
 
         nts::MultiComponentFactory mainFactory;

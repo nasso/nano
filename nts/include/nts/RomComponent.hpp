@@ -13,19 +13,19 @@
 #include <vector>
 
 namespace nts {
+
 class RomComponent : public AComponent {
 public:
-    RomComponent(std::vector<char> buff);
-    ~RomComponent() = default;
+    RomComponent(std::size_t size);
+    RomComponent(std::vector<std::uint8_t> data);
 
-protected:
-    void _compute(PinSetter set) override;
+    void simulate() override;
+    virtual void display(std::ostream& os) const override;
 
 private:
-    bool _compute_addr(size_t& addr, size_t pin);
-
-    std::vector<char> m_buff;
+    std::vector<std::uint8_t> m_data;
 };
+
 }
 
 #endif /* !ROMCOMPONENT_HPP_ */
