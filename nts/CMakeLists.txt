@@ -8,8 +8,7 @@ project(nts)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add source to this project's executable.
-add_library(nts STATIC
+set(sources
     "include/nts/AComponent.hpp"
     "include/nts/AndGate.hpp"
     "include/nts/BuiltInComponentFactory.hpp"
@@ -41,4 +40,25 @@ add_library(nts STATIC
     "src/StaticComponentFactory.cpp"
     "src/Tristate.cpp"
 )
-target_include_directories(nts PUBLIC "include")
+
+if(EMSCRIPTEN)
+    # When targeting WebAssembly, the library is a standalone module
+    add_executable(nts ${sources})
+    target_include_directories(nts PRIVATE "include")
+    target_link_options(nts PRIVATE
+        "-sENVIRONMENT=web"
+        "-sMODULARIZE=1"
+        "-sEXPORT_NAME=createNts"
+        "-sEXPORT_ES6=1"
+        "-sDISABLE_EXCEPTION_CATCHING=1"
+        "-sINCOMING_MODULE_JS_API=[]"
+        "-sINVOKE_RUN=0"
+        "-sAUTO_JS_LIBRARIES=0"
+        "-sAUTO_NATIVE_LIBRARIES=0"
+        "-sSTRICT_JS=1"
+        "--no-entry")
+else()
+    # For native platforms, the library is statically linked
+    add_library(nts STATIC ${sources})
+    target_include_directories(nts PUBLIC "include")
+endif()

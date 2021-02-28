@@ -126,8 +126,8 @@ void NtsCircuit::build(std::istream& in, IComponentFactory& factory)
             }
         } else if (section == LINKS && std::regex_match(line, m, link_r)) {
             links.push_back({
-                { m[1], std::stoull(m[2]) },
-                { m[3], std::stoull(m[4]) },
+                { m[1], std::stoul(m[2]) },
+                { m[3], std::stoul(m[4]) },
             });
         } else {
             throw std::runtime_error("syntax error: " + line);
