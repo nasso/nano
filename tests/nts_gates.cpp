@@ -7,6 +7,7 @@
 
 #include "assert_truth.hpp"
 #include "nts/NtsCircuit.hpp"
+#include "nts_utils.hpp"
 #include <criterion/criterion.h>
 
 const auto T = nts::Tristate::TRUE;
@@ -15,7 +16,7 @@ const auto U = nts::Tristate::UNDEFINED;
 
 Test(logic_gates, nand)
 {
-    nts::NtsCircuit gate("components/nand.nts", { "components" });
+    auto gate = loadNts("components/nand.nts", { "components" });
 
     assert_truth(gate, {
                            /*.inputs = */ { 1, 2 },
@@ -36,7 +37,7 @@ Test(logic_gates, nand)
 
 Test(logic_gates, nor)
 {
-    nts::NtsCircuit gate("components/nor.nts", { "components" });
+    auto gate = loadNts("components/nor.nts", { "components" });
 
     assert_truth(gate, {
                            /*.inputs = */ { 1, 2 },
@@ -57,7 +58,7 @@ Test(logic_gates, nor)
 
 Test(logic_gates, or)
 {
-    nts::NtsCircuit gate("components/or.nts", { "components" });
+    auto gate = loadNts("components/or.nts", { "components" });
 
     assert_truth(gate, {
                            /*.inputs = */ { 1, 2 },
@@ -78,7 +79,7 @@ Test(logic_gates, or)
 
 Test(logic_gates, xor)
 {
-    nts::NtsCircuit gate("components/xor.nts", { "components" });
+    auto gate = loadNts("components/xor.nts", { "components" });
 
     assert_truth(gate, {
                            /*.inputs = */ { 1, 2 },
@@ -99,7 +100,7 @@ Test(logic_gates, xor)
 
 Test(logic_gates, xnor)
 {
-    nts::NtsCircuit gate("components/xnor.nts", { "components" });
+    auto gate = loadNts("components/xnor.nts", { "components" });
 
     assert_truth(gate, {
                            /*.inputs = */ { 1, 2 },
@@ -120,7 +121,7 @@ Test(logic_gates, xnor)
 
 Test(logic_gates, multiplexer)
 {
-    nts::NtsCircuit gate("components/mux.nts", { "components" });
+    auto gate = loadNts("components/mux.nts", { "components" });
 
     assert_truth<3>(gate, {
                               /*.inputs = */ { 1, 2, 3 },
@@ -159,7 +160,7 @@ Test(logic_gates, multiplexer)
 
 Test(logic_gates, and3)
 {
-    nts::NtsCircuit gate("components/and3.nts", { "components" });
+    auto gate = loadNts("components/and3.nts", { "components" });
 
     assert_truth<3>(gate, {
                               /*.inputs = */ { 1, 2, 3 },

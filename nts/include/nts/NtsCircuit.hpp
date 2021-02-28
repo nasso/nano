@@ -22,10 +22,10 @@ class NtsCircuit : public Circuit<std::string> {
 public:
     using PinMap = std::unordered_map<std::string, PinId>;
 
-    NtsCircuit(const std::string& path,
-        const std::vector<std::string>& includePaths = {});
-    NtsCircuit(std::istream& in, IComponentFactory& factory);
+    NtsCircuit(const std::string& source);
+    NtsCircuit(const std::string& source, IComponentFactory& factory);
     NtsCircuit(std::istream& in);
+    NtsCircuit(std::istream& in, IComponentFactory& factory);
 
     PinId input(const std::string& pinName) const;
     const PinMap& pins() const;

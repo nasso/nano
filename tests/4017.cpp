@@ -8,6 +8,7 @@
 #include "nts/Circuit.hpp"
 #include "nts/ClockComponent.hpp"
 #include "nts/NtsCircuit.hpp"
+#include "nts_utils.hpp"
 #include <criterion/criterion.h>
 #include <cstddef>
 
@@ -25,7 +26,7 @@ Test(components_4017, timing_diagram)
     nts::Tristate nextClockValue;
     nts::PinId clockPin;
 
-    nts::NtsCircuit gate("components/4017.nts", { "components" });
+    auto gate = loadNts("components/4017.nts", { "components" });
 
     auto sim = [&]() {
         gate.write(clockPin, nextClockValue);

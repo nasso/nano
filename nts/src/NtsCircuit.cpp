@@ -12,32 +12,24 @@
 #include "nts/NtsComponentFactory.hpp"
 #include <iostream>
 #include <regex>
+#include <sstream>
 #include <vector>
 
 namespace nts {
 
-NtsCircuit::NtsCircuit(const std::string& path,
-    const std::vector<std::string>& includePaths)
+NtsCircuit::NtsCircuit(const std::string& source)
 {
-    std::ifstream file(path);
+    std::istringstream iss(source);
+    BuiltInComponentFactory builtins;
 
-    if (!file.is_open()) {
-        throw new std::runtime_error("Couldn't open file: " + path);
-    }
-
-    ComboComponentFactory mcf;
-    mcf.add(std::make_unique<BuiltInComponentFactory>());
-
-    for (const auto& path : includePaths) {
-        mcf.add(std::make_unique<NtsComponentFactory>(path));
-    }
-
-    build(file, mcf);
+    build(iss, builtins);
 }
 
-NtsCircuit::NtsCircuit(std::istream& in, IComponentFactory& factory)
+NtsCircuit::NtsCircuit(const std::string& source, IComponentFactory& factory)
 {
-    build(in, factory);
+    std::istringstream iss(source);
+
+    build(iss, factory);
 }
 
 NtsCircuit::NtsCircuit(std::istream& in)
@@ -45,6 +37,11 @@ NtsCircuit::NtsCircuit(std::istream& in)
     BuiltInComponentFactory builtins;
 
     build(in, builtins);
+}
+
+NtsCircuit::NtsCircuit(std::istream& in, IComponentFactory& factory)
+{
+    build(in, factory);
 }
 
 PinId NtsCircuit::input(const std::string& pinName) const

@@ -6,6 +6,7 @@
 */
 
 #include "nts/NtsCircuit.hpp"
+#include "nts_utils.hpp"
 #include <criterion/criterion.h>
 #include <cstddef>
 
@@ -15,8 +16,7 @@ const auto T = nts::Tristate::TRUE;
 
 Test(latches, srlatch)
 {
-    nts::NtsCircuit gate("components/srlatch.nts",
-        { "components" });
+    auto gate = loadNts("components/srlatch.nts", { "components" });
 
     gate.write(1, F);
     gate.write(2, F);
@@ -43,8 +43,7 @@ Test(latches, srlatch)
 
 Test(latches, dlatch)
 {
-    nts::NtsCircuit gate("components/dlatch.nts",
-        { "components" });
+    auto gate = loadNts("components/dlatch.nts", { "components" });
 
     gate.write(1, F);
     gate.write(2, F);
@@ -103,8 +102,7 @@ Test(latches, dlatch)
 
 Test(latches, dflipflop)
 {
-    nts::NtsCircuit gate("components/dflipflop.nts",
-        { "components" });
+    auto gate = loadNts("components/dflipflop.nts", { "components" });
 
     gate.simulate();
     cr_assert_eq(gate.read(3), U);
@@ -166,8 +164,7 @@ Test(latches, dflipflop)
 
 Test(latches, adflipflop_set)
 {
-    nts::NtsCircuit gate("components/adflipflop.nts",
-        { "components" });
+    auto gate = loadNts("components/adflipflop.nts", { "components" });
 
     gate.simulate();
     cr_assert_eq(gate.read(3), U);
@@ -192,8 +189,7 @@ Test(latches, adflipflop_set)
 
 Test(latches, adflipflop_reset)
 {
-    nts::NtsCircuit gate("components/adflipflop.nts",
-        { "components" });
+    auto gate = loadNts("components/adflipflop.nts", { "components" });
 
     gate.simulate();
     cr_assert_eq(gate.read(3), U);
@@ -219,8 +215,7 @@ Test(latches, adflipflop_reset)
 // FIXME
 Test(latches, reg1, .disabled = true)
 {
-    nts::NtsCircuit gate("components/reg1.nts",
-        { "components" });
+    auto gate = loadNts("components/reg1.nts", { "components" });
 
     auto step = [&](nts::Tristate data, nts::Tristate store, nts::Tristate cl) {
         gate.write(1, data);

@@ -16,6 +16,8 @@ add_executable(unit_tests
     "latches.cpp"
     "logger.cpp"
     "nts_gates.cpp"
+    "nts_utils.cpp"
+    "nts_utils.hpp"
     "parser.cpp"
     "rom.cpp"
 )

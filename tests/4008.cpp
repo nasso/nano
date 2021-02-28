@@ -7,6 +7,7 @@
 
 #include "assert_truth.hpp"
 #include "nts/NtsCircuit.hpp"
+#include "nts_utils.hpp"
 #include <criterion/criterion.h>
 #include <criterion/theories.h>
 
@@ -16,7 +17,7 @@ const auto U = nts::Tristate::UNDEFINED;
 
 Test(components_4008, adder_binary)
 {
-    nts::NtsCircuit gate("components/adder.nts", { "components" });
+    auto gate = loadNts("components/adder.nts", { "components" });
 
     assert_truth<3, 2, 2>(gate, {
                                     /*.inputs = */ { 1, 2, 3 },
@@ -37,7 +38,7 @@ Test(components_4008, adder_binary)
 // maybe FIXME
 Test(components_4008, adder_tristate, .disabled = true)
 {
-    nts::NtsCircuit gate("components/adder.nts", { "components" });
+    auto gate = loadNts("components/adder.nts", { "components" });
 
     if (!test_gate<3, 2>(gate,
             {
@@ -108,7 +109,7 @@ Theory(
     .disabled = true,
     .timeout = 10)
 {
-    nts::NtsCircuit gate("components/4008.nts", { "components" });
+    auto gate = loadNts("components/4008.nts", { "components" });
 
     gate.write(9, c1);
     gate.write(7, a1);

@@ -7,6 +7,7 @@
 
 #include "nts/NotGate.hpp"
 #include "nts/NtsCircuit.hpp"
+#include "nts_utils.hpp"
 #include <criterion/criterion.h>
 
 const nts::Tristate U(nts::Tristate::UNDEFINED);
@@ -20,7 +21,7 @@ public:
         nts::Tristate d = U,
         nts::Tristate s = U,
         nts::Tristate r = U)
-        : gate("components/adflipflop.nts", { "components" })
+        : gate(loadNts("components/adflipflop.nts", { "components" }))
     {
         gate.write(1, d);
         gate.write(2, cl);

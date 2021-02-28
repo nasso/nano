@@ -46,6 +46,7 @@ if(EMSCRIPTEN)
     add_executable(nts ${sources})
     target_include_directories(nts PRIVATE "include")
     target_link_options(nts PRIVATE
+        "--bind"
         "-sENVIRONMENT=web"
         "-sMODULARIZE=1"
         "-sEXPORT_NAME=createNts"
