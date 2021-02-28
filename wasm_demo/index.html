@@ -1,0 +1,140 @@
+<html>
+
+<head>
+    <title>Nano Tek Spicier</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="icon" type="image/gif"
+        href="data:image/gif;base64,R0lGODlhEAAQAIAAAAAAAAAAACH5BAkAAAEALAAAAAAQABAAAAIgjI+py+0PEQiT1lkNpppnz4HfdoEH2W1nCJRfBMfyfBQAOw==" />
+    <script src="nts.js" type="module"></script>
+    <style>
+        body {
+            background: black;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <pre><code id="source" contenteditable>
+        # NOR gate
+
+        .chipsets:
+        input a
+        input b
+        output out
+        not not_a
+        not not_b
+        and and
+
+        .links:
+        a:1 not_a:1
+        b:1 not_b:1
+        not_a:2 and:1
+        not_b:2 and:2
+        and:3 out:1
+    </code></pre>
+
+    <hr>
+
+    <pre id="out"></pre>
+
+    <script type="module">
+        import createNts from "./nts.js";
+
+        const outputElem = document.getElementById("out");
+        const sourceElem = document.getElementById("source");
+
+        function formatNtsSource(source) {
+            return source
+                .trim()
+                .split("\n")
+                .map((line) => line.trim())
+                .join("\n");
+        }
+
+        function clear() {
+            outputElem.innerText = "";
+        }
+
+        function print(msg) {
+            outputElem.innerText += msg;
+        }
+
+        function println(msg = "") {
+            print(`${msg}\n`);
+        }
+
+        function displayPins(nts, circuit) {
+            const pins = circuit.pins;
+            const pinNames = pins.keys();
+            const pinCount = pinNames.size();
+
+            for (let i = 0; i < pinCount; i++) {
+                const name = pinNames.get(i);
+                const id = pins.get(name);
+                const value = circuit.read(id);
+                let valueStr = "?";
+
+                switch (value) {
+                    case nts.Tristate.UNDEFINED:
+                        valueStr = "U";
+                        break;
+                    case nts.Tristate.FALSE:
+                        valueStr = "0";
+                        break;
+                    case nts.Tristate.TRUE:
+                        valueStr = "1";
+                        break;
+                }
+
+                println(`${name}:\t #${id} -> ${valueStr}`);
+            }
+        }
+
+        function runDemo(nts) {
+            clear();
+
+            const source = sourceElem.innerText;
+
+            print("Creating circuit...");
+            const circuit = new nts.NtsCircuit(source);
+            println(" ok");
+
+            displayPins(nts, circuit);
+            println();
+
+            println("Testing circuit...");
+
+            circuit.write(1, nts.Tristate.FALSE);
+            circuit.write(2, nts.Tristate.FALSE);
+            circuit.simulate();
+            displayPins(nts, circuit);
+            println();
+
+            circuit.write(1, nts.Tristate.TRUE);
+            circuit.write(2, nts.Tristate.FALSE);
+            circuit.simulate();
+            displayPins(nts, circuit);
+            println();
+
+            print("Deleting circuit...");
+            circuit.delete();
+            println(" ok");
+        }
+
+        async function main() {
+            sourceElem.innerText = formatNtsSource(sourceElem.innerText);
+
+            const nts = await createNts();
+
+            runDemo(nts);
+
+            window.nts = nts;
+        }
+
+        main();
+    </script>
+
+</body>
+
+</html>

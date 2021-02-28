@@ -161,3 +161,19 @@ void NtsCircuit::build(std::istream& in, IComponentFactory& factory)
 }
 
 }
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(nts_ntscircuit)
+{
+    emscripten::register_vector<std::string>("vector<std::string>");
+    emscripten::register_map<std::string, nts::PinId>("PinMap");
+
+    emscripten::class_<nts::NtsCircuit, emscripten::base<nts::AComponent>>(
+        "NtsCircuit")
+        .constructor<std::string>()
+        .function("simulate", &nts::NtsCircuit::simulate)
+        .property("pins", &nts::NtsCircuit::pins);
+}
+#endif

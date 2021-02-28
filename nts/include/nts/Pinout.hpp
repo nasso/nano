@@ -9,7 +9,12 @@
 #define PINOUT_HPP_
 
 #include <cstddef>
+
+#ifdef __EMSCRIPTEN__
+#include <map>
+#else
 #include <unordered_map>
+#endif
 
 namespace nts {
 
@@ -20,7 +25,12 @@ enum class PinMode : int {
 };
 
 using PinId = std::size_t;
+
+#ifdef __EMSCRIPTEN__
+using Pinout = std::map<PinId, PinMode>;
+#else
 using Pinout = std::unordered_map<PinId, PinMode>;
+#endif
 
 }
 

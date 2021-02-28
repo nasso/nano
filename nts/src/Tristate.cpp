@@ -52,3 +52,15 @@ std::ostream& operator<<(std::ostream& os, const nts::Tristate& state)
         return os << 'U';
     }
 }
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(nts_tristate)
+{
+    emscripten::enum_<nts::Tristate>("Tristate")
+        .value("UNDEFINED", nts::Tristate::UNDEFINED)
+        .value("FALSE", nts::Tristate::FALSE)
+        .value("TRUE", nts::Tristate::TRUE);
+}
+#endif

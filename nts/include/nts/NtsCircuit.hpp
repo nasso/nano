@@ -13,14 +13,23 @@
 #include <fstream>
 #include <istream>
 #include <string>
-#include <unordered_map>
 #include <unordered_set>
+
+#ifdef __EMSCRIPTEN__
+#include <map>
+#else
+#include <unordered_map>
+#endif
 
 namespace nts {
 
 class NtsCircuit : public Circuit<std::string> {
 public:
+#ifdef __EMSCRIPTEN__
+    using PinMap = std::map<std::string, PinId>;
+#else
     using PinMap = std::unordered_map<std::string, PinId>;
+#endif
 
     NtsCircuit(const std::string& source);
     NtsCircuit(const std::string& source, IComponentFactory& factory);
@@ -31,6 +40,9 @@ public:
     const PinMap& pins() const;
 
     virtual void simulate() override;
+
+    using Circuit<std::string>::read;
+    using Circuit<std::string>::write;
 
 private:
     void build(std::istream& in, IComponentFactory& factory);

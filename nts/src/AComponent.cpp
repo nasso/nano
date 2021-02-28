@@ -56,3 +56,26 @@ void AComponent::write(PinId pin, Tristate value)
 }
 
 }
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+
+struct AComponentWrapper : public emscripten::wrapper<nts::AComponent> {
+    EMSCRIPTEN_WRAPPER(AComponentWrapper);
+
+    void simulate()
+    {
+        return call<void>("simulate");
+    }
+};
+
+EMSCRIPTEN_BINDINGS(nts_acomponent)
+{
+    emscripten::class_<nts::AComponent>("AComponent")
+        .function("simulate", &nts::AComponent::simulate,
+            emscripten::pure_virtual())
+        .function("pinout", &nts::AComponent::pinout)
+        .function("read", &nts::AComponent::read)
+        .function("write", &nts::AComponent::write);
+}
+#endif
