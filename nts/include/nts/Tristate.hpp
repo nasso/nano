@@ -54,8 +54,8 @@ private:
     Value m_value;
 };
 
-std::ostream& operator<<(std::ostream&, const nts::Tristate&);
-
 }
+
+std::ostream& operator<<(std::ostream&, const nts::Tristate&);
 
 #endif /* !TRISTATE_HPP_ */

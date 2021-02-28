@@ -127,7 +127,7 @@ void Repl::display(std::ostream& out)
         const std::string& name = pair.first;
         nts::Tristate value = pair.second;
 
-        out << "\t" << name << ": " << value << "\n";
+        out << "  " << name << ": " << value << "\n";
     }
 
     out << "output(s):" << std::endl;
@@ -135,7 +135,7 @@ void Repl::display(std::ostream& out)
         const std::string& name = pair.first;
         nts::Tristate value = pair.second;
 
-        out << "\t" << name << ": " << value << "\n";
+        out << "  " << name << ": " << value << "\n";
     }
 
     out << std::flush;

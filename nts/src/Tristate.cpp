@@ -68,15 +68,15 @@ Tristate& Tristate::operator&=(const Tristate& other)
     return *this = *this && other;
 }
 
+}
+
 std::ostream& operator<<(std::ostream& os, const nts::Tristate& state)
 {
-    if (state == Tristate::FALSE) {
+    if (state == nts::Tristate::FALSE) {
         return os << '0';
-    } else if (state == Tristate::TRUE) {
+    } else if (state == nts::Tristate::TRUE) {
         return os << '1';
     } else {
         return os << 'U';
     }
-}
-
 }
