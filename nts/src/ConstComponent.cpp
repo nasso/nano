@@ -10,7 +10,7 @@
 
 namespace nts {
 
-const Pinout CONST_PINOUT { { 1, OUTPUT } };
+const Pinout CONST_PINOUT { { 1, PinMode::OUTPUT } };
 
 ConstComponent::ConstComponent(nts::Tristate value)
     : m_value(value)

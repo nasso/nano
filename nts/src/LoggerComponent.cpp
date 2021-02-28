@@ -17,11 +17,11 @@ LoggerComponent::LoggerComponent(std::ostream& out)
     : m_output(out)
 {
     for (PinId pin : PIN_DATA) {
-        pinMode(pin, INPUT);
+        pinMode(pin, PinMode::INPUT);
     }
 
-    pinMode(PIN_CLOCK, INPUT);
-    pinMode(PIN_INHIBIT, INPUT);
+    pinMode(PIN_CLOCK, PinMode::INPUT);
+    pinMode(PIN_INHIBIT, PinMode::INPUT);
 }
 
 void LoggerComponent::simulate()

@@ -12,7 +12,7 @@ namespace nts {
 ClockComponent::ClockComponent(nts::Tristate init)
 {
     *this = init;
-    pinMode(1, OUTPUT);
+    pinMode(1, PinMode::OUTPUT);
 }
 
 ClockComponent& ClockComponent::operator=(nts::Tristate value)

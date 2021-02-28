@@ -12,8 +12,8 @@ namespace nts {
 
 NotGate::NotGate()
 {
-    pinMode(1, INPUT);
-    pinMode(2, OUTPUT);
+    pinMode(1, PinMode::INPUT);
+    pinMode(2, PinMode::OUTPUT);
 }
 
 void NotGate::simulate()

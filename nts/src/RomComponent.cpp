@@ -23,15 +23,15 @@ RomComponent::RomComponent(std::vector<std::uint8_t> data)
     : m_data(data)
 {
     for (PinId pin : PINS_ADDR) {
-        pinMode(pin, INPUT);
+        pinMode(pin, PinMode::INPUT);
     }
 
     for (PinId pin : PINS_OUT) {
-        pinMode(pin, OUTPUT);
+        pinMode(pin, PinMode::OUTPUT);
     }
 
-    pinMode(PIN_ENABLE_N, INPUT);
-    pinMode(PIN_READ_N, INPUT);
+    pinMode(PIN_ENABLE_N, PinMode::INPUT);
+    pinMode(PIN_READ_N, PinMode::INPUT);
 }
 
 void RomComponent::simulate()

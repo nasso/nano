@@ -23,7 +23,7 @@ AComponent::AComponent(Pinout pinout)
 
 void AComponent::pinMode(PinId pin, PinMode flags)
 {
-    if (flags == NONE) {
+    if (flags == PinMode::NONE) {
         m_pinout.erase(pin);
         m_pins.erase(pin);
     } else {

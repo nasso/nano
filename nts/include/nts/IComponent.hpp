@@ -8,26 +8,13 @@
 #ifndef ICOMPONENT_HPP_
 #define ICOMPONENT_HPP_
 
+#include "Pinout.hpp"
 #include "Tristate.hpp"
 #include <cstdint>
 #include <iostream>
 #include <unordered_map>
 
 namespace nts {
-
-enum PinMode : std::uint8_t {
-    NONE = 0,
-    INPUT = 1 << 1,
-    OUTPUT = 1 << 2,
-};
-
-inline PinMode operator|(PinMode a, PinMode b)
-{
-    return static_cast<PinMode>(static_cast<int>(a) | static_cast<int>(b));
-}
-
-using PinId = std::size_t;
-using Pinout = std::unordered_map<PinId, PinMode>;
 
 class IComponent {
 public:

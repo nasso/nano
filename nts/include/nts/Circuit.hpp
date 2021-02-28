@@ -419,7 +419,7 @@ private:
                 // compute the common link value
                 for (const Pin& pin : links) {
                     // only take OUTPUT pins into account
-                    if (~pin.mode(m_chipsets) & OUTPUT) {
+                    if (pin.mode(m_chipsets) != PinMode::OUTPUT) {
                         continue;
                     }
 
@@ -434,7 +434,7 @@ private:
                 // propagate the value to all connected pins
                 for (const Pin& pin : links) {
                     // only set INPUT pins
-                    if (~pin.mode(m_chipsets) & INPUT) {
+                    if (pin.mode(m_chipsets) != PinMode::INPUT) {
                         continue;
                     }
 
@@ -467,7 +467,7 @@ private:
                 // compute the common link value
                 for (const auto& pin : links) {
                     // only take INPUT pins into account: *INPUT* => OUTPUT
-                    if (~myPinout.at(pin) & INPUT) {
+                    if (myPinout.at(pin) != PinMode::INPUT) {
                         continue;
                     }
 
@@ -482,7 +482,7 @@ private:
                 // propagate the value to all connected pins
                 for (auto pin : links) {
                     // only set OUTPUT pins: INPUT => *OUTPUT*
-                    if (~myPinout.at(pin) & OUTPUT) {
+                    if (myPinout.at(pin) != PinMode::OUTPUT) {
                         continue;
                     }
 

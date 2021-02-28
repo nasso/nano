@@ -18,8 +18,8 @@ thread_local bool gSigintReceived = false;
 Repl::Repl(nts::NtsCircuit&& circuit)
     : m_circuit(std::move(circuit))
 {
-    readPins(m_inputs, nts::INPUT);
-    readPins(m_outputs, nts::OUTPUT);
+    readPins(m_inputs, nts::PinMode::INPUT);
+    readPins(m_outputs, nts::PinMode::OUTPUT);
 }
 
 void Repl::run(std::istream& in, std::ostream& out)
@@ -90,7 +90,7 @@ void Repl::simulate(std::ostream& out)
     m_inputs.clear();
     m_outputs.clear();
 
-    readPins(m_inputs, nts::INPUT);
+    readPins(m_inputs, nts::PinMode::INPUT);
 
     try {
         m_circuit.simulate();
@@ -98,7 +98,7 @@ void Repl::simulate(std::ostream& out)
         out << e.what() << std::endl;
     }
 
-    readPins(m_outputs, nts::OUTPUT);
+    readPins(m_outputs, nts::PinMode::OUTPUT);
     m_tick++;
 }
 
@@ -112,7 +112,7 @@ void Repl::readPins(Repl::TristateMap& dest, nts::PinMode filter)
         nts::PinId pin = pair.second;
         nts::PinMode mode = pinout.at(pin);
 
-        if (mode & filter) {
+        if (mode == filter) {
             dest[name] = m_circuit.read(pin);
         }
     }

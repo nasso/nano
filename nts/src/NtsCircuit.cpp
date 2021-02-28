@@ -109,14 +109,14 @@ void NtsCircuit::build(std::istream& in, IComponentFactory& factory)
             if (type == "ignored") {
                 pinCounter++;
             } else if (type == "input") {
-                pinMode(++pinCounter, INPUT);
+                pinMode(++pinCounter, PinMode::INPUT);
                 m_pins.emplace(name, pinCounter);
             } else if (type == "clock") {
-                pinMode(++pinCounter, INPUT);
+                pinMode(++pinCounter, PinMode::INPUT);
                 m_pins.emplace(name, pinCounter);
                 m_clocks.insert(pinCounter);
             } else if (type == "output") {
-                pinMode(++pinCounter, OUTPUT);
+                pinMode(++pinCounter, PinMode::OUTPUT);
                 m_pins.emplace(name, pinCounter);
             } else {
                 insert(name, factory.createComponent(type));

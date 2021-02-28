@@ -11,9 +11,9 @@ namespace nts {
 
 AndGate::AndGate()
 {
-    pinMode(1, INPUT);
-    pinMode(2, INPUT);
-    pinMode(3, OUTPUT);
+    pinMode(1, PinMode::INPUT);
+    pinMode(2, PinMode::INPUT);
+    pinMode(3, PinMode::OUTPUT);
 }
 
 void AndGate::simulate()
