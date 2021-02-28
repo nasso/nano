@@ -8,66 +8,38 @@
 #include "nts/Tristate.hpp"
 #include <iostream>
 
-namespace nts {
-
-const Tristate Tristate::UNDEFINED = Tristate(Tristate::Value::UNDEFINED);
-const Tristate Tristate::FALSE = Tristate(Tristate::Value::FALSE);
-const Tristate Tristate::TRUE = Tristate(Tristate::Value::TRUE);
-
-bool Tristate::operator==(const Tristate& other) const
+nts::Tristate operator&&(nts::Tristate a, nts::Tristate b)
 {
-    return m_value == other.m_value;
-}
-
-bool Tristate::operator!=(const Tristate& other) const
-{
-    return m_value != other.m_value;
-}
-
-Tristate Tristate::operator&&(const Tristate& other) const
-{
-    if (*this == Tristate::FALSE || other == Tristate::FALSE) {
-        return Tristate::FALSE;
-    } else if (*this == Tristate::UNDEFINED || other == Tristate::UNDEFINED) {
-        return Tristate::UNDEFINED;
+    if (a == nts::Tristate::FALSE || b == nts::Tristate::FALSE) {
+        return nts::Tristate::FALSE;
+    } else if (a == nts::Tristate::UNDEFINED || b == nts::Tristate::UNDEFINED) {
+        return nts::Tristate::UNDEFINED;
     } else {
-        return Tristate::TRUE;
+        return nts::Tristate::TRUE;
     }
 }
 
-Tristate Tristate::operator||(const Tristate& other) const
+nts::Tristate operator||(nts::Tristate a, nts::Tristate b)
 {
-    if (*this == Tristate::TRUE || other == Tristate::TRUE) {
-        return Tristate::TRUE;
-    } else if (*this == Tristate::UNDEFINED || other == Tristate::UNDEFINED) {
-        return Tristate::UNDEFINED;
+    if (a == nts::Tristate::TRUE || b == nts::Tristate::TRUE) {
+        return nts::Tristate::TRUE;
+    } else if (a == nts::Tristate::UNDEFINED || b == nts::Tristate::UNDEFINED) {
+        return nts::Tristate::UNDEFINED;
     } else {
-        return Tristate::FALSE;
+        return nts::Tristate::FALSE;
     }
 }
 
-Tristate Tristate::operator!() const
+nts::Tristate operator!(nts::Tristate a)
 {
-    switch (m_value) {
-    case Value::FALSE:
-        return TRUE;
-    case Value::TRUE:
-        return FALSE;
+    switch (a) {
+    case nts::Tristate::FALSE:
+        return nts::Tristate::TRUE;
+    case nts::Tristate::TRUE:
+        return nts::Tristate::FALSE;
     default:
-        return UNDEFINED;
+        return nts::Tristate::UNDEFINED;
     }
-}
-
-Tristate& Tristate::operator|=(const Tristate& other)
-{
-    return *this = *this || other;
-}
-
-Tristate& Tristate::operator&=(const Tristate& other)
-{
-    return *this = *this && other;
-}
-
 }
 
 std::ostream& operator<<(std::ostream& os, const nts::Tristate& state)

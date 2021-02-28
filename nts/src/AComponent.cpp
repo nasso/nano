@@ -28,7 +28,7 @@ void AComponent::pinMode(PinId pin, PinMode flags)
         m_pins.erase(pin);
     } else {
         m_pinout[pin] = flags;
-        m_pins[pin];
+        m_pins[pin] = Tristate::UNDEFINED;
     }
 }
 

@@ -389,7 +389,7 @@ private:
     void propagateToCircuitPins()
     {
         for (auto& link : m_pinLinks) {
-            Tristate value;
+            Tristate value = Tristate::UNDEFINED;
 
             for (const Pin& source : link.second) {
                 Tristate newValue = source.read(m_chipsets);
@@ -414,7 +414,7 @@ private:
 
             if (visitedPins.find(pin) == visitedPins.end()) {
                 PinSet links = findConnected<Pin, PinSet>(pin, m_adjencyList);
-                Tristate linkValue;
+                Tristate linkValue = Tristate::UNDEFINED;
 
                 // compute the common link value
                 for (const Pin& pin : links) {
@@ -462,7 +462,7 @@ private:
             if (visitedPins.find(pin) == visitedPins.end()) {
                 PinIdSet links = findConnected<PinId, PinIdSet>(pin,
                     m_directPinLinks);
-                Tristate linkValue;
+                Tristate linkValue = Tristate::UNDEFINED;
 
                 // compute the common link value
                 for (const auto& pin : links) {
