@@ -173,6 +173,7 @@ EMSCRIPTEN_BINDINGS(nts_ntscircuit)
     emscripten::class_<nts::NtsCircuit, emscripten::base<nts::AComponent>>(
         "NtsCircuit")
         .constructor<std::string>()
+        .constructor<std::string, nts::IComponentFactory&>()
         .function("simulate", &nts::NtsCircuit::simulate)
         .property("pins", &nts::NtsCircuit::pins);
 }

@@ -67,6 +67,11 @@ struct AComponentWrapper : public emscripten::wrapper<nts::AComponent> {
     {
         return call<void>("simulate");
     }
+
+    void display(std::ostream& os) const
+    {
+        os << "(js component)";
+    }
 };
 
 EMSCRIPTEN_BINDINGS(nts_acomponent)
@@ -77,6 +82,7 @@ EMSCRIPTEN_BINDINGS(nts_acomponent)
         .property("pinout", &nts::AComponent::pinout)
         .function("pinMode", &nts::AComponent::pinMode)
         .function("read", &nts::AComponent::read)
-        .function("write", &nts::AComponent::write);
+        .function("write", &nts::AComponent::write)
+        .allow_subclass<AComponentWrapper>("AComponentWrapper");
 }
 #endif

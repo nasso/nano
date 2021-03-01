@@ -33,6 +33,7 @@ set(sources
     "src/ComboComponentFactory.cpp"
     "src/ConstComponent.cpp"
     "src/IComponent.cpp"
+    "src/IComponentFactory.cpp"
     "src/LoggerComponent.cpp"
     "src/NotGate.cpp"
     "src/NtsCircuit.cpp"
