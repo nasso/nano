@@ -41,4 +41,4 @@ add_library(nts STATIC
     "src/StaticComponentFactory.cpp"
     "src/Tristate.cpp"
 )
-target_include_directories(nts PUBLIC "include")
+target_include_directories(nts PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
