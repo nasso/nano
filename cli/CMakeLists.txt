@@ -9,8 +9,7 @@ add_executable(nanotekspice
     "src/Repl.cpp"
 )
 target_link_libraries(nanotekspice nts)
-target_include_directories(nanotekspice PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/include")
+target_include_directories(nanotekspice PRIVATE "include")
 
 add_custom_command(
 	TARGET nanotekspice POST_BUILD
