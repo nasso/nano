@@ -74,7 +74,8 @@ EMSCRIPTEN_BINDINGS(nts_acomponent)
     emscripten::class_<nts::AComponent>("AComponent")
         .function("simulate", &nts::AComponent::simulate,
             emscripten::pure_virtual())
-        .function("pinout", &nts::AComponent::pinout)
+        .property("pinout", &nts::AComponent::pinout)
+        .function("pinMode", &nts::AComponent::pinMode)
         .function("read", &nts::AComponent::read)
         .function("write", &nts::AComponent::write);
 }
