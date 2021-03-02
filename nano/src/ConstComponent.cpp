@@ -17,9 +17,14 @@ ConstComponent::ConstComponent(nts::Tristate value)
 {
 }
 
-void ConstComponent::simulate()
+void ConstComponent::tick()
 {
     // *sleeps*
+}
+
+bool ConstComponent::stable() const
+{
+    return true;
 }
 
 const Pinout& ConstComponent::pinout() const

@@ -28,7 +28,7 @@ public:
         gate.write(5, !s);
         gate.write(6, !r);
 
-        gate.simulate();
+        gate.cycle();
     }
 
     std::pair<nts::Tristate, nts::Tristate> operator()(
@@ -42,7 +42,7 @@ public:
         gate.write(5, !s);
         gate.write(6, !r);
 
-        gate.simulate();
+        gate.cycle();
         return { gate.read(3), gate.read(4) };
     }
 

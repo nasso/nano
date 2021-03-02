@@ -16,11 +16,12 @@ class ConstComponent : public IComponent {
 public:
     ConstComponent(nts::Tristate value);
 
-    void simulate() override;
-    const Pinout& pinout() const override;
-    Tristate read(PinId pin) const override;
-    void write(PinId pin, Tristate value) override;
-    void display(std::ostream& os) const override;
+    virtual void tick() override;
+    virtual bool stable() const override;
+    virtual const Pinout& pinout() const override;
+    virtual Tristate read(PinId pin) const override;
+    virtual void write(PinId pin, Tristate value) override;
+    virtual void display(std::ostream& os) const override;
 
 private:
     const nts::Tristate m_value;

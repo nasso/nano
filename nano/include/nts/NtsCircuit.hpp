@@ -39,10 +39,7 @@ public:
     PinId input(const std::string& pinName) const;
     const PinMap& pins() const;
 
-    virtual void simulate() override;
-
-    using Circuit<std::string>::read;
-    using Circuit<std::string>::write;
+    void cycle(std::uint64_t maxIterations = 200);
 
 private:
     void build(std::istream& in, IComponentFactory& factory);

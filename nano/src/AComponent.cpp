@@ -49,10 +49,33 @@ Tristate AComponent::read(PinId pin) const
 void AComponent::write(PinId pin, Tristate value)
 {
     try {
-        m_pins.at(pin) = value;
+        Tristate& pinval = m_pins.at(pin);
+
+        if (!m_inputsDirty
+            && pinval != value
+            && m_pinout.at(pin) == PinMode::INPUT) {
+            m_inputsDirty = true;
+        }
+
+        pinval = value;
     } catch (...) {
         throw std::out_of_range("No such pin: " + std::to_string(pin));
     }
+}
+
+bool AComponent::inputsDirty() const
+{
+    return m_inputsDirty;
+}
+
+void AComponent::inputsClean()
+{
+    m_inputsDirty = false;
+}
+
+bool AComponent::stable() const
+{
+    return !m_inputsDirty;
 }
 
 }
@@ -63,9 +86,9 @@ void AComponent::write(PinId pin, Tristate value)
 struct AComponentWrapper : public emscripten::wrapper<nts::AComponent> {
     EMSCRIPTEN_WRAPPER(AComponentWrapper);
 
-    void simulate()
+    void tick()
     {
-        return call<void>("simulate");
+        return call<void>("tick");
     }
 
     void display(std::ostream& os) const
@@ -77,7 +100,7 @@ struct AComponentWrapper : public emscripten::wrapper<nts::AComponent> {
 EMSCRIPTEN_BINDINGS(nts_acomponent)
 {
     emscripten::class_<nts::AComponent>("AComponent")
-        .function("simulate", &nts::AComponent::simulate,
+        .function("tick", &nts::AComponent::tick,
             emscripten::pure_virtual())
         .property("pinout", &nts::AComponent::pinout)
         .function("pinMode", &nts::AComponent::pinMode)

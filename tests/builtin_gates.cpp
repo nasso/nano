@@ -9,6 +9,7 @@
 #include "nts/AndGate.hpp"
 #include "nts/ConstComponent.hpp"
 #include "nts/NotGate.hpp"
+#include "nts_utils.hpp"
 #include <criterion/criterion.h>
 
 const auto T = nts::Tristate::TRUE;
@@ -61,10 +62,10 @@ Test(builtin_gates, constants)
         nts::Tristate::UNDEFINED,
     };
 
-    constants[0].simulate();
+    stabilize(constants[0]);
     cr_assert_eq(constants[0].read(1), nts::Tristate::TRUE);
-    constants[1].simulate();
+    stabilize(constants[1]);
     cr_assert_eq(constants[1].read(1), nts::Tristate::FALSE);
-    constants[2].simulate();
+    stabilize(constants[2]);
     cr_assert_eq(constants[2].read(1), nts::Tristate::UNDEFINED);
 }

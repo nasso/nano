@@ -16,12 +16,13 @@ AndGate::AndGate()
     pinMode(3, PinMode::OUTPUT);
 }
 
-void AndGate::simulate()
+void AndGate::tick()
 {
     auto a = read(1);
     auto b = read(2);
 
     write(3, a && b);
+    inputsClean();
 }
 
 void AndGate::display(std::ostream& os) const

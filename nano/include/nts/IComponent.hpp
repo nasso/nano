@@ -21,9 +21,22 @@ public:
     virtual ~IComponent() = default;
 
     /**
-     * @brief Compute a step of simulation.
+     * @brief Simulate `count` step(s) of internal logic.
+     *
+     * @param count How many ticks to simulate.
      */
-    virtual void simulate() = 0;
+    virtual void tick() = 0;
+
+    /**
+     * @brief Checks whether or not the component is "stable".
+     *
+     * A component is said to be "stable" when ticking it again without changing
+     * its INPUT pins wouldn't cause any change in its OUTPUT pins.
+     *
+     * @return true If the component is stable.
+     * @return false If the component isn't stable.
+     */
+    virtual bool stable() const = 0;
 
     /**
      * @brief Get pinout information

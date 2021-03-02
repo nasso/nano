@@ -33,6 +33,13 @@ int main(int argc, char** argv)
         std::ofstream logfile;
         std::ifstream file(argv[1]);
 
+        if (!file.is_open()) {
+            std::cout << "Unable to open file in read mode: ";
+            std::cout << argv[1];
+            std::cout << std::endl;
+            return 84;
+        }
+
         auto builtins = std::make_unique<nts::BuiltInComponentFactory>();
         auto chips = std::make_unique<nts::NtsComponentFactory>("components");
         auto extras = std::make_unique<nts::StaticComponentFactory>();

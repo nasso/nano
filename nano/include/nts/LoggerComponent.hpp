@@ -18,7 +18,7 @@ class LoggerComponent : public AComponent {
 public:
     LoggerComponent(std::ostream& out);
 
-    virtual void simulate() override;
+    virtual void tick() override;
     virtual void display(std::ostream& os) const override;
 
 private:

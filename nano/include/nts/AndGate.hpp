@@ -17,7 +17,7 @@ class AndGate : public AComponent {
 public:
     AndGate();
 
-    void simulate() override final;
+    void tick() override final;
     virtual void display(std::ostream& os) const override;
 };
 

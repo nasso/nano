@@ -24,7 +24,7 @@ LoggerComponent::LoggerComponent(std::ostream& out)
     pinMode(PIN_INHIBIT, PinMode::INPUT);
 }
 
-void LoggerComponent::simulate()
+void LoggerComponent::tick()
 {
     auto clock = read(PIN_CLOCK);
     auto inhibit = read(PIN_INHIBIT);
@@ -55,6 +55,7 @@ void LoggerComponent::simulate()
             m_output << val;
         }
     }
+    inputsClean();
 }
 
 void LoggerComponent::display(std::ostream& os) const

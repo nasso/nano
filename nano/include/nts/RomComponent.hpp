@@ -19,7 +19,7 @@ public:
     RomComponent(std::size_t size);
     RomComponent(std::vector<std::uint8_t> data);
 
-    void simulate() override;
+    void tick() override;
     virtual void display(std::ostream& os) const override;
 
 private:

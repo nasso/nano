@@ -6,6 +6,7 @@
 */
 
 #include "nts/LoggerComponent.hpp"
+#include "nts_utils.hpp"
 #include <criterion/criterion.h>
 #include <cstdint>
 #include <sstream>
@@ -28,9 +29,9 @@ static void write(nts::LoggerComponent& logger, std::uint8_t c)
 
     // cycle the clock
     logger.write(9, F);
-    logger.simulate();
+    stabilize(logger);
     logger.write(9, T);
-    logger.simulate();
+    stabilize(logger);
 }
 
 static void write(nts::LoggerComponent& logger, const std::string& str)

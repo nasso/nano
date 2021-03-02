@@ -121,7 +121,7 @@ Theory(
     gate.write(2, b3);
     gate.write(15, b4);
 
-    gate.simulate();
+    gate.cycle();
 
     std::uint8_t c = c1 == T;
     std::uint8_t a = 0

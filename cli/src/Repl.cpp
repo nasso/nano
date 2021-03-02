@@ -18,6 +18,7 @@ thread_local bool gSigintReceived = false;
 Repl::Repl(nts::NtsCircuit&& circuit)
     : m_circuit(std::move(circuit))
 {
+    circuit.cycle();
     readPins(m_inputs, nts::PinMode::INPUT);
     readPins(m_outputs, nts::PinMode::OUTPUT);
 }
@@ -93,7 +94,7 @@ void Repl::simulate(std::ostream& out)
     readPins(m_inputs, nts::PinMode::INPUT);
 
     try {
-        m_circuit.simulate();
+        m_circuit.cycle();
     } catch (const std::exception& e) {
         out << e.what() << std::endl;
     }

@@ -15,4 +15,6 @@
 nts::NtsCircuit loadNts(const std::string& path,
     const std::vector<std::string>& includePaths = { "components" });
 
+void stabilize(nts::IComponent& component);
+
 #endif /* !NTS_UTILS_HPP_ */

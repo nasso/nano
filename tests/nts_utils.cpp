@@ -10,6 +10,7 @@
 #include "nts/ComboComponentFactory.hpp"
 #include "nts/NtsCircuit.hpp"
 #include "nts/NtsComponentFactory.hpp"
+#include <exception>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -31,4 +32,15 @@ nts::NtsCircuit loadNts(const std::string& path,
     }
 
     return nts::NtsCircuit(file, mcf);
+}
+
+void stabilize(nts::IComponent& component)
+{
+    for (std::uint64_t i = 0; !component.stable() && i < 100; i++) {
+        component.tick();
+    }
+
+    if (!component.stable()) {
+        throw std::runtime_error("couldn't stabilize component");
+    }
 }

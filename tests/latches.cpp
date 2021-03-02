@@ -21,23 +21,23 @@ Test(latches, srlatch)
     gate.write(1, F);
     gate.write(2, F);
 
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
 
     gate.write(1, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 
     gate.write(1, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 
     gate.write(2, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 
     gate.write(2, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 }
 
@@ -48,55 +48,55 @@ Test(latches, dlatch)
     gate.write(1, F);
     gate.write(2, F);
 
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
 
     gate.write(1, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
 
     gate.write(1, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
 
     gate.write(2, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
 
     gate.write(2, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 
     gate.write(2, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 
     gate.write(1, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 
     gate.write(2, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 
     gate.write(2, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 
     gate.write(2, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 
     gate.write(1, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 
     gate.write(2, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 
     gate.write(1, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 }
 
@@ -104,61 +104,61 @@ Test(latches, dflipflop)
 {
     auto gate = loadNts("components/dflipflop.nts", { "components" });
 
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
 
     gate.write(1, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
 
     gate.write(1, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
 
     // the clock started undefined so setting it to true for the first time
     // should not correspond to a rising edge
     gate.write(2, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
 
     gate.write(2, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
 
     gate.write(2, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 
     gate.write(2, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 
     gate.write(1, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), F);
 
     gate.write(2, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 
     gate.write(2, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 
     gate.write(2, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 
     gate.write(1, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 
     gate.write(2, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 
     gate.write(1, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
 }
 
@@ -166,23 +166,23 @@ Test(latches, adflipflop_set)
 {
     auto gate = loadNts("components/adflipflop.nts", { "components" });
 
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
     cr_assert_eq(gate.read(4), U);
 
     gate.write(5, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
     cr_assert_eq(gate.read(4), U);
 
     gate.write(5, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), T);
     cr_assert_eq(gate.read(4), U);
 
     // it is impossible to initialize the gate with data and clock to Hi-Z
     gate.write(5, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
     cr_assert_eq(gate.read(4), U);
 }
@@ -191,23 +191,23 @@ Test(latches, adflipflop_reset)
 {
     auto gate = loadNts("components/adflipflop.nts", { "components" });
 
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
     cr_assert_eq(gate.read(4), U);
 
     gate.write(6, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
     cr_assert_eq(gate.read(4), U);
 
     gate.write(6, F);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
     cr_assert_eq(gate.read(4), T);
 
     // it is impossible to initialize the gate with data and clock to Hi-Z
     gate.write(6, T);
-    gate.simulate();
+    gate.cycle();
     cr_assert_eq(gate.read(3), U);
     cr_assert_eq(gate.read(4), U);
 }
@@ -221,7 +221,7 @@ Test(latches, reg1, .disabled = true)
         gate.write(1, data);
         gate.write(2, store);
         gate.write(3, cl);
-        gate.simulate();
+        gate.cycle();
     };
 
     step(U, U, U);

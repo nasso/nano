@@ -7,7 +7,6 @@
 
 #include "nts/NtsCircuit.hpp"
 #include "nts/BuiltInComponentFactory.hpp"
-#include "nts/ClockComponent.hpp"
 #include "nts/ComboComponentFactory.hpp"
 #include "nts/NtsComponentFactory.hpp"
 #include <iostream>
@@ -54,9 +53,15 @@ const NtsCircuit::PinMap& NtsCircuit::pins() const
     return m_pins;
 }
 
-void NtsCircuit::simulate()
+void NtsCircuit::cycle(std::uint64_t maxIterations)
 {
-    Circuit::simulate();
+    while (maxIterations-- && !stable()) {
+        tick();
+    }
+
+    if (!stable()) {
+        throw std::runtime_error("couldn't stabilize component");
+    }
 
     for (PinId pin : m_clocks) {
         write(pin, !read(pin));
@@ -174,7 +179,7 @@ EMSCRIPTEN_BINDINGS(nts_ntscircuit)
         "NtsCircuit")
         .constructor<std::string>()
         .constructor<std::string, nts::IComponentFactory&>()
-        .function("simulate", &nts::NtsCircuit::simulate)
+        .function("tick", &nts::NtsCircuit::tick)
         .property("pins", &nts::NtsCircuit::pins);
 }
 #endif

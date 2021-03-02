@@ -16,9 +16,10 @@ NotGate::NotGate()
     pinMode(2, PinMode::OUTPUT);
 }
 
-void NotGate::simulate()
+void NotGate::tick()
 {
     write(2, !read(1));
+    inputsClean();
 }
 
 void NotGate::display(std::ostream& os) const

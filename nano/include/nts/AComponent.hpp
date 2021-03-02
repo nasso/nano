@@ -23,7 +23,14 @@ public:
     Tristate read(PinId pin) const override final;
     void write(PinId pin, Tristate value) override final;
 
+    virtual bool stable() const override;
+
+protected:
+    bool inputsDirty() const;
+    void inputsClean();
+
 private:
+    bool m_inputsDirty = true;
     Pinout m_pinout;
     std::unordered_map<PinId, Tristate> m_pins;
 };

@@ -7,7 +7,6 @@
 
 #include "nts/BuiltInComponentFactory.hpp"
 #include "nts/AndGate.hpp"
-#include "nts/ClockComponent.hpp"
 #include "nts/ConstComponent.hpp"
 #include "nts/NotGate.hpp"
 #include <fstream>

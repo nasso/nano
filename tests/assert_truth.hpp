@@ -9,6 +9,7 @@
 #define ASSERT_TRUTH_HPP_
 
 #include "nts/IComponent.hpp"
+#include "nts_utils.hpp"
 #include <cmath>
 #include <criterion/criterion.h>
 #include <cstddef>
@@ -57,7 +58,7 @@ static bool test_gate(nts::IComponent& gate, GateSpec<I, O, B, V> spec)
             gate.write(spec.inputs[i], case_.inputs[i]);
         }
 
-        gate.simulate();
+        stabilize(gate);
 
         for (std::size_t i = 0; i < O; i++) {
             if (gate.read(spec.outputs[i]) != case_.outputs[i]) {

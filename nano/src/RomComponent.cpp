@@ -34,7 +34,7 @@ RomComponent::RomComponent(std::vector<std::uint8_t> data)
     pinMode(PIN_READ_N, PinMode::INPUT);
 }
 
-void RomComponent::simulate()
+void RomComponent::tick()
 {
     for (PinId pin : PINS_OUT) {
         write(pin, Tristate::UNDEFINED);
@@ -67,6 +67,7 @@ void RomComponent::simulate()
             val >>= 1;
         }
     }
+    inputsClean();
 }
 
 void RomComponent::display(std::ostream& os) const

@@ -6,7 +6,6 @@
 */
 
 #include "nts/Circuit.hpp"
-#include "nts/ClockComponent.hpp"
 #include "nts/NtsCircuit.hpp"
 #include "nts_utils.hpp"
 #include <criterion/criterion.h>
@@ -30,7 +29,7 @@ Test(components_4017, timing_diagram)
 
     auto sim = [&]() {
         gate.write(clockPin, nextClockValue);
-        gate.simulate();
+        gate.cycle();
         nextClockValue = !nextClockValue;
 
         std::uint16_t out = 0;

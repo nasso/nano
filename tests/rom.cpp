@@ -28,7 +28,7 @@ void fetch(nts::RomComponent& rom, std::uint16_t addr)
     rom.write(22, addr & (1 << 9) ? T : F);
     rom.write(19, addr & (1 << 10) ? T : F);
 
-    rom.simulate();
+    rom.tick();
 }
 
 bool readHiZ(nts::RomComponent& rom, std::uint16_t addr)

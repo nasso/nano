@@ -22,14 +22,7 @@ namespace nts {
 template <typename K>
 class Circuit : public AComponent {
 public:
-    /**
-     * @brief Construct a new Circuit
-     *
-     * @param maxTickPerSimulation Maximum iteration count for the simulation
-     *  loop.
-     */
-    Circuit(std::size_t maxTickPerSimulation = 100)
-        : m_maxTickPerSimulation(maxTickPerSimulation)
+    Circuit()
     {
     }
 
@@ -41,39 +34,6 @@ public:
         , m_pinLinks(std::move(other.m_pinLinks))
         , m_maxTickPerSimulation(other.m_maxTickPerSimulation)
     {
-    }
-
-    /**
-     * @return The current value for `maxTickPerSimulation`
-     * @see Circuit::maxTickPerSimulation(std::size_t)
-     */
-    std::size_t maxTickPerSimulation() const
-    {
-        return m_maxTickPerSimulation;
-    }
-
-    /**
-     * @brief Set the maximum iteration count of the internal simulation loop.
-     *
-     * When the circuit is simulated, its sub-components are simulated in a loop
-     * until the circuit reaches a "stable" state. Sometimes, ambiguous inputs
-     * or wiring can lead to an infinite loop.
-     *
-     * This value dictates how many times the simulation loop of this circuit
-     * is allowed to run for a single call to the `Circuit::simulate()` method.
-     *
-     * Note that this value is local to this instance: if this `Circuit`
-     * contains another `Circuit`, the contained `Circuit` will be allowed to
-     * iterate as many times as its own `maxTickPerSimulation` allows it to,
-     * during a single micro-tick of the parent `Circuit`. For this reason, you
-     * are encouraged to keep maxTickPerSimulation relatively small, as most
-     * circuits will settle on a stable state in less than 10 iterations.
-     *
-     * @param maxTickPerSimulation
-     */
-    void maxTickPerSimulation(std::size_t maxTickPerSimulation)
-    {
-        m_maxTickPerSimulation = maxTickPerSimulation;
     }
 
     // Components
@@ -151,17 +111,46 @@ public:
         }
     }
 
-    virtual void simulate() override
+    virtual void tick() override
     {
-        bool stable = false;
+        // step 1: propagate directly connected pins (like in a buffer)
+        propagateDirectLinks();
 
-        for (std::size_t i = 0; i < m_maxTickPerSimulation && !stable; i++) {
-            stable = tick();
+        // step 2: propagate our pins to our components' pins
+        propagateFromCircuitPins();
+
+        // step 3: tick unstable chips
+        for (const auto& pair : m_chipsets) {
+            IComponent& chip = *pair.second;
+
+            if (!chip.stable()) {
+                chip.tick();
+            }
         }
 
-        if (!stable) {
-            throw std::runtime_error("reached max tick count before stability");
+        // step 4: propagate values through inner links
+        propagateLinks();
+
+        // step 5: propagate components' pins back to our own pins
+        propagateToCircuitPins();
+        inputsClean();
+    }
+
+    virtual bool stable() const override
+    {
+        if (inputsDirty()) {
+            return false;
         }
+
+        for (const auto& pair : m_chipsets) {
+            const IComponent& chip = *pair.second;
+
+            if (!chip.stable()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     virtual void display(std::ostream& os) const override
@@ -287,41 +276,6 @@ private:
 
     std::size_t m_maxTickPerSimulation;
 
-    /**
-     * @brief Simulates one micro-step of the entire circuitry.
-     *
-     * This method will return a boolean value indicating if the circuit is
-     * currently stable. A circuit is considered to be stable if simulating
-     * it twice with the same input values doesn't change the output values.
-     *
-     * @return true The circuit is stable (no sub-component was simulated)
-     * @return false At least one sub-component was simulated
-     */
-    bool tick()
-    {
-        std::unordered_set<K> updateList;
-
-        // step 1: propagate directly connected pins (i.e. buffers)
-        // this step doesn't cause any update
-        propagateDirectLinks();
-
-        // step 2: propagate our pins to our components' pins
-        propagateFromCircuitPins(updateList);
-
-        // step 3: propagate values through inner links
-        propagateLinks(updateList);
-
-        // step 4: simulate chips for which at least one pin changed
-        for (const auto& name : updateList) {
-            m_chipsets.at(name)->simulate();
-        }
-
-        // step 5: propagate components' pins back to our own pins
-        propagateToCircuitPins();
-
-        return updateList.empty();
-    }
-
     template <typename Node, typename Set, typename AdjencyList>
     Set findConnected(Node node, const AdjencyList& adjencyList)
     {
@@ -366,17 +320,13 @@ private:
         return Tristate::UNDEFINED;
     }
 
-    void propagateFromCircuitPins(std::unordered_set<K>& updateList)
+    void propagateFromCircuitPins()
     {
         for (const auto& link : m_pinLinks) {
             Tristate value = read(link.first);
 
             for (const Pin& dest : link.second) {
                 Tristate oldValue = dest.read(m_chipsets);
-
-                if (oldValue != value) {
-                    updateList.insert(dest.compName());
-                }
 
                 // we actually want to overwrite the old value here rather than
                 // propagating them.
@@ -405,7 +355,7 @@ private:
         }
     }
 
-    void propagateLinks(std::unordered_set<K>& updateList)
+    void propagateLinks()
     {
         PinSet visitedPins;
 
@@ -436,11 +386,6 @@ private:
                     // only set INPUT pins
                     if (pin.mode(m_chipsets) != PinMode::INPUT) {
                         continue;
-                    }
-
-                    // if its value changes, add it to the updateList
-                    if (pin.read(m_chipsets) != linkValue) {
-                        updateList.insert(pin.compName());
                     }
 
                     pin.write(m_chipsets, linkValue);
