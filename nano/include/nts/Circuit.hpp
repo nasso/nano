@@ -111,6 +111,7 @@ public:
         }
     }
 
+    // Circuit component
     virtual void tick() override
     {
         // step 1: propagate directly connected pins (like in a buffer)
@@ -205,21 +206,21 @@ public:
 private:
     using ChipMap = std::unordered_map<K, std::unique_ptr<IComponent>>;
 
-    class Pin {
+    class OldPin {
     public:
-        Pin(K comp, PinId id)
+        OldPin(K comp, PinId id)
             : m_compName(comp)
             , m_id(id)
         {
         }
 
-        Pin(const Pin& other)
+        OldPin(const OldPin& other)
             : m_compName(other.m_compName)
             , m_id(other.m_id)
         {
         }
 
-        bool operator==(const Pin& other) const
+        bool operator==(const OldPin& other) const
         {
             return m_compName == other.m_compName && m_id == other.m_id;
         }
@@ -255,7 +256,7 @@ private:
     };
 
     struct PinHash {
-        std::size_t operator()(const Pin& pin) const
+        std::size_t operator()(const OldPin& pin) const
         {
             std::size_t hash = 17;
             hash = hash * 31 + std::hash<K>()(pin.compName());
@@ -264,8 +265,8 @@ private:
         }
     };
 
-    using PinSet = std::unordered_set<Pin, PinHash>;
-    using PinAdjencyList = std::unordered_map<Pin, PinSet, PinHash>;
+    using PinSet = std::unordered_set<OldPin, PinHash>;
+    using PinAdjencyList = std::unordered_map<OldPin, PinSet, PinHash>;
     using PinIdSet = std::unordered_set<PinId>;
     using PinIdAdjencyList = std::unordered_map<PinId, PinIdSet>;
 
@@ -325,7 +326,7 @@ private:
         for (const auto& link : m_pinLinks) {
             Tristate value = read(link.first);
 
-            for (const Pin& dest : link.second) {
+            for (const OldPin& dest : link.second) {
                 Tristate oldValue = dest.read(m_chipsets);
 
                 // we actually want to overwrite the old value here rather than
@@ -341,7 +342,7 @@ private:
         for (auto& link : m_pinLinks) {
             Tristate value = Tristate::UNDEFINED;
 
-            for (const Pin& source : link.second) {
+            for (const OldPin& source : link.second) {
                 Tristate newValue = source.read(m_chipsets);
 
                 value = propagate(value, newValue);
@@ -360,14 +361,14 @@ private:
         PinSet visitedPins;
 
         for (const auto& adjency : m_adjencyList) {
-            const Pin& pin = adjency.first;
+            const OldPin& pin = adjency.first;
 
             if (visitedPins.find(pin) == visitedPins.end()) {
-                PinSet links = findConnected<Pin, PinSet>(pin, m_adjencyList);
+                PinSet links = findConnected<OldPin, PinSet>(pin, m_adjencyList);
                 Tristate linkValue = Tristate::UNDEFINED;
 
                 // compute the common link value
-                for (const Pin& pin : links) {
+                for (const OldPin& pin : links) {
                     // only take OUTPUT pins into account
                     if (pin.mode(m_chipsets) != PinMode::OUTPUT) {
                         continue;
@@ -382,7 +383,7 @@ private:
                 }
 
                 // propagate the value to all connected pins
-                for (const Pin& pin : links) {
+                for (const OldPin& pin : links) {
                     // only set INPUT pins
                     if (pin.mode(m_chipsets) != PinMode::INPUT) {
                         continue;

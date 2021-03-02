@@ -4,6 +4,7 @@
 cmake_minimum_required(VERSION 3.8)
 
 project(nts)
+include(CTest)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,9 +43,12 @@ set(sources
     "src/Tristate.cpp"
 )
 
+set(libs mtl)
+
 if(EMSCRIPTEN)
     # When targeting WebAssembly, the library is a standalone module
     add_executable(nts ${sources})
+    target_link_libraries(nts ${libs})
     target_include_directories(nts PRIVATE "include")
     target_link_options(nts PRIVATE
         "--bind"
@@ -62,5 +66,47 @@ if(EMSCRIPTEN)
 else()
     # For native platforms, the library is statically linked
     add_library(nts STATIC ${sources})
+    target_link_libraries(nts ${libs})
     target_include_directories(nts PUBLIC "include")
+
+	# Unit tests for native
+	if(BUILD_TESTING)
+        find_package(Criterion REQUIRED)
+
+        add_executable(nano_unit_tests
+            "tests/4008.cpp"
+            "tests/4013.cpp"
+            "tests/4017.cpp"
+            "tests/4040.cpp"
+            "tests/assert_truth.hpp"
+            "tests/builtin_gates.cpp"
+            "tests/circuit.cpp"
+            "tests/latches.cpp"
+            "tests/logger.cpp"
+            "tests/nts_gates.cpp"
+            "tests/nts_utils.cpp"
+            "tests/nts_utils.hpp"
+            "tests/parser.cpp"
+            "tests/rom.cpp"
+        )
+        target_link_libraries(nano_unit_tests nts)
+        target_link_libraries(nano_unit_tests ${CRITERION_LIBRARIES})
+        target_include_directories(nano_unit_tests PRIVATE
+            ${CRITERION_INCLUDE_DIRS})
+
+        add_test(
+            NAME nts_tests_build
+            COMMAND "${CMAKE_COMMAND}"
+                    --build "${CMAKE_BINARY_DIR}"
+                    --config "$<CONFIG>"
+                    --target nano_unit_tests
+        )
+        set_tests_properties(nts_tests_build
+            PROPERTIES FIXTURES_SETUP nts_tests_fixture)
+
+        add_test(NAME nts_tests COMMAND nano_unit_tests)
+        set_tests_properties(nts_tests PROPERTIES
+            FIXTURES_REQUIRED nts_tests_fixture
+            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+	endif()
 endif()

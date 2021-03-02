@@ -3,22 +3,17 @@
 #
 cmake_minimum_required(VERSION 3.8)
 
-project("tekspice")
+project(tekspice)
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+# My Template Library
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/mtl)
 
 # The NanoTekSpice engine library
-add_subdirectory(${CMAKE_SOURCE_DIR}/nano)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/nano)
 
+# Native CLI/REPL
 if(NOT EMSCRIPTEN)
-	option(ENABLE_TESTS "Build tests along with the library" ON)
-
-	# Native CLI/REPL
-	add_subdirectory(${CMAKE_SOURCE_DIR}/cli)
-
-	# Unit tests for native
-	if(ENABLE_TESTS)
-		enable_testing()
-		add_subdirectory(${CMAKE_SOURCE_DIR}/tests)
-	endif()
+	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cli)
 endif()
