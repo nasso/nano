@@ -1,0 +1,45 @@
+.chipsets:
+input strobe
+input in_a
+input in_b
+output s7
+output s6
+output s5
+output s4
+output s3
+output s1
+output s2
+output s0
+ignored vss
+output s13
+output s12
+output s15
+output s14
+output s9
+output s8
+output s11
+output s10
+input in_c
+input in_d
+input inhibit
+ignored vdd
+
+false low
+
+.links:
+s7:1 low:1
+s6:1 low:1
+s5:1 low:1
+s4:1 low:1
+s3:1 low:1
+s1:1 low:1
+s2:1 low:1
+s0:1 low:1
+s13:1 low:1
+s12:1 low:1
+s15:1 low:1
+s14:1 low:1
+s9:1 low:1
+s8:1 low:1
+s11:1 low:1
+s10:1 low:1
