@@ -10,6 +10,7 @@
 
 #include "AComponent.hpp"
 #include "IComponent.hpp"
+#include "mtl/Option.hpp"
 #include <algorithm>
 #include <functional>
 #include <memory>
@@ -18,10 +19,73 @@
 #include <vector>
 
 namespace nts {
+namespace circuit {
+
+    template <typename K>
+    using ChipMap = std::unordered_map<K, std::unique_ptr<IComponent>>;
+
+    template <typename K>
+    class ChipPin {
+        mtl::Option<K> owner;
+        PinId pin;
+
+        bool operator==(const ChipPin& other) const
+        {
+            return owner == other.owner && pin == other.pin;
+        }
+
+        Tristate read(const IComponent& circuit, const ChipMap<K>& chips) const
+        {
+            return owner
+                .map([&](const K& k) { return *chips.at(k); })
+                .unwrap_or(circuit)
+                .read(pin);
+        }
+
+        void write(IComponent& circuit, ChipMap<K>& chips, Tristate value) const
+        {
+            if (owner) {
+                return chips.at(*owner)->write(pin, value);
+            } else {
+                return circuit.write(pin, value);
+            }
+        }
+
+        PinMode mode(const ChipMap<K>& chips) const
+        {
+            return chips.at(owner)->pinout().at(pin);
+        }
+    };
+
+}
+}
+
+namespace std {
+
+template <typename K>
+struct hash<nts::circuit::ChipPin<K>> {
+    using argument_type = nts::circuit::ChipPin<K>;
+    using result_type = std::size_t;
+
+    result_type operator()(const argument_type& pin) const
+    {
+        result_type hash = 17;
+        hash = hash * 31 + std::hash<K>()(pin.compName());
+        hash = hash * 31 + std::hash<nts::PinId>()(pin.id());
+        return hash;
+    }
+};
+
+}
+
+namespace nts {
 
 template <typename K>
 class Circuit : public AComponent {
 public:
+    // using PinAdjency = std::unordered_set<ChipPin>;
+    // using PinAdjencyList = std::unordered_map<ChipPin>;
+
     Circuit()
     {
     }
@@ -203,74 +267,13 @@ public:
         os << curShift << ")";
     }
 
-private:
-    using ChipMap = std::unordered_map<K, std::unique_ptr<IComponent>>;
-
-    class OldPin {
-    public:
-        OldPin(K comp, PinId id)
-            : m_compName(comp)
-            , m_id(id)
-        {
-        }
-
-        OldPin(const OldPin& other)
-            : m_compName(other.m_compName)
-            , m_id(other.m_id)
-        {
-        }
-
-        bool operator==(const OldPin& other) const
-        {
-            return m_compName == other.m_compName && m_id == other.m_id;
-        }
-
-        Tristate read(const ChipMap& chips) const
-        {
-            return chips.at(m_compName)->read(m_id);
-        }
-
-        void write(ChipMap& chips, Tristate value) const
-        {
-            return chips.at(m_compName)->write(m_id, value);
-        }
-
-        PinMode mode(const ChipMap& chips) const
-        {
-            return chips.at(m_compName)->pinout().at(m_id);
-        }
-
-        const K& compName() const
-        {
-            return m_compName;
-        }
-
-        PinId id() const
-        {
-            return m_id;
-        }
-
-    private:
-        K m_compName;
-        PinId m_id;
-    };
-
-    struct PinHash {
-        std::size_t operator()(const OldPin& pin) const
-        {
-            std::size_t hash = 17;
-            hash = hash * 31 + std::hash<K>()(pin.compName());
-            hash = hash * 31 + std::hash<PinId>()(pin.id());
-            return hash;
-        }
-    };
-
-    using PinSet = std::unordered_set<OldPin, PinHash>;
-    using PinAdjencyList = std::unordered_map<OldPin, PinSet, PinHash>;
+    using PinSet = std::unordered_set<OldPin<K>>;
+    using PinAdjencyList = std::unordered_map<OldPin<K>, PinSet>;
     using PinIdSet = std::unordered_set<PinId>;
     using PinIdAdjencyList = std::unordered_map<PinId, PinIdSet>;
 
-    ChipMap m_chipsets;
+private:
+    ChipMap<K> m_chipsets;
     std::unordered_map<PinId, PinSet> m_pinLinks;
     PinAdjencyList m_adjencyList;
     PinIdAdjencyList m_directPinLinks;
@@ -326,7 +329,7 @@ private:
         for (const auto& link : m_pinLinks) {
             Tristate value = read(link.first);
 
-            for (const OldPin& dest : link.second) {
+            for (const OldPin<K>& dest : link.second) {
                 Tristate oldValue = dest.read(m_chipsets);
 
                 // we actually want to overwrite the old value here rather than
@@ -342,7 +345,7 @@ private:
         for (auto& link : m_pinLinks) {
             Tristate value = Tristate::UNDEFINED;
 
-            for (const OldPin& source : link.second) {
+            for (const OldPin<K>& source : link.second) {
                 Tristate newValue = source.read(m_chipsets);
 
                 value = propagate(value, newValue);
@@ -361,14 +364,14 @@ private:
         PinSet visitedPins;
 
         for (const auto& adjency : m_adjencyList) {
-            const OldPin& pin = adjency.first;
+            const OldPin<K>& pin = adjency.first;
 
             if (visitedPins.find(pin) == visitedPins.end()) {
-                PinSet links = findConnected<OldPin, PinSet>(pin, m_adjencyList);
+                PinSet links = findConnected<OldPin<K>, PinSet>(pin, m_adjencyList);
                 Tristate linkValue = Tristate::UNDEFINED;
 
                 // compute the common link value
-                for (const OldPin& pin : links) {
+                for (const OldPin<K>& pin : links) {
                     // only take OUTPUT pins into account
                     if (pin.mode(m_chipsets) != PinMode::OUTPUT) {
                         continue;
@@ -383,7 +386,7 @@ private:
                 }
 
                 // propagate the value to all connected pins
-                for (const OldPin& pin : links) {
+                for (const OldPin<K>& pin : links) {
                     // only set INPUT pins
                     if (pin.mode(m_chipsets) != PinMode::INPUT) {
                         continue;
@@ -440,7 +443,20 @@ private:
         }
     }
 };
-
 }
+
+// template <typename K>
+// struct hash<nts::Circuit<K>::ChipPin> {
+//     using argument_type = nts::Circuit<K>::ChipPin;
+//     using result_type = std::size_t;
+//
+//     result_type operator()(const argument_type& pin) const
+//     {
+//         result_type hash = 17;
+//         hash = hash * 31 + std::hash<mtl::Option<K>>()(pin.owner);
+//         hash = hash * 31 + std::hash<nts::PinId>()(pin.pin);
+//         return hash;
+//     }
+// };
 
 #endif /* !CIRCUIT_HPP_ */

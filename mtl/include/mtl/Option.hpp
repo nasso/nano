@@ -9,6 +9,8 @@
 #define OPTION_HPP_
 
 #include <cassert>
+#include <functional>
+#include <type_traits>
 #include <utility>
 
 namespace mtl {
@@ -18,73 +20,134 @@ class Option {
 public:
     static const Option<T> NONE();
 
-    Option(const T& val)
-        : m_some(true)
-    {
-        new (&m_value) T(val);
-    }
-
-    Option(T&& val)
-        : m_some(true)
-    {
-        new (&m_value) T(std::move(val));
-    }
-
-    template <class... Args>
-    Option(Args&&... args)
-    {
-        emplace(std::forward<Args>(args)...);
-    }
-
     Option()
+        : m_some(false)
     {
+    }
+
+    Option(T&& value)
+        : m_some(false)
+    {
+        emplace(std::forward<T>(value));
     }
 
     Option(const Option<T>& other)
+        : m_some(false)
     {
         *this = other;
     }
 
     Option(Option<T>&& other)
-        : m_some(other.m_some)
+        : m_some(false)
     {
-        if (m_some) {
-            new (&m_value) T(std::move(other.m_value));
+        *this = std::forward<Option<T>>(other);
+    }
+
+    template <std::enable_if_t<std::is_reference<T>, bool> = true>
+    ~Option()
+    {
+        if (is_some()) {
+            (**this).~T();
         }
     }
 
-    ~Option()
+    operator bool() const
     {
-        clear();
+        return is_some();
     }
 
-    template <typename V>
-    Option<T>& operator=(V&& other)
+    Option<T>& operator=(const Option<T>& other)
     {
-        emplace(std::forward<V>(other));
+        if (other) {
+            emplace(*other);
+        } else {
+            take();
+        }
+
+        return *this;
+    }
+
+    Option<T>& operator=(Option<T>&& other)
+    {
+        if (other) {
+            emplace(std::move(other.unwrap()));
+        } else {
+            take();
+        }
 
         return *this;
     }
 
     template <class... Args>
-    void emplace(Args&&... args)
+    Option<T> emplace(Args&&... args)
     {
-        clear();
+        static_assert(std::is_constructible<T, Args...>::value,
+            "Cannot construct T");
+
+        Option<T> old_val = take();
         new (&m_value) T(std::forward<Args>(args)...);
         m_some = true;
+        return std::move(old_val);
     }
 
-    void clear()
+    Option<T> take()
     {
         if (m_some) {
-            (**this).~T();
+            Option<T> val(std::forward<T>(unwrap()));
+
             m_some = false;
+            return std::move(val);
+        } else {
+            return {};
         }
     }
 
-    bool some() const
+    bool is_some() const
     {
         return m_some;
+    }
+
+    bool is_none() const
+    {
+        return !m_some;
+    }
+
+    T unwrap()
+    {
+        assert(m_some);
+        m_some = false;
+        return std::move(reinterpret_cast<T&>(m_value));
+    }
+
+    T unwrap_or(T val)
+    {
+        if (*this) {
+            return std::forward<T>(unwrap());
+        } else {
+            return std::forward<T>(val);
+        }
+    }
+
+    T unwrap_or_default()
+    {
+        static_assert(std::is_default_constructible<T>::value,
+            "No default constructor for T");
+
+        if (*this) {
+            return std::forward<T>(unwrap());
+        } else {
+            return {};
+        }
+    }
+
+    template <typename F>
+    auto unwrap_or_else(F&& f) -> T
+    {
+        if (*this) {
+            return std::forward<T>(unwrap());
+        } else {
+            return std::forward<T>(f());
+        }
     }
 
     T& operator*()
@@ -99,11 +162,32 @@ public:
         return reinterpret_cast<const T&>(m_value);
     }
 
-    T&& take()
+    bool operator==(const Option<T>& other) const
     {
-        assert(m_some);
-        m_some = false;
-        return std::move(reinterpret_cast<T&>(m_value));
+        if (is_none() && other.is_none()) {
+            return true;
+        }
+
+        return **this == *other;
+    }
+
+    template <typename F>
+    auto map(F&& f) -> Option<decltype(f(unwrap()))>
+    {
+        if (is_some()) {
+            return { f(unwrap()) };
+        } else {
+            return {};
+        }
+    }
+
+    Option<T&> as_ref()
+    {
+        if (is_some()) {
+            return { **this };
+        } else {
+            return {};
+        }
     }
 
 private:
