@@ -5,40 +5,137 @@
 ** Option
 */
 
-#ifndef OPTION_HPP_
-#define OPTION_HPP_
+#ifndef MTL_OPTION_HPP_
+#define MTL_OPTION_HPP_
 
 #include <cassert>
+#include <functional>
+#include <iostream>
+#include <type_traits>
 #include <utility>
 
 namespace mtl {
 
+namespace {
+
+    template <typename T>
+    class Base;
+
+    template <typename T>
+    class Base<T&>;
+
+    template <typename T>
+    class Base<const T&>;
+
+    template <typename T>
+    class Base {
+    public:
+        constexpr Base() noexcept = default;
+
+        ~Base()
+        {
+            clear();
+        }
+
+        // contains a value?
+        bool is_some() const
+        {
+            return m_some;
+        }
+
+        // get a pointer to the contained value
+        T* get()
+        {
+            if (m_some) {
+                return reinterpret_cast<T*>(&m_value);
+            } else {
+                return nullptr;
+            }
+        }
+
+        const T* get() const
+        {
+            if (m_some) {
+                return reinterpret_cast<const T*>(&m_value);
+            } else {
+                return nullptr;
+            }
+        }
+
+        // set to none
+        void clear()
+        {
+            if (m_some) {
+                get()->~T();
+                m_some = false;
+            }
+        }
+
+        // set to some
+        template <typename... Args>
+        void emplace(Args&&... args)
+        {
+            static_assert(std::is_constructible<T, Args...>::value,
+                "Couldn't find a suitable constructor for T");
+
+            new (&m_value) T(std::forward<Args>(args)...);
+            m_some = true;
+        }
+
+    private:
+        bool m_some = false;
+        alignas(T) unsigned char m_value[sizeof(T)];
+    };
+
+    template <typename T>
+    class Base<T&> {
+        static_assert(sizeof(T) == 0, "optional mutable references disallowed");
+    };
+
+    template <typename T>
+    class Base<const T&> {
+    public:
+        constexpr Base() noexcept = default;
+
+        ~Base()
+        {
+            clear();
+        }
+
+        // contains a value?
+        bool is_some() const
+        {
+            return m_value != nullptr;
+        }
+
+        // get a pointer to the contained value
+        const T* get() const
+        {
+            return m_value;
+        }
+
+        // set to none
+        void clear()
+        {
+            m_value = nullptr;
+        }
+
+        // set to some
+        void emplace(const T& ref)
+        {
+            m_value = std::addressof(ref);
+        }
+
+    private:
+        const T* m_value = nullptr;
+    };
+
+}
+
 template <typename T>
-class Option {
+class Option : Base<T> {
 public:
-    static const Option<T> NONE();
-
-    Option(const T& val)
-        : m_some(true)
-    {
-        new (&m_value) T(val);
-    }
-
-    Option(T&& val)
-        : m_some(true)
-    {
-        new (&m_value) T(std::move(val));
-    }
-
-    template <class... Args>
-    Option(Args&&... args)
-    {
-        emplace(std::forward<Args>(args)...);
-    }
-
-    Option()
-    {
-    }
+    constexpr Option() noexcept = default;
 
     Option(const Option<T>& other)
     {
@@ -46,71 +143,146 @@ public:
     }
 
     Option(Option<T>&& other)
-        : m_some(other.m_some)
     {
-        if (m_some) {
-            new (&m_value) T(std::move(other.m_value));
+        if (other) {
+            emplace(std::move(other.unwrap()));
         }
     }
 
-    ~Option()
+    Option<T>& operator=(const Option<T>& other)
     {
-        clear();
-    }
-
-    template <typename V>
-    Option<T>& operator=(V&& other)
-    {
-        emplace(std::forward<V>(other));
+        if (other) {
+            emplace(other.as_ref().unwrap());
+        } else {
+            take();
+        }
 
         return *this;
     }
 
-    template <class... Args>
-    void emplace(Args&&... args)
+    bool operator==(const Option<T>& other) const
     {
-        clear();
-        new (&m_value) T(std::forward<Args>(args)...);
-        m_some = true;
+        if (is_none() || other.is_none()) {
+            return is_none() && other.is_none();
+        }
+
+        return as_ref().unwrap() == other.as_ref().unwrap();
     }
 
-    void clear()
+    operator bool() const
     {
-        if (m_some) {
-            (**this).~T();
-            m_some = false;
+        return is_some();
+    }
+
+    bool is_some() const
+    {
+        return Base<T>::is_some();
+    }
+
+    bool is_none() const
+    {
+        return !is_some();
+    }
+
+    T unwrap()
+    {
+        if (is_none()) {
+            throw std::runtime_error("unwrap() called on a `none` value");
+        }
+
+        T val(std::forward<T>(*get()));
+
+        clear();
+        return std::forward<T>(val);
+    }
+
+    T unwrap_or(T val)
+    {
+        if (*this) {
+            return std::forward<T>(unwrap());
+        } else {
+            return std::forward<T>(val);
         }
     }
 
-    bool some() const
+    T unwrap_or_default()
     {
-        return m_some;
+        static_assert(std::is_default_constructible<T>::value,
+            "No default constructor for T");
+
+        if (*this) {
+            return std::forward<T>(unwrap());
+        } else {
+            return {};
+        }
     }
 
-    T& operator*()
+    template <typename F>
+    T unwrap_or_else(F&& f)
     {
-        assert(m_some);
-        return reinterpret_cast<T&>(m_value);
+        if (*this) {
+            return std::forward<T>(unwrap());
+        } else {
+            return std::forward<T>(f());
+        }
     }
 
-    const T& operator*() const
+    Option<T> take()
     {
-        assert(m_some);
-        return reinterpret_cast<const T&>(m_value);
+        if (*this) {
+            Option<T> oldVal;
+            oldVal.emplace(std::forward<T>(unwrap()));
+            return oldVal;
+        } else {
+            return {};
+        }
     }
 
-    T&& take()
+    template <typename... Args>
+    Option<T> replace(Args&&... args)
     {
-        assert(m_some);
-        m_some = false;
-        return std::move(reinterpret_cast<T&>(m_value));
+        Option<T> oldVal = take();
+
+        emplace(std::forward<Args>(args)...);
+
+        return oldVal;
     }
 
-private:
-    bool m_some = false;
-    alignas(T) unsigned char m_value[sizeof(T)];
+    template <typename F>
+    auto map(F&& f) -> Option<decltype(f(unwrap()))>
+    {
+        if (*this) {
+            return mtl::some<decltype(f(unwrap()))>(f(unwrap()));
+        } else {
+            return {};
+        }
+    }
+
+    Option<const T&> as_ref() const
+    {
+        if (*this) {
+            return mtl::some<const T&>(*get());
+        } else {
+            return {};
+        }
+    }
 };
+
+template <typename T, typename... Args>
+constexpr Option<T> some(Args&&... args)
+{
+    Option<T> opt;
+
+    opt.replace(std::forward<Args>(args)...);
+    return opt;
+}
+
+template <typename T>
+constexpr Option<T> none() noexcept
+{
+    return {};
+}
 
 }
 
-#endif /* !OPTION_HPP_ */
+#endif /* !MTL_OPTION_HPP_ */
