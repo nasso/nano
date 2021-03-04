@@ -7,28 +7,20 @@
 
 #include "mtl/Option.hpp"
 #include <criterion/criterion.h>
-#include <criterion/redirect.h>
-#include <iostream>
+#include <functional>
 #include <string>
-
-#ifdef _WIN32
-#define LF "\r\n"
-#else
-#define LF "\n"
-#endif
+#include <unordered_set>
 
 class Unique {
 public:
     Unique()
         : m_val(0)
     {
-        std::cout << "Unique()" << std::endl;
     }
 
     explicit Unique(int val)
         : m_val(val)
     {
-        std::cout << "Unique(" << val << ")" << std::endl;
     }
 
     Unique(const Unique&) = delete;
@@ -36,14 +28,10 @@ public:
     Unique(Unique&& other)
         : m_val(other.m_val)
     {
-        other.m_moved = true;
     }
 
     ~Unique()
     {
-        if (!m_moved) {
-            std::cout << "~Unique(" << m_val << ")" << std::endl;
-        }
     }
 
     bool operator==(const Unique& rhs) const
@@ -63,18 +51,13 @@ public:
 
 private:
     int m_val = 0;
-    bool m_moved = false;
 };
-
-TestSuite(option, .init = cr_redirect_stdout);
 
 Test(option, default_constructor_is_none)
 {
     mtl::Option<Unique> opt;
 
     cr_assert(!opt);
-    std::cout << std::endl;
-    cr_assert_stdout_eq_str(LF);
 }
 
 Test(option, some_constructor)
@@ -84,9 +67,6 @@ Test(option, some_constructor)
     cr_assert(opt);
     cr_assert_eq(opt.unwrap(), 4);
     cr_assert(!opt);
-    cr_assert_stdout_eq_str(
-        "Unique(4)" LF
-        "~Unique(4)" LF);
 }
 
 Test(option, some_default_constructor)
@@ -95,9 +75,6 @@ Test(option, some_default_constructor)
 
     cr_assert(opt);
     cr_assert_eq(opt.unwrap(), 0);
-    cr_assert_stdout_eq_str(
-        "Unique()" LF
-        "~Unique(0)" LF);
 }
 
 Test(option, replace_some)
@@ -204,4 +181,29 @@ Test(option, unique_ptr)
     cr_assert(opt);
     cr_assert_eq(*opt.unwrap(), 139);
     opt.replace(std::move(std::make_unique<int>(42)));
+}
+
+Test(option, hash_owned)
+{
+    mtl::Option<int> owned;
+    mtl::Option<int&> mut;
+    mtl::Option<const int&> ref;
+
+    std::hash<mtl::Option<int>>()(owned);
+    std::hash<mtl::Option<int&>>()(mut);
+    std::hash<mtl::Option<const int&>>()(ref);
+}
+
+Test(option, hash_set)
+{
+    std::unordered_set<mtl::Option<std::string>> set;
+
+    set.emplace();
+    set.emplace();
+    set.emplace("hi");
+    set.emplace("hello");
+    cr_assert_neq(set.find(mtl::none<std::string>()), set.end());
+    cr_assert_neq(set.find(mtl::some<std::string>("hi")), set.end());
+    cr_assert_neq(set.find(mtl::some<std::string>("hello")), set.end());
+    cr_assert_eq(set.find(mtl::some<std::string>("blabla")), set.end());
 }

@@ -288,4 +288,26 @@ constexpr Option<T> none() noexcept
 
 }
 
+namespace std {
+
+template <typename T>
+struct hash<mtl::Option<T>> {
+    using argument_type = mtl::Option<T>;
+    using result_type = std::size_t;
+
+    result_type operator()(const argument_type& opt) const
+    {
+        result_type hash = 17;
+        hash = hash * 31 + std::hash<bool>()(opt);
+        if (opt) {
+            hash = hash * 31
+                + std::hash<std::remove_cv_t<std::remove_reference_t<T>>>()(
+                    opt.as_ref().unwrap());
+        }
+        return hash;
+    }
+};
+
+}
+
 #endif /* !MTL_OPTION_HPP_ */
