@@ -1,0 +1,20 @@
+.git/
+.github/
+.vs/
+.vscode/
+.gitignore
+.editorconfig
+CMakeSettings.json
+
+# project files
+build
+build-wasm
+log.bin
+rom.bin
+
+# meta
+README.md
+
+# unnecessary for compilation
+bonus/
+docs/
