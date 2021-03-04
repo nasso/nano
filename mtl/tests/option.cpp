@@ -147,6 +147,38 @@ Test(option, as_ref)
     cr_assert_eq(ref.unwrap(), 3);
 }
 
+Test(option, as_mut)
+{
+    mtl::Option<int> opt = mtl::some<int>(3);
+    mtl::Option<int&> mut = opt.as_mut();
+
+    cr_assert(mut);
+    mut.unwrap() = 5;
+    cr_assert_eq(opt.unwrap(), 5);
+}
+
+Test(option, as_ref_none)
+{
+    mtl::Option<const int&> ref = mtl::none<int>().as_ref();
+
+    cr_assert(!ref);
+}
+
+Test(option, as_mut_none)
+{
+    mtl::Option<int&> mut = mtl::none<int>().as_mut();
+
+    cr_assert(!mut);
+}
+
+Test(option, as_ref_from_const)
+{
+    const mtl::Option<int> opt = mtl::some<int>(3);
+    mtl::Option<const int&> ref = opt.as_ref();
+
+    cr_assert_eq(ref.unwrap(), 3);
+}
+
 Test(option, map_as_ref)
 {
     mtl::Option<Unique> mbOrig = mtl::some<Unique>(3);

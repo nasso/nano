@@ -79,11 +79,6 @@ namespace {
 
     template <typename T>
     class Base<T&> {
-        static_assert(sizeof(T) == 0, "optional mutable references disallowed");
-    };
-
-    template <typename T>
-    class Base<const T&> {
     public:
         constexpr Base() noexcept = default;
 
@@ -99,7 +94,12 @@ namespace {
         }
 
         // get a pointer to the contained value
-        const T* get() const
+        std::add_pointer_t<T> get()
+        {
+            return m_value;
+        }
+
+        std::add_const_t<std::add_pointer_t<T>> get() const
         {
             return m_value;
         }
@@ -111,15 +111,14 @@ namespace {
         }
 
         // set to some
-        void emplace(const T& ref)
+        void emplace(std::add_lvalue_reference_t<T> ref)
         {
             m_value = std::addressof(ref);
         }
 
     private:
-        const T* m_value = nullptr;
+        std::add_pointer_t<T> m_value = nullptr;
     };
-
 }
 
 template <typename T>
@@ -135,7 +134,7 @@ public:
     Option(Option<T>&& other)
     {
         if (other) {
-            emplace(std::move(other.unwrap()));
+            emplace(std::forward<T>(other.unwrap()));
         }
     }
 
@@ -257,6 +256,15 @@ public:
     {
         if (*this) {
             return mtl::some<const T&>(*get());
+        } else {
+            return {};
+        }
+    }
+
+    Option<T&> as_mut()
+    {
+        if (*this) {
+            return mtl::some<T&>(*get());
         } else {
             return {};
         }
