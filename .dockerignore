@@ -4,6 +4,7 @@
 .vscode/
 .gitignore
 .editorconfig
+.dockerignore
 CMakeSettings.json
 
 # project files
@@ -16,5 +17,4 @@ rom.bin
 README.md
 
 # unnecessary for compilation
-bonus/
 docs/

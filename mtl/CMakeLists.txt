@@ -13,7 +13,7 @@ set(sources
 add_library(mtl INTERFACE)
 target_include_directories(mtl INTERFACE "include")
 
-if(BUILD_TESTING)
+if(NOT EMSCRIPTEN AND BUILD_TESTING)
     find_package(Criterion REQUIRED)
 
     add_executable(mtl_unit_tests
