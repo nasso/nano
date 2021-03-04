@@ -259,7 +259,7 @@ public:
     auto map(F&& f) -> Option<decltype(f(unwrap()))>
     {
         if (*this) {
-            return mtl::some<decltype(f(unwrap()))>(f(unwrap()));
+            return { f(unwrap()) };
         } else {
             return {};
         }

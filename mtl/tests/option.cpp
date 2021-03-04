@@ -158,7 +158,7 @@ Test(option, as_ref_from_const)
 
 Test(option, map_as_ref)
 {
-    mtl::Option<Unique> mbOrig = mtl::some<Unique>(3);
+    const mtl::Option<Unique> mbOrig = mtl::some<Unique>(3);
     mtl::Option<const Unique&> mbRef = mbOrig.as_ref();
     mtl::Option<Unique> mbDoubled = mbRef.map([](const Unique& u) {
         return Unique(u.get() * 2);
@@ -167,7 +167,7 @@ Test(option, map_as_ref)
     cr_assert(mbOrig);
     cr_assert(!mbRef);
     cr_assert(mbDoubled);
-    cr_assert_eq(mbDoubled.unwrap().get(), mbOrig.unwrap().get() * 2);
+    cr_assert_eq(mbDoubled, mtl::some<Unique>(6));
 }
 
 Test(option, unique_ptr)
