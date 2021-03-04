@@ -173,3 +173,40 @@ Test(option, unique_ptr)
     cr_assert_eq(*opt.unwrap(), 139);
     opt.replace(std::move(std::make_unique<int>(42)));
 }
+
+Test(option, map_simple)
+{
+    mtl::Option<int> opt(3);
+
+    cr_assert_eq(opt.map([](int v) { return v * 2; }), mtl::Option<int>(6));
+}
+
+Test(option, map_as_const_ref)
+{
+    using uni_int = std::unique_ptr<int>;
+    mtl::Option<std::unique_ptr<int>> opt(std::make_unique<int>(3));
+
+    mtl::Option<int> opt2 = opt.map([](uni_int v) { return *v * 2; });
+
+    cr_assert_eq(*opt2, 6);
+}
+
+Test(option, unwrap_or)
+{
+    cr_assert_eq(mtl::Option<int>().unwrap_or_default(), 0);
+    cr_assert_eq(mtl::Option<int>(8).unwrap_or_default(), 8);
+    cr_assert_eq(mtl::Option<int>().unwrap_or(3), 3);
+    cr_assert_eq(mtl::Option<int>(8).unwrap_or(3), 8);
+    cr_assert_eq(mtl::Option<int>().unwrap_or_else([]() { return 3; }), 3);
+    cr_assert_eq(mtl::Option<int>(8).unwrap_or_else([]() { return 3; }), 8);
+}
+
+Test(option, as_ref)
+{
+    mtl::Option<int> opt(3);
+    mtl::Option<int&> ref;
+
+    ref = opt.as_ref();
+
+    cr_assert_eq(opt, ref);
+}
