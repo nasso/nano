@@ -163,7 +163,7 @@ Test(option, map_as_ref)
 
 Test(option, unique_ptr)
 {
-    auto opt = mtl::some<std::unique_ptr<int>>(new int(3));
+    mtl::Option<std::unique_ptr<int>> opt(std::make_unique<int>(3));
 
     cr_assert(opt);
     cr_assert_eq(*opt.unwrap(), 3);

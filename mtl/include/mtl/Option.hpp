@@ -18,15 +18,6 @@ namespace mtl {
 namespace {
 
     template <typename T>
-    class Base;
-
-    template <typename T>
-    class Base<T&>;
-
-    template <typename T>
-    class Base<const T&>;
-
-    template <typename T>
     class Base {
     public:
         constexpr Base() noexcept = default;
@@ -146,6 +137,11 @@ public:
         if (other) {
             emplace(std::move(other.unwrap()));
         }
+    }
+
+    Option(T&& value)
+    {
+        emplace(std::forward<T>(value));
     }
 
     Option<T>& operator=(const Option<T>& other)
