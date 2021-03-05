@@ -1,8 +1,11 @@
-import createNts from "/nts.js";
+import createNts from "./nts.js";
 import App from "@components/App.svelte";
 
-createNts().then((nts) => {
-  window.nts = nts;
+createNts({
+  locateFile(path: string): string {
+    return `/${path}`;
+  },
+}).then((nts) => {
   new App({
     target: document.body,
     props: { nts },

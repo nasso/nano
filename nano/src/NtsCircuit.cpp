@@ -177,11 +177,6 @@ EMSCRIPTEN_BINDINGS(nts_ntscircuit)
     emscripten::register_vector<std::string>("vector<std::string>");
     emscripten::register_map<std::string, nts::PinId>("PinMap");
 
-    emscripten::class_<Circuit, emscripten::base<nts::AComponent>>("Circuit")
-        .constructor<>()
-        .property("stable", &Circuit::stable)
-        .function("tick", &Circuit::tick);
-
     emscripten::class_<nts::NtsCircuit, emscripten::base<Circuit>>("NtsCircuit")
         .constructor<std::string>()
         .property("pins", &nts::NtsCircuit::pins);

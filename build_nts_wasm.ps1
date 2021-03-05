@@ -8,3 +8,6 @@ docker run --rm -itw /code/build_wasm -v "$(pwd):/code" 'emscripten/emsdk' `
 # build
 docker run --rm -itw /code/build_wasm -v "$(pwd):/code" 'emscripten/emsdk' `
     cmake --build . --target nts -- "-j$jobs"
+
+# move the js file
+mv -Force .\bonus\web_playground\public\nts.js .\bonus\web_playground\src\nts.js

@@ -44,7 +44,7 @@ export default {
   input: "src/main.ts",
   external: ["/nts.js"],
   output: {
-    sourcemap: true,
+    sourcemap: !production,
     format: "es",
     name: "app",
     file: "public/build/bundle.js",
