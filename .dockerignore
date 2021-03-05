@@ -5,6 +5,7 @@
 .gitignore
 .editorconfig
 .dockerignore
+Dockerfile*
 CMakeSettings.json
 
 # project files
