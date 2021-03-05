@@ -16,16 +16,16 @@ namespace nts {
 
 class StaticComponentFactory : public IComponentFactory {
 public:
-    using Generator = std::function<Output()>;
+    using Generator = std::function<std::unique_ptr<nts::IComponent>()>;
 
     StaticComponentFactory();
 
-    virtual Output createComponent(const Name& name) override;
+    Output createComponent(const std::string& name) noexcept override;
 
-    void add(const Name& name, Generator gen);
+    void add(const std::string& name, Generator gen);
 
 private:
-    std::unordered_map<Name, Generator> m_generators;
+    std::unordered_map<std::string, Generator> m_generators;
 };
 
 }

@@ -29,6 +29,37 @@
     },
   ];
 
+  const mainFactory = new nts.ComboComponentFactory();
+
+  {
+    const builtinFactory = new nts.BuiltInComponentFactory();
+    mainFactory.add(builtinFactory);
+  }
+
+  {
+    const creationStack = new Set<string>();
+
+    mainFactory.add(
+      nts.IComponentFactory.implement({
+        createComponent(name: string) {
+          if (creationStack.has(name)) {
+            console.log("circular dependency!");
+            return;
+          }
+
+          let chip = chips.find((v) => name === v.name);
+
+          if (chip) {
+            creationStack.add(chip.name);
+            const circuit = new nts.NtsCircuit(chip.source, mainFactory);
+            creationStack.delete(chip.name);
+            return circuit;
+          }
+        },
+      })
+    );
+  }
+
   let currentChip = 0;
 
   function newChip() {
@@ -102,11 +133,10 @@
     }
 
     try {
-      circuit = new nts.NtsCircuit(chips[currentChip].source);
+      circuit = new nts.NtsCircuit(chips[currentChip].source, mainFactory);
       inputs = readPins(nts.PinMode.INPUT);
       outputs = readPins(nts.PinMode.OUTPUT);
     } catch (e) {
-      circuit = null;
       console.log(e);
     }
   }

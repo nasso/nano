@@ -17,15 +17,14 @@ namespace nts {
 
 class NtsComponentFactory : public IComponentFactory {
 public:
-    NtsComponentFactory(std::string dirpath);
+    NtsComponentFactory(std::string dirpath) noexcept;
     ~NtsComponentFactory() = default;
 
-    std::unique_ptr<IComponent> createComponent(const std::string& name)
-        override;
+    Output createComponent(const std::string& name) noexcept override;
 
 private:
     NtsComponentFactory(const NtsComponentFactory& base,
-        const std::string& except);
+        const std::string& except) noexcept;
 
     std::string m_dirpath;
     std::unordered_set<std::string> m_exceptions;

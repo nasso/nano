@@ -8,7 +8,6 @@
 #ifndef MTL_OPTION_HPP_
 #define MTL_OPTION_HPP_
 
-#include <cassert>
 #include <functional>
 #include <stdexcept>
 #include <type_traits>
@@ -191,16 +190,21 @@ public:
         return !is_some();
     }
 
-    T unwrap()
+    T expect(const std::string& msg)
     {
         if (is_none()) {
-            throw std::runtime_error("unwrap() called on a `none` value");
+            throw std::runtime_error(msg);
         }
 
         T val(std::forward<T>(*Base<T>::get()));
 
         Base<T>::clear();
         return std::forward<T>(val);
+    }
+
+    T unwrap()
+    {
+        return std::forward<T>(expect("unwrap() called on a `none` value"));
     }
 
     T unwrap_or(T val)

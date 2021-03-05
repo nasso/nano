@@ -9,6 +9,7 @@ RUN emcmake cmake .. -DCMAKE_BUILD_TYPE=Release \
     && cmake --build . --config Release
 
 FROM node:12-alpine as build_web
+ENV NODE_ENV=production
 WORKDIR /app
 COPY bonus/web_playground/package*.json .
 RUN npm ci

@@ -9,22 +9,38 @@
 
 namespace nts {
 
-void ComboComponentFactory::add(std::unique_ptr<IComponentFactory> factory)
+void ComboComponentFactory::add(
+    std::unique_ptr<IComponentFactory> factory) noexcept
 {
     m_factories.push_back(std::move(factory));
 }
 
-std::unique_ptr<IComponent> ComboComponentFactory::createComponent(
-    const std::string& name)
+ComboComponentFactory::Output ComboComponentFactory::createComponent(
+    const std::string& name) noexcept
 {
     for (auto& factory : m_factories) {
-        try {
-            return factory->createComponent(name);
-        } catch (...) {
+        auto out = factory->createComponent(name);
+
+        if (out) {
+            return out;
         }
     }
 
-    throw std::runtime_error("Error can't create component " + name);
+    return {};
 }
 
 }
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(nts_combocomponentfactory)
+{
+    emscripten::class_<nts::ComboComponentFactory,
+        emscripten::base<nts::IComponentFactory>>("ComboComponentFactory")
+        .constructor<>()
+        .function("createComponent",
+            &nts::ComboComponentFactory::createComponent)
+        .function("add", &nts::ComboComponentFactory::add);
+}
+#endif

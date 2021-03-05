@@ -16,12 +16,12 @@ namespace nts {
 
 class ComboComponentFactory : public IComponentFactory {
 public:
+    ComboComponentFactory() noexcept = default;
     ~ComboComponentFactory() = default;
 
-    void add(std::unique_ptr<IComponentFactory>);
+    void add(std::unique_ptr<IComponentFactory>) noexcept;
 
-    std::unique_ptr<nts::IComponent> createComponent(const std::string& name)
-        override;
+    Output createComponent(const std::string& name) noexcept override;
 
 private:
     std::vector<std::unique_ptr<IComponentFactory>> m_factories;

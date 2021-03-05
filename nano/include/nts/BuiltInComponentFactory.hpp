@@ -15,9 +15,9 @@ namespace nts {
 
 class BuiltInComponentFactory : public IComponentFactory {
 public:
-    BuiltInComponentFactory();
+    BuiltInComponentFactory() noexcept;
 
-    virtual Output createComponent(const Name& name) override;
+    Output createComponent(const std::string& name) noexcept override;
 
 private:
     StaticComponentFactory m_scf;

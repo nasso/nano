@@ -106,6 +106,11 @@ Test(option, map_simple)
     cr_assert_eq(dbl.unwrap(), 6);
 }
 
+Test(option, unwrap_none)
+{
+    cr_assert_any_throw(mtl::none<int>().unwrap());
+}
+
 Test(option, unwrap_or)
 {
     cr_assert_eq(mtl::none<int>().unwrap_or_default(), 0);
