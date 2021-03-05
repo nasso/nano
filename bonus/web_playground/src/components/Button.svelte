@@ -1,8 +1,9 @@
 <script lang="ts">
   export let selected: boolean = false;
+  export let tight: boolean = false;
 </script>
 
-<button class:selected on:click><slot /></button>
+<button class:selected class:tight on:click on:dblclick><slot /></button>
 
 <style lang="scss">
   button {
@@ -38,5 +39,9 @@
     &:active {
       background-color: var(--background-2);
     }
+  }
+
+  button.tight {
+    padding: 4px 8px;
   }
 </style>
