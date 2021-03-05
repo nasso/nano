@@ -1,8 +1,7 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -19,7 +18,7 @@ jobs:
           mkdir build
           cd build
           emcmake cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$(pwd)"
-      
+
       - name: Build WASM module
         working-directory: ./build
         run: cmake --build . --config Release

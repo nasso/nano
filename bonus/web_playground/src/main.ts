@@ -3,7 +3,7 @@ import App from "@components/App.svelte";
 
 createNts({
   locateFile(path: string): string {
-    return `/${path}`;
+    return `${path}`;
   },
 }).then((nts) => {
   new App({
