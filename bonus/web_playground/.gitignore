@@ -1,4 +1,6 @@
 /node_modules/
 /public/build/
+/public/nts.js
+/public/nts.wasm
 
 .DS_Store

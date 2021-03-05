@@ -29,7 +29,6 @@
   button.selected {
     background-color: var(--background-2);
     border-color: var(--background-2);
-    font-weight: bolder;
 
     &:hover,
     &:focus-visible {

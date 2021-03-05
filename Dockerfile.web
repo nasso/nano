@@ -5,7 +5,7 @@ COPY nano nano
 COPY CMakeLists.txt .
 WORKDIR /app/build
 RUN emcmake cmake .. -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/app/out \
+    -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/app/public \
     && cmake --build . --config Release
 
 FROM node:12-alpine as build_web
@@ -14,10 +14,10 @@ COPY bonus/web_playground/package*.json .
 RUN npm ci
 COPY bonus/web_playground .
 RUN npm run build
-COPY --from=build_nts /app/out public
 
 FROM svenstaro/miniserve as serve
 WORKDIR /app
 COPY --from=build_web /app/public .
-EXPOSE 8080
-CMD [ ".", "--index", "index.html" ]
+COPY --from=build_nts /app/public .
+EXPOSE 80
+CMD [ ".", "--index", "index.html", "-p", "80" ]

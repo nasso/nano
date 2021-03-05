@@ -3,7 +3,7 @@
 nanotekspice
 unit_tests
 build
-build-wasm
+build_wasm
 log.bin
 rom.bin
 

@@ -5,17 +5,19 @@
 .gitignore
 .editorconfig
 .dockerignore
-Dockerfile*
 CMakeSettings.json
 
-# project files
+# build files
+Dockerfile
+Dockerfile.web
+build_nts_wasm.ps1
 build
-build-wasm
+build_wasm
 log.bin
 rom.bin
 
 # meta
 README.md
 
-# unnecessary for compilation
+# unneeded for compilation
 docs/

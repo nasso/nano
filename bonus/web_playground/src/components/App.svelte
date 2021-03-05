@@ -4,7 +4,7 @@
   import Panel from "@components/Panel.svelte";
   import Stack from "@components/Stack.svelte";
 
-  export let nts: NanoTekSpice;
+  export let nts;
 
   let chips = [
     {
@@ -55,7 +55,8 @@
     }
   }
 
-  let circuit: null | nts.NtsCircuit;
+  let stable = false;
+  let circuit = null;
   let inputs: Record<string, undefined | boolean> = {};
   let outputs: Record<string, undefined | boolean> = {};
 
@@ -103,17 +104,14 @@
     try {
       circuit = new nts.NtsCircuit(chips[currentChip].source);
       inputs = readPins(nts.PinMode.INPUT);
+      outputs = readPins(nts.PinMode.OUTPUT);
     } catch (e) {
       circuit = null;
       console.log(e);
     }
   }
 
-  function simulate() {
-    if (!circuit) {
-      compile();
-    }
-
+  function writeInputs() {
     if (circuit) {
       for (const key of Object.keys(inputs)) {
         const id = circuit.pins.get(key);
@@ -130,8 +128,40 @@
             break;
         }
       }
+    }
+  }
 
-      circuit.simulate();
+  function tick() {
+    if (!circuit) {
+      compile();
+    }
+
+    if (circuit) {
+      writeInputs();
+
+      circuit.tick();
+      stable = circuit.stable;
+      outputs = readPins(nts.PinMode.OUTPUT);
+    }
+  }
+
+  function stabilize() {
+    const maxTicks = 100;
+
+    if (!circuit) {
+      compile();
+    }
+
+    if (circuit) {
+      writeInputs();
+
+      stable = circuit.stable;
+
+      for (let i = 0; i < maxTicks && !stable; i++) {
+        circuit.tick();
+        stable = circuit.stable;
+      }
+
       outputs = readPins(nts.PinMode.OUTPUT);
     }
   }
@@ -167,11 +197,17 @@
         </Panel>
       </Stack>
       <Stack vertical gaps={8}>
-        <Button on:click={simulate}>Simulate</Button>
+        <Stack fill gaps={8}>
+          <Button on:click={tick}>Tick</Button>
+          <Button on:click={stabilize}>Stabilize</Button>
+        </Stack>
         <Panel>
           {#each Object.keys(outputs) as key}
             <pre>{key} = {`${outputs[key]}`}</pre>
           {/each}
+          {#if circuit && !stable}
+            <pre>Circuit is unstable!</pre>
+          {/if}
         </Panel>
       </Stack>
     </Stack>
