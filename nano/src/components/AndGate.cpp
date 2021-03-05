@@ -5,7 +5,7 @@
 ** AndGate
 */
 
-#include "nts/AndGate.hpp"
+#include "nts/components/AndGate.hpp"
 
 namespace nts {
 

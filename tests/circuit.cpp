@@ -7,8 +7,8 @@
 
 #include "nts/Circuit.hpp"
 #include "assert_truth.hpp"
-#include "nts/AndGate.hpp"
-#include "nts/NotGate.hpp"
+#include "nts/components/AndGate.hpp"
+#include "nts/components/NotGate.hpp"
 #include <criterion/criterion.h>
 #include <memory>
 

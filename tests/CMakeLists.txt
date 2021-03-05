@@ -10,6 +10,7 @@ add_executable(unit_tests
     "4013.cpp"
     "4017.cpp"
     "4040.cpp"
+    "4514.cpp"
     "assert_truth.hpp"
     "builtin_gates.cpp"
     "circuit.cpp"

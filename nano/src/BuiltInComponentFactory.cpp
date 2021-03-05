@@ -6,9 +6,10 @@
 */
 
 #include "nts/BuiltInComponentFactory.hpp"
-#include "nts/AndGate.hpp"
-#include "nts/ConstComponent.hpp"
-#include "nts/NotGate.hpp"
+#include "nts/components/AndGate.hpp"
+#include "nts/components/ConstComponent.hpp"
+#include "nts/components/NotGate.hpp"
+#include "nts/components/DecoderComponent.hpp"
 #include <fstream>
 #include <stdexcept>
 
@@ -24,6 +25,7 @@ BuiltInComponentFactory::BuiltInComponentFactory()
     m_scf.add("false", []() {
         return std::make_unique<ConstComponent>(Tristate::FALSE);
     });
+    m_scf.add("4514", std::make_unique<DecoderComponent>);
 }
 
 IComponentFactory::Output BuiltInComponentFactory::createComponent(

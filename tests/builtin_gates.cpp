@@ -6,9 +6,9 @@
 */
 
 #include "assert_truth.hpp"
-#include "nts/AndGate.hpp"
-#include "nts/ConstComponent.hpp"
-#include "nts/NotGate.hpp"
+#include "nts/components/AndGate.hpp"
+#include "nts/components/ConstComponent.hpp"
+#include "nts/components/NotGate.hpp"
 #include "nts_utils.hpp"
 #include <criterion/criterion.h>
 

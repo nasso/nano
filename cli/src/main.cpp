@@ -8,10 +8,10 @@
 #include "Repl.hpp"
 #include "nts/BuiltInComponentFactory.hpp"
 #include "nts/ComboComponentFactory.hpp"
-#include "nts/LoggerComponent.hpp"
+#include "nts/components/LoggerComponent.hpp"
 #include "nts/NtsCircuit.hpp"
 #include "nts/NtsComponentFactory.hpp"
-#include "nts/RomComponent.hpp"
+#include "nts/components/RomComponent.hpp"
 #include "nts/StaticComponentFactory.hpp"
 #include <fstream>
 #include <iostream>

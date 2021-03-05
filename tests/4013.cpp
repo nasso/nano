@@ -5,7 +5,7 @@
 ** 4013
 */
 
-#include "nts/NotGate.hpp"
+#include "nts/components/NotGate.hpp"
 #include "nts/NtsCircuit.hpp"
 #include "nts_utils.hpp"
 #include <criterion/criterion.h>

@@ -5,7 +5,7 @@
 ** NotGate
 */
 
-#include "nts/NotGate.hpp"
+#include "nts/components/NotGate.hpp"
 #include <iostream>
 
 namespace nts {

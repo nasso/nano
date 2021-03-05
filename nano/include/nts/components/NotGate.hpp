@@ -8,7 +8,7 @@
 #ifndef NOTGATE_HPP_
 #define NOTGATE_HPP_
 
-#include "AComponent.hpp"
+#include "../AComponent.hpp"
 #include <iostream>
 
 namespace nts {
