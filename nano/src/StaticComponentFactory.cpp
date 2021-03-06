@@ -13,13 +13,17 @@ StaticComponentFactory::StaticComponentFactory()
 {
 }
 
-IComponentFactory::Output StaticComponentFactory::createComponent(
-    const IComponentFactory::Name& name)
+StaticComponentFactory::Output StaticComponentFactory::createComponent(
+    const std::string& name) noexcept
 {
-    return m_generators.at(name)();
+    if (m_generators.find(name) != m_generators.end()) {
+        return m_generators.at(name)();
+    } else {
+        return {};
+    }
 }
 
-void StaticComponentFactory::add(const IComponentFactory::Name& name,
+void StaticComponentFactory::add(const std::string& name,
     StaticComponentFactory::Generator gen)
 {
     m_generators[name] = gen;

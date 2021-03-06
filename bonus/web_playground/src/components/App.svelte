@@ -4,7 +4,7 @@
   import Panel from "@components/Panel.svelte";
   import Stack from "@components/Stack.svelte";
 
-  export let nts: NanoTekSpice;
+  export let nts;
 
   let chips = [
     {
@@ -29,33 +29,79 @@
     },
   ];
 
-  let currentChip = 0;
+  const mainFactory = new nts.ComboComponentFactory();
 
-  function newChip() {
-    const name = prompt("Chip name");
+  {
+    const builtinFactory = new nts.BuiltInComponentFactory();
+    mainFactory.add(builtinFactory);
+  }
 
-    if (name) {
-      chips = [
-        ...chips,
-        {
-          name,
-          source:
-            `# ${name}\n` +
-            "\n" +
-            ".chipsets:\n" +
-            "input a\n" +
-            "input b\n" +
-            "output out\n" +
-            "\n" +
-            ".links:\n",
+  {
+    const creationStack = new Set<string>();
+
+    mainFactory.add(
+      nts.IComponentFactory.implement({
+        createComponent(name: string) {
+          if (creationStack.has(name)) {
+            console.log("circular dependency!");
+            return;
+          }
+
+          let chip = chips.find((v) => name === v.name);
+
+          if (chip) {
+            creationStack.add(chip.name);
+            const circuit = new nts.NtsCircuit(chip.source, mainFactory);
+            creationStack.delete(chip.name);
+            return circuit;
+          }
         },
-      ];
+      })
+    );
+  }
 
-      currentChip = chips.length - 1;
+  let currentChip = 0;
+  let renameField: null | HTMLInputElement = null;
+  let renaming: null | number = null;
+
+  $: if (renaming && renameField) {
+    renameField.focus();
+    renameField.select();
+  }
+
+  function newChip(name: string): number {
+    chips = [
+      ...chips,
+      {
+        name,
+        source:
+          `# ${name}\n` +
+          "\n" +
+          ".chipsets:\n" +
+          "input a\n" +
+          "input b\n" +
+          "output out\n" +
+          "\n" +
+          ".links:\n",
+      },
+    ];
+
+    return (currentChip = chips.length - 1);
+  }
+
+  function deleteChip(chip: number) {
+    chips.splice(chip, 1);
+
+    currentChip = Math.min(currentChip, chips.length - 1);
+
+    if (chips.length === 0) {
+      newChip("my_chip");
     }
   }
 
-  let circuit: null | nts.NtsCircuit;
+  let stable = false;
+  let circuit = null;
+  let compilationFailed = false;
   let inputs: Record<string, undefined | boolean> = {};
   let outputs: Record<string, undefined | boolean> = {};
 
@@ -101,19 +147,16 @@
     }
 
     try {
-      circuit = new nts.NtsCircuit(chips[currentChip].source);
+      circuit = new nts.NtsCircuit(chips[currentChip].source, mainFactory);
       inputs = readPins(nts.PinMode.INPUT);
+      outputs = readPins(nts.PinMode.OUTPUT);
+      compilationFailed = false;
     } catch (e) {
-      circuit = null;
-      console.log(e);
+      compilationFailed = true;
     }
   }
 
-  function simulate() {
-    if (!circuit) {
-      compile();
-    }
-
+  function writeInputs() {
     if (circuit) {
       for (const key of Object.keys(inputs)) {
         const id = circuit.pins.get(key);
@@ -130,8 +173,40 @@
             break;
         }
       }
+    }
+  }
 
-      circuit.simulate();
+  function tick() {
+    if (!circuit) {
+      compile();
+    }
+
+    if (circuit) {
+      writeInputs();
+
+      circuit.tick();
+      stable = circuit.stable;
+      outputs = readPins(nts.PinMode.OUTPUT);
+    }
+  }
+
+  function stabilize() {
+    const maxTicks = 100;
+
+    if (!circuit) {
+      compile();
+    }
+
+    if (circuit) {
+      writeInputs();
+
+      stable = circuit.stable;
+
+      for (let i = 0; i < maxTicks && !stable; i++) {
+        circuit.tick();
+        stable = circuit.stable;
+      }
+
       outputs = readPins(nts.PinMode.OUTPUT);
     }
   }
@@ -141,38 +216,72 @@
   <Stack vertical gaps={8} padding={8}>
     <Stack gaps={8}>
       {#each chips as chip, i}
-        <Button selected={currentChip == i} on:click={() => (currentChip = i)}>
-          {chip.name}
+        <Button
+          selected={currentChip === i}
+          tight={renaming === i}
+          on:click={() => (currentChip = i)}
+          on:dblclick={() => (renaming = i)}
+        >
+          {#if renaming === i}
+            <input
+              type="text"
+              class="renameField"
+              bind:this={renameField}
+              bind:value={chip.name}
+              on:change={() => {
+                renaming = null;
+                if (chip.name === "") {
+                  deleteChip(i);
+                }
+              }}
+            />
+          {:else}
+            {chip.name}
+          {/if}
         </Button>
       {/each}
-      <Button on:click={newChip}>+</Button>
+      <Button
+        on:click={() => {
+          renaming = newChip("new_chip");
+        }}>+</Button
+      >
     </Stack>
     <NtsEditor bind:text={chips[currentChip].source} />
     <Stack fill gaps={8}>
       <Stack vertical gaps={8}>
-        <Button on:click={compile}>Compile</Button>
-        <Panel>
+        <Button on:click={compile}>Compile/Reset</Button>
+        {#if compilationFailed}
+          <Panel>Compilation failed!</Panel>
+        {:else}
           {#each Object.keys(inputs) as key}
-            <div class="input">
-              <label>
-                {key}
-                <select name={key} bind:value={inputs[key]}>
-                  <option value={undefined}>UNDEFINED</option>
-                  <option value={false}>FALSE</option>
-                  <option value={true}>TRUE</option>
-                </select>
-              </label>
-            </div>
+            <Panel>
+              <div class="inputPins">
+                <label>
+                  {key}
+                  <select name={key} bind:value={inputs[key]}>
+                    <option value={undefined}>UNDEFINED</option>
+                    <option value={false}>FALSE</option>
+                    <option value={true}>TRUE</option>
+                  </select>
+                </label>
+              </div>
+            </Panel>
           {/each}
-        </Panel>
+        {/if}
       </Stack>
       <Stack vertical gaps={8}>
-        <Button on:click={simulate}>Simulate</Button>
-        <Panel>
-          {#each Object.keys(outputs) as key}
+        <Stack fill gaps={8}>
+          <Button on:click={tick}>Tick once</Button>
+          <Button on:click={stabilize}>Tick until stable</Button>
+        </Stack>
+        {#each Object.keys(outputs) as key}
+          <Panel>
             <pre>{key} = {`${outputs[key]}`}</pre>
-          {/each}
-        </Panel>
+          </Panel>
+        {/each}
+        {#if circuit && !stable}
+          <Panel>Circuit isn't stable!</Panel>
+        {/if}
       </Stack>
     </Stack>
   </Stack>
@@ -184,7 +293,15 @@
     padding: 0;
   }
 
-  .input select {
+  .inputPins select {
     float: right;
+  }
+
+  .renameField {
+    background: var(--background-0);
+    outline: none;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
   }
 </style>

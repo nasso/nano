@@ -15,7 +15,7 @@
 
 namespace nts {
 
-BuiltInComponentFactory::BuiltInComponentFactory()
+BuiltInComponentFactory::BuiltInComponentFactory() noexcept
 {
     m_scf.add("and", std::make_unique<AndGate>);
     m_scf.add("not", std::make_unique<NotGate>);
@@ -28,10 +28,23 @@ BuiltInComponentFactory::BuiltInComponentFactory()
     m_scf.add("4514", std::make_unique<DecoderComponent>);
 }
 
-IComponentFactory::Output BuiltInComponentFactory::createComponent(
-    const IComponentFactory::Name& name)
+BuiltInComponentFactory::Output BuiltInComponentFactory::createComponent(
+    const std::string& name) noexcept
 {
     return m_scf.createComponent(name);
 }
 
 }
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten/bind.h>
+
+EMSCRIPTEN_BINDINGS(nts_builtincomponentfactory)
+{
+    emscripten::class_<nts::BuiltInComponentFactory,
+        emscripten::base<nts::IComponentFactory>>("BuiltInComponentFactory")
+        .constructor<>()
+        .function("createComponent",
+            &nts::BuiltInComponentFactory::createComponent);
+}
+#endif

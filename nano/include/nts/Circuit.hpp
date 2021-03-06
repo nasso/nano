@@ -10,12 +10,131 @@
 
 #include "AComponent.hpp"
 #include "IComponent.hpp"
+#include "mtl/Option.hpp"
 #include <algorithm>
 #include <functional>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+namespace nts {
+namespace {
+
+    template <typename K>
+    using ChipMap = std::unordered_map<K, std::unique_ptr<IComponent>>;
+
+    template <typename K>
+    struct ChipPin {
+        mtl::Option<K> owner;
+        PinId pin;
+
+        ChipPin(K name, PinId pin)
+            : owner(std::move(name))
+            , pin(pin)
+        {
+        }
+
+        ChipPin(PinId pin)
+            : owner()
+            , pin(pin)
+        {
+        }
+
+        bool operator==(const ChipPin& other) const
+        {
+            return owner == other.owner && pin == other.pin;
+        }
+
+        Tristate read(const IComponent& circuit, const ChipMap<K>& chips) const
+        {
+            return owner.as_ref()
+                .map([&](auto& name) -> const auto& { return *chips.at(name); })
+                .unwrap_or(circuit)
+                .read(pin);
+        }
+
+        void write(IComponent& circuit, ChipMap<K>& chips, Tristate value) const
+        {
+            return owner.as_ref()
+                .map([&](auto& name) -> auto& { return *chips.at(name); })
+                .unwrap_or(circuit)
+                .write(pin, value);
+        }
+
+        PinMode mode(const IComponent& circuit, const ChipMap<K>& chips) const
+        {
+            return owner.as_ref()
+                .map([&](auto& name) -> const auto& { return *chips.at(name); })
+                .unwrap_or(circuit)
+                .pinout()
+                .at(pin);
+        }
+    };
+
+    template <typename Set, typename Node, typename AdjencyList>
+    Set findConnected(Node node, const AdjencyList& adjencyList)
+    {
+        Set connected;
+        Set pool = { node };
+
+        while (!pool.empty()) {
+            const Node& node = *pool.begin();
+
+            try {
+                const Set& links = adjencyList.at(node);
+
+                auto mbConnectedPin = std::find_if(links.begin(), links.end(),
+                    [&](auto& node) {
+                        return connected.find(node) == connected.end()
+                            && pool.find(node) == pool.end();
+                    });
+
+                if (mbConnectedPin != links.end()) {
+                    pool.insert(*mbConnectedPin);
+                } else {
+                    connected.insert(node);
+                    pool.erase(node);
+                }
+            } catch (std::out_of_range&) {
+                connected.insert(node);
+                pool.erase(node);
+            }
+        }
+
+        return connected;
+    }
+
+    Tristate propagate(Tristate a, Tristate b)
+    {
+        if ((a || b) == Tristate::TRUE) {
+            return Tristate::TRUE;
+        } else if ((a && b) == Tristate::FALSE) {
+            return Tristate::FALSE;
+        }
+
+        return Tristate::UNDEFINED;
+    }
+}
+}
+
+namespace std {
+
+template <typename K>
+struct hash<nts::ChipPin<K>> {
+    using argument_type = nts::ChipPin<K>;
+    using result_type = std::size_t;
+
+    result_type operator()(const argument_type& pin) const
+    {
+        result_type hash = 17;
+        hash = hash * 31 + std::hash<mtl::Option<K>>()(pin.owner);
+        hash = hash * 31 + std::hash<nts::PinId>()(pin.pin);
+        return hash;
+    }
+};
+
+}
 
 namespace nts {
 
@@ -28,11 +147,8 @@ public:
 
     Circuit(Circuit&& other)
         : AComponent(std::move(other))
-        , m_adjencyList(std::move(other.m_adjencyList))
         , m_chipsets(std::move(other.m_chipsets))
-        , m_directPinLinks(std::move(other.m_directPinLinks))
         , m_pinLinks(std::move(other.m_pinLinks))
-        , m_maxTickPerSimulation(other.m_maxTickPerSimulation)
     {
     }
 
@@ -64,62 +180,38 @@ public:
     // Links
     void connect(const K& chip1, PinId pin1, const K& chip2, PinId pin2)
     {
-        m_adjencyList[{ chip1, pin1 }].insert({ chip2, pin2 });
-        m_adjencyList[{ chip2, pin2 }].insert({ chip1, pin1 });
-    }
-
-    void disconnect(const K& chip1, PinId pin1, const K& chip2, PinId pin2)
-    {
-        m_adjencyList[{ chip1, pin1 }].erase({ chip2, pin2 });
-        m_adjencyList[{ chip2, pin2 }].erase({ chip1, pin1 });
+        connectPins({ chip1, pin1 }, { chip2, pin2 });
     }
 
     void connect(PinId pin, const K& compName, PinId compPin)
     {
-        m_pinLinks[pin].insert({ compName, compPin });
-    }
-
-    void disconnect(PinId pin, const K& compName, PinId compPin)
-    {
-        m_pinLinks[pin].erase({ compName, compPin });
-
-        if (m_pinLinks[pin].empty()) {
-            m_pinLinks.erase(pin);
-        }
+        connectPins({ pin }, { compName, compPin });
     }
 
     void connect(PinId pin1, PinId pin2)
     {
-        if (pin1 != pin2) {
-            m_directPinLinks[pin1].insert(pin2);
-            m_directPinLinks[pin2].insert(pin1);
-        }
+        connectPins({ pin1 }, { pin2 });
+    }
+
+    void disconnect(const K& chip1, PinId pin1, const K& chip2, PinId pin2)
+    {
+        disconnectPins({ chip1, pin1 }, { chip2, pin2 });
+    }
+
+    void disconnect(PinId pin, const K& compName, PinId compPin)
+    {
+        disconnectPins({ pin }, { compName, compPin });
     }
 
     void disconnect(PinId pin1, PinId pin2)
     {
-        if (pin1 != pin2) {
-            m_directPinLinks[pin1].erase(pin2);
-            if (m_directPinLinks[pin1].empty()) {
-                m_directPinLinks.erase(pin1);
-            }
-
-            m_directPinLinks[pin2].erase(pin1);
-            if (m_directPinLinks[pin2].empty()) {
-                m_directPinLinks.erase(pin2);
-            }
-        }
+        disconnectPins({ pin1 }, { pin2 });
     }
 
+    // Circuit component
     virtual void tick() override
     {
-        // step 1: propagate directly connected pins (like in a buffer)
-        propagateDirectLinks();
-
-        // step 2: propagate our pins to our components' pins
-        propagateFromCircuitPins();
-
-        // step 3: tick unstable chips
+        // tick unstable chips
         for (const auto& pair : m_chipsets) {
             IComponent& chip = *pair.second;
 
@@ -128,11 +220,8 @@ public:
             }
         }
 
-        // step 4: propagate values through inner links
+        // propagate values through links
         propagateLinks();
-
-        // step 5: propagate components' pins back to our own pins
-        propagateToCircuitPins();
         inputsClean();
     }
 
@@ -203,177 +292,47 @@ public:
     }
 
 private:
-    using ChipMap = std::unordered_map<K, std::unique_ptr<IComponent>>;
+    using ChipPin = nts::ChipPin<K>;
+    using PinSet = std::unordered_set<ChipPin>;
+    using PinAdjencyList = std::unordered_map<ChipPin, PinSet>;
 
-    class Pin {
-    public:
-        Pin(K comp, PinId id)
-            : m_compName(comp)
-            , m_id(id)
-        {
-        }
+    std::unordered_map<K, std::unique_ptr<IComponent>> m_chipsets;
+    PinAdjencyList m_pinLinks;
 
-        Pin(const Pin& other)
-            : m_compName(other.m_compName)
-            , m_id(other.m_id)
-        {
-        }
-
-        bool operator==(const Pin& other) const
-        {
-            return m_compName == other.m_compName && m_id == other.m_id;
-        }
-
-        Tristate read(const ChipMap& chips) const
-        {
-            return chips.at(m_compName)->read(m_id);
-        }
-
-        void write(ChipMap& chips, Tristate value) const
-        {
-            return chips.at(m_compName)->write(m_id, value);
-        }
-
-        PinMode mode(const ChipMap& chips) const
-        {
-            return chips.at(m_compName)->pinout().at(m_id);
-        }
-
-        const K& compName() const
-        {
-            return m_compName;
-        }
-
-        PinId id() const
-        {
-            return m_id;
-        }
-
-    private:
-        K m_compName;
-        PinId m_id;
-    };
-
-    struct PinHash {
-        std::size_t operator()(const Pin& pin) const
-        {
-            std::size_t hash = 17;
-            hash = hash * 31 + std::hash<K>()(pin.compName());
-            hash = hash * 31 + std::hash<PinId>()(pin.id());
-            return hash;
-        }
-    };
-
-    using PinSet = std::unordered_set<Pin, PinHash>;
-    using PinAdjencyList = std::unordered_map<Pin, PinSet, PinHash>;
-    using PinIdSet = std::unordered_set<PinId>;
-    using PinIdAdjencyList = std::unordered_map<PinId, PinIdSet>;
-
-    ChipMap m_chipsets;
-    std::unordered_map<PinId, PinSet> m_pinLinks;
-    PinAdjencyList m_adjencyList;
-    PinIdAdjencyList m_directPinLinks;
-
-    std::size_t m_maxTickPerSimulation;
-
-    template <typename Node, typename Set, typename AdjencyList>
-    Set findConnected(Node node, const AdjencyList& adjencyList)
+    void connectPins(ChipPin from, ChipPin to)
     {
-        Set connected;
-        Set pool = { node };
-
-        while (!pool.empty()) {
-            const Node& node = *pool.begin();
-
-            try {
-                const Set& links = adjencyList.at(node);
-
-                auto mbConnectedPin = std::find_if(links.begin(), links.end(),
-                    [&](auto node) {
-                        return connected.find(node) == connected.end()
-                            && pool.find(node) == pool.end();
-                    });
-
-                if (mbConnectedPin != links.end()) {
-                    pool.insert(*mbConnectedPin);
-                } else {
-                    connected.insert(node);
-                    pool.erase(node);
-                }
-            } catch (std::out_of_range&) {
-                connected.insert(node);
-                pool.erase(node);
-            }
-        }
-
-        return connected;
+        m_pinLinks[from].insert(to);
+        m_pinLinks[to].insert(from);
     }
 
-    Tristate propagate(Tristate a, Tristate b)
+    void disconnectPins(ChipPin from, ChipPin to)
     {
-        if ((a || b) == Tristate::TRUE) {
-            return Tristate::TRUE;
-        } else if ((a && b) == Tristate::FALSE) {
-            return Tristate::FALSE;
-        }
-
-        return Tristate::UNDEFINED;
-    }
-
-    void propagateFromCircuitPins()
-    {
-        for (const auto& link : m_pinLinks) {
-            Tristate value = read(link.first);
-
-            for (const Pin& dest : link.second) {
-                Tristate oldValue = dest.read(m_chipsets);
-
-                // we actually want to overwrite the old value here rather than
-                // propagating them.
-                // it will keep its value anyway, unless the user changed it.
-                dest.write(m_chipsets, value);
-            }
-        }
-    }
-
-    void propagateToCircuitPins()
-    {
-        for (auto& link : m_pinLinks) {
-            Tristate value = Tristate::UNDEFINED;
-
-            for (const Pin& source : link.second) {
-                Tristate newValue = source.read(m_chipsets);
-
-                value = propagate(value, newValue);
-
-                if (value == Tristate::TRUE) {
-                    break;
-                }
-            }
-
-            write(link.first, value);
-        }
+        m_pinLinks[from].erase(to);
+        m_pinLinks[to].erase(from);
     }
 
     void propagateLinks()
     {
         PinSet visitedPins;
 
-        for (const auto& adjency : m_adjencyList) {
-            const Pin& pin = adjency.first;
+        for (const auto& adjency : m_pinLinks) {
+            const ChipPin& pin = adjency.first;
 
             if (visitedPins.find(pin) == visitedPins.end()) {
-                PinSet links = findConnected<Pin, PinSet>(pin, m_adjencyList);
+                PinSet links = findConnected<PinSet>(pin, m_pinLinks);
                 Tristate linkValue = Tristate::UNDEFINED;
 
                 // compute the common link value
-                for (const Pin& pin : links) {
-                    // only take OUTPUT pins into account
-                    if (pin.mode(m_chipsets) != PinMode::OUTPUT) {
-                        continue;
-                    }
+                for (const ChipPin& pin : links) {
+                    PinMode mode = pin.mode(*this, m_chipsets);
 
-                    linkValue = propagate(linkValue, pin.read(m_chipsets));
+                    // only read from our INPUT pins and chips' OUTPUT pins
+                    if (pin.owner
+                            ? mode == PinMode::OUTPUT
+                            : mode == PinMode::INPUT) {
+                        linkValue = propagate(linkValue,
+                            pin.read(*this, m_chipsets));
+                    }
 
                     // break early if we find a high signal
                     if (linkValue == Tristate::TRUE) {
@@ -382,56 +341,15 @@ private:
                 }
 
                 // propagate the value to all connected pins
-                for (const Pin& pin : links) {
-                    // only set INPUT pins
-                    if (pin.mode(m_chipsets) != PinMode::INPUT) {
-                        continue;
+                for (const ChipPin& pin : links) {
+                    PinMode mode = pin.mode(*this, m_chipsets);
+
+                    // only write to our OUTPUT pins and chips' INPUT pins
+                    if (pin.owner
+                            ? mode == PinMode::INPUT
+                            : mode == PinMode::OUTPUT) {
+                        pin.write(*this, m_chipsets, linkValue);
                     }
-
-                    pin.write(m_chipsets, linkValue);
-                }
-
-                visitedPins.insert(links.begin(), links.end());
-            }
-        }
-    }
-
-    void propagateDirectLinks()
-    {
-        PinIdSet visitedPins;
-        const Pinout& myPinout = pinout();
-
-        for (const auto& link : m_directPinLinks) {
-            PinId pin = link.first;
-
-            if (visitedPins.find(pin) == visitedPins.end()) {
-                PinIdSet links = findConnected<PinId, PinIdSet>(pin,
-                    m_directPinLinks);
-                Tristate linkValue = Tristate::UNDEFINED;
-
-                // compute the common link value
-                for (const auto& pin : links) {
-                    // only take INPUT pins into account: *INPUT* => OUTPUT
-                    if (myPinout.at(pin) != PinMode::INPUT) {
-                        continue;
-                    }
-
-                    linkValue = propagate(linkValue, read(pin));
-
-                    // break early if we find a high signal
-                    if (linkValue == Tristate::TRUE) {
-                        break;
-                    }
-                }
-
-                // propagate the value to all connected pins
-                for (auto pin : links) {
-                    // only set OUTPUT pins: INPUT => *OUTPUT*
-                    if (myPinout.at(pin) != PinMode::OUTPUT) {
-                        continue;
-                    }
-
-                    write(pin, linkValue);
                 }
 
                 visitedPins.insert(links.begin(), links.end());

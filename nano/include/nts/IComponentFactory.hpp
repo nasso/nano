@@ -9,6 +9,7 @@
 #define ICOMPONENTFACTORY_HPP_
 
 #include "IComponent.hpp"
+#include "mtl/Option.hpp"
 #include <memory>
 #include <string>
 
@@ -16,8 +17,7 @@ namespace nts {
 
 class IComponentFactory {
 public:
-    using Output = std::unique_ptr<IComponent>;
-    using Name = std::string;
+    using Output = mtl::Option<std::unique_ptr<IComponent>>;
 
     virtual ~IComponentFactory() = default;
 
@@ -27,7 +27,7 @@ public:
      * @param name The name of the component to return an instance of
      * @return An new instance of the component with the given name
      */
-    virtual Output createComponent(const Name& name) = 0;
+    virtual Output createComponent(const std::string& name) noexcept = 0;
 };
 
 }

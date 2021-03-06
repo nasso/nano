@@ -1,0 +1,23 @@
+.git/
+.github/
+.vs/
+.vscode/
+.gitignore
+.editorconfig
+.dockerignore
+CMakeSettings.json
+
+# build files
+Dockerfile
+Dockerfile.web
+build_nts_wasm.ps1
+build
+build_wasm
+log.bin
+rom.bin
+
+# meta
+README.md
+
+# unneeded for compilation
+docs/

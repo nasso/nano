@@ -15,9 +15,15 @@ struct IComponentFactoryWrapper
     EMSCRIPTEN_WRAPPER(IComponentFactoryWrapper);
 
     nts::IComponentFactory::Output createComponent(
-        const nts::IComponentFactory::Name& name)
+        const std::string& name) noexcept
     {
-        return call<nts::IComponentFactory::Output>("createComponent", name);
+        auto val = call<emscripten::val>("createComponent", name);
+
+        if (val.isUndefined() || val.isNull()) {
+            return {};
+        } else {
+            return val.as<std::unique_ptr<nts::IComponent>>();
+        }
     }
 };
 

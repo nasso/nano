@@ -99,13 +99,15 @@ struct AComponentWrapper : public emscripten::wrapper<nts::AComponent> {
 
 EMSCRIPTEN_BINDINGS(nts_acomponent)
 {
-    emscripten::class_<nts::AComponent>("AComponent")
+    emscripten::class_<nts::AComponent,
+        emscripten::base<nts::IComponent>>("AComponent")
+        .property("stable", &nts::AComponent::stable)
+        .property("pinout", &nts::AComponent::pinout)
         .function("tick", &nts::AComponent::tick,
             emscripten::pure_virtual())
-        .property("pinout", &nts::AComponent::pinout)
-        .function("pinMode", &nts::AComponent::pinMode)
         .function("read", &nts::AComponent::read)
         .function("write", &nts::AComponent::write)
+        .function("pinMode", &nts::AComponent::pinMode)
         .allow_subclass<AComponentWrapper>("AComponentWrapper");
 }
 #endif

@@ -1,0 +1,25 @@
+FROM emscripten/emsdk as build_nts
+WORKDIR /app
+COPY mtl mtl
+COPY nano nano
+COPY CMakeLists.txt .
+WORKDIR /app/build
+RUN emcmake cmake .. -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/app/build \
+    && cmake --build . --config Release
+
+FROM node:12-alpine as build_web
+ENV NODE_ENV=production
+WORKDIR /app
+COPY bonus/web_playground/package*.json .
+RUN npm ci
+COPY bonus/web_playground .
+COPY --from=build_nts /app/build/nts.wasm public/nts.wasm
+COPY --from=build_nts /app/build/nts.js src/nts.js
+RUN npm run build
+
+FROM svenstaro/miniserve as serve
+WORKDIR /app
+COPY --from=build_web /app/public .
+EXPOSE 80
+CMD [ ".", "--index", "index.html", "-p", "80" ]

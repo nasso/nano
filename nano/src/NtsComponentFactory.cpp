@@ -15,21 +15,21 @@
 
 namespace nts {
 
-NtsComponentFactory::NtsComponentFactory(std::string dirpath)
+NtsComponentFactory::NtsComponentFactory(std::string dirpath) noexcept
     : m_dirpath(dirpath)
 {
 }
 
 NtsComponentFactory::NtsComponentFactory(const NtsComponentFactory& base,
-    const std::string& except)
+    const std::string& except) noexcept
     : m_dirpath(base.m_dirpath)
     , m_exceptions { base.m_exceptions }
 {
     m_exceptions.insert(except);
 }
 
-std::unique_ptr<IComponent> NtsComponentFactory::createComponent(
-    const std::string& name)
+NtsComponentFactory::Output NtsComponentFactory::createComponent(
+    const std::string& name) noexcept
 {
     std::string fname = m_dirpath;
 
@@ -40,7 +40,8 @@ std::unique_ptr<IComponent> NtsComponentFactory::createComponent(
     fname += name + ".nts";
 
     if (m_exceptions.find(fname) != m_exceptions.end()) {
-        throw std::runtime_error("Cyclic component: " + name);
+        // cyclic!
+        return {};
     }
 
     std::unique_ptr<NtsComponentFactory> subfactory(new NtsComponentFactory(
@@ -53,10 +54,14 @@ std::unique_ptr<IComponent> NtsComponentFactory::createComponent(
     std::ifstream file(fname);
 
     if (!file.is_open()) {
-        throw std::runtime_error("Couldn't open " + fname);
+        return {};
     }
 
-    return std::make_unique<NtsCircuit>(file, mcf);
+    try {
+        return { std::make_unique<NtsCircuit>(file, mcf) };
+    } catch (...) {
+        return {};
+    }
 }
 
 }

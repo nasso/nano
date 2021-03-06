@@ -124,7 +124,7 @@ void NtsCircuit::build(std::istream& in, IComponentFactory& factory)
                 pinMode(++pinCounter, PinMode::OUTPUT);
                 m_pins.emplace(name, pinCounter);
             } else {
-                insert(name, factory.createComponent(type));
+                insert(name, factory.createComponent(type).unwrap());
             }
         } else if (section == LINKS && std::regex_match(line, m, link_r)) {
             links.push_back({
@@ -172,14 +172,14 @@ void NtsCircuit::build(std::istream& in, IComponentFactory& factory)
 
 EMSCRIPTEN_BINDINGS(nts_ntscircuit)
 {
+    using Circuit = nts::Circuit<std::string>;
+
     emscripten::register_vector<std::string>("vector<std::string>");
     emscripten::register_map<std::string, nts::PinId>("PinMap");
 
-    emscripten::class_<nts::NtsCircuit, emscripten::base<nts::AComponent>>(
-        "NtsCircuit")
+    emscripten::class_<nts::NtsCircuit, emscripten::base<Circuit>>("NtsCircuit")
         .constructor<std::string>()
         .constructor<std::string, nts::IComponentFactory&>()
-        .function("tick", &nts::NtsCircuit::tick)
         .property("pins", &nts::NtsCircuit::pins);
 }
 #endif

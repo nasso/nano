@@ -21,9 +21,7 @@ public:
     virtual ~IComponent() = default;
 
     /**
-     * @brief Simulate `count` step(s) of internal logic.
-     *
-     * @param count How many ticks to simulate.
+     * @brief Simulate 1 step of internal logic.
      */
     virtual void tick() = 0;
 
