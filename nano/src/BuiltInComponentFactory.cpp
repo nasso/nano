@@ -10,6 +10,9 @@
 #include "nts/components/ConstComponent.hpp"
 #include "nts/components/NotGate.hpp"
 #include "nts/components/DecoderComponent.hpp"
+#include "nts/components/CounterComponent.hpp"
+#include "nts/components/ShiftRegisterComponent.hpp"
+#include "nts/components/SelectorComponent.hpp"
 #include <fstream>
 #include <stdexcept>
 
@@ -26,6 +29,9 @@ BuiltInComponentFactory::BuiltInComponentFactory() noexcept
         return std::make_unique<ConstComponent>(Tristate::FALSE);
     });
     m_scf.add("4514", std::make_unique<DecoderComponent>);
+    m_scf.add("4040", std::make_unique<CounterComponent>);
+    m_scf.add("4094", std::make_unique<ShiftRegisterComponent>);
+    m_scf.add("4512", std::make_unique<SelectorComponent>);
 }
 
 BuiltInComponentFactory::Output BuiltInComponentFactory::createComponent(

@@ -5,8 +5,8 @@
 ** SelectorComponent
 */
 
-#ifndef COUNTERCOMPONENT_HPP_
-#define COUNTERCOMPONENT_HPP_
+#ifndef SELECTORCOMPONENT_HPP_
+#define SELECTORCOMPONENT_HPP_
 
 #include "../AComponent.hpp"
 #include <memory>
@@ -24,4 +24,4 @@ public:
 
 }
 
-#endif /* !COUNTERCOMPONENT_HPP_ */
+#endif /* !SELECTORCOMPONENT_HPP_ */
