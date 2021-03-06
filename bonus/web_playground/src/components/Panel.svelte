@@ -1,15 +1,19 @@
-<div>
+<script lang="ts">
+  export let padding: number = 16;
+</script>
+
+<div style={`--padding: ${padding}px`}>
   <slot />
 </div>
 
 <style>
   div {
-    margin: 0;
     background: var(--background-1);
     color: var(--foreground-1);
-    padding: 16px;
-    border-radius: 8px;
+    padding: var(--padding);
     border: 2px solid var(--background-1);
+    border-radius: 8px;
+    margin: 0;
 
     transition: border-color 30ms;
   }

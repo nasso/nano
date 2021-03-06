@@ -7,37 +7,29 @@
 
 <style lang="scss">
   button {
+    --button-bg: var(--background-1);
+    --button-fg: var(--foreground-1);
+
     margin: 0;
-    background: var(--background-1);
-    color: var(--foreground-1);
+    background: var(--button-bg);
+    color: var(--button-fg);
     padding: 8px 16px;
+    border: none;
     border-radius: 8px;
-    border: 2px solid var(--background-1);
     outline: none;
 
     transition: background-color 100ms;
 
-    &:focus-visible,
-    &:hover {
-      background-color: var(--background-2);
-    }
-
-    &:active {
-      background-color: var(--background-1);
-    }
-  }
-
-  button.selected {
-    background-color: var(--background-2);
-    border-color: var(--background-2);
-
     &:hover,
     &:focus-visible {
-      background-color: var(--background-3);
+      --button-bg: var(--background-2);
+      --button-fg: var(--foreground-2);
     }
 
+    &.selected,
     &:active {
-      background-color: var(--background-2);
+      --button-bg: var(--background-0);
+      --button-fg: var(--foreground-0);
     }
   }
 

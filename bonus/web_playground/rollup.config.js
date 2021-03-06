@@ -49,16 +49,6 @@ export default {
     name: "app",
     file: "public/build/bundle.js",
   },
-  onwarn(warning, rollupWarn) {
-    // Skip certain warnings
-    switch (warning.code) {
-    case "THIS_IS_UNDEFINED":
-      return;
-      // fall through
-    default:
-      rollupWarn(warning);
-    }
-  },
   plugins: [
     svelte({
       preprocess: sveltePreprocess({
