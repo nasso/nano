@@ -33,47 +33,63 @@ ShiftRegisterComponent::ShiftRegisterComponent()
 
 void ShiftRegisterComponent::tick()
 {
-    for (PinId pin : PINS_OUT) {
-        write(pin, Tristate::UNDEFINED);
-    }
-
-    if (read(PIN_INHIB) == Tristate::UNDEFINED) {
+    if (read(PIN_CLOCK) == Tristate::UNDEFINED
+        || read(PIN_OUTPUT_ENABLE) == Tristate::UNDEFINED) {
         inputsClean();
         return;
     }
 
-    if (read(PIN_INHIB) == Tristate::TRUE) {
-        for (PinId pin : PINS_OUT) {
-            write(pin, Tristate::FALSE);
-        }
-        inputsClean();
-        return;
-    }
-
-    short value = 0;
-    std::size_t bitIndex = 0;
-
-    for (PinId pin : PINS_ADDR) {
-        Tristate bit = read(pin);
-
-        if (bit == Tristate::UNDEFINED) {
+    if (read(PIN_CLOCK) == Tristate::TRUE) {
+        if (read(PIN_OUTPUT_ENABLE) == Tristate::FALSE) {
+            write(PIN_LAST_STAGE, read(PINS_OUT[6]));
+            for (PinId pin : PINS_OUT) {
+                write(pin, Tristate::UNDEFINED);
+            }
             inputsClean();
             return;
         }
-
-        value |= (bit == Tristate::TRUE) << bitIndex;
-        bitIndex++;
+        if (read(PIN_STROBE) == Tristate::UNDEFINED) {
+            for (PinId pin : PINS_OUT) {
+                write(pin, Tristate::UNDEFINED);
+            }
+            inputsClean();
+            return;
+        }
+        if (read(PIN_STROBE) == Tristate::FALSE) {
+            write(PIN_LAST_STAGE, read(PINS_OUT[6]));
+            inputsClean();
+            return;
+        }
+        if (read(PIN_DATA) == Tristate::UNDEFINED) {
+            inputsClean();
+            return;
+        }
+        size_t index = 7;
+        while (index > 0) {
+            write(PINS_OUT[index], read(PINS_OUT[index - 1]));
+            index--;
+        }
+        write(PINS_OUT[0], read(PIN_DATA));
+        write(PIN_LAST_STAGE, read(PINS_OUT[6]));
+    } else if (read(PIN_CLOCK) == Tristate::FALSE) {
+        if (read(PIN_OUTPUT_ENABLE) == Tristate::FALSE) {
+            write(PIN_LAST_STAGE_PRIME, read(PINS_OUT[6]));
+            for (PinId pin : PINS_OUT) {
+                write(pin, Tristate::UNDEFINED);
+            }
+            inputsClean();
+            return;
+        }
+        if (read(PIN_STROBE) == Tristate::TRUE
+        && read(PIN_DATA) == Tristate::TRUE) {
+            write(PIN_LAST_STAGE_PRIME, read(PINS_OUT[6]));
+        }
     }
-    for (PinId pin : PINS_OUT) {
-        write(pin, Tristate::FALSE);
-    }
-    write(PINS_OUT[value], Tristate::TRUE);
     inputsClean();
 }
 
 void ShiftRegisterComponent::display(std::ostream& os) const
 {
-
 }
 
 }
