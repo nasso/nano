@@ -26,6 +26,8 @@ set(sources
     "include/nts/components/NotGate.hpp"
     "include/nts/components/RomComponent.hpp"
     "include/nts/components/DecoderComponent.hpp"
+    "include/nts/components/CounterComponent.hpp"
+    "include/nts/components/SelectorComponent.hpp"
     "src/AComponent.cpp"
     "src/BuiltInComponentFactory.cpp"
     "src/ComboComponentFactory.cpp"
@@ -42,6 +44,8 @@ set(sources
     "src/components/LoggerComponent.cpp"
     "src/components/RomComponent.cpp"
     "src/components/DecoderComponent.cpp"
+    "src/components/CounterComponent.cpp"
+    "src/components/SelectorComponent.cpp"
 )
 
 if(EMSCRIPTEN)
