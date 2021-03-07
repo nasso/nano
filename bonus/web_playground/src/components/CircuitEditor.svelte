@@ -1,12 +1,11 @@
 <script lang="ts">
   import ChipPin from "./ChipPin.svelte";
 
-  import type CustomCircuit, { Link } from "@app/model/CustomCircuit";
+  import type CustomCircuit from "@app/model/CustomCircuit";
   import type { Pin } from "@app/model/CustomCircuit";
   import type { Point } from "@app/utils";
-  import type { get, Writable } from "svelte/store";
+  import type { Writable } from "svelte/store";
 
-  import { us } from "@app/utils";
   import VStack from "@components/VStack.svelte";
   import Button from "@components/Button.svelte";
   import { grow } from "@components/Stack.svelte";
@@ -15,12 +14,22 @@
   import { writable } from "svelte/store";
   import chips from "@app/stores/chips";
   import { tick } from "svelte";
-  import App from "@app/App.svelte";
+  import HStack from "@components/HStack.svelte";
 
   export let circuit: CustomCircuit;
   export let grid: number = 16;
 
-  let chipNodes: Record<string, ChipNode> = {};
+  let chipNodes: Record<string, undefined | ChipNode> = {};
+
+  $: {
+    const garbage = Object.keys(chipNodes).filter(
+      (n) => !circuit.chipsets.some((chip) => chip.name === n)
+    );
+
+    for (const name of garbage) {
+      chipNodes[name] = undefined;
+    }
+  }
 
   function makeUpChipName(type: string): string {
     let i = 1;
@@ -38,21 +47,27 @@
       {
         name: name,
         type: type,
-        pos: { x: 100, y: 200 },
+        pos: { x: grid, y: grid },
       },
     ];
   }
 
-  function removeChip(id: number) {
+  async function removeChip(id: number) {
+    const name = circuit.chipsets[id].name;
+
     circuit.chipsets.splice(id, 1);
     circuit.chipsets = circuit.chipsets;
+
+    circuit.links = circuit.links.filter(
+      ({ from, to }) => from.chip !== name && to.chip !== name
+    );
   }
 
   function pinPos(pin: Pin): Point {
     if (pin.chip) {
-      const chip = chipNodes[pin.chip.name];
+      const chip = chipNodes[pin.chip];
 
-      if (chip) {
+      if (chip?.pinPos) {
         return chip.pinPos(pin.pin);
       }
     }
@@ -107,22 +122,44 @@
   let wireSource: null | Pin = null;
   let pointerPos: Point = { x: 0, y: 0 };
 
-  addChip("and", "and1");
-  addChip("not", "not1");
+  {
+    const localSave = window.localStorage.getItem("circuit");
 
-  circuit.chipsets[0].pos = { x: 300, y: 100 };
-  circuit.links = [
-    {
-      from: {
-        chip: circuit.chipsets[0],
-        pin: 3,
-      },
-      to: {
-        chip: circuit.chipsets[1],
-        pin: 1,
-      },
-    },
-  ];
+    if (localSave) {
+      const save = JSON.parse(localSave);
+
+      circuit = save;
+    } else {
+      addChip("and", "and1");
+      addChip("not", "not1");
+
+      circuit.chipsets[0].pos = { x: grid * 10, y: grid * 10 };
+      circuit.chipsets[1].pos = { x: grid * 30, y: grid * 15 };
+      circuit.links = [
+        {
+          from: {
+            chip: circuit.chipsets[0].name,
+            pin: 3,
+          },
+          to: {
+            chip: circuit.chipsets[1].name,
+            pin: 1,
+          },
+        },
+      ];
+    }
+  }
+
+  let timeout: undefined | number = undefined;
+  $: {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+
+    timeout = setTimeout(() => {
+      window.localStorage.setItem("circuit", JSON.stringify(circuit));
+    }, 1000);
+  }
 </script>
 
 <VStack gaps={8}>
@@ -161,6 +198,33 @@
         />
       {/if}
 
+      {#each circuit.chipsets as chip, i}
+        <g
+          use:drag={{ offset: posStore(i), button: 0 }}
+          on:mousedown={(e) => {
+            if (e.button === 2) {
+              removeChip(i);
+            }
+          }}
+        >
+          <ChipNode bind:this={chipNodes[chip.name]} bind:chip {grid} />
+        </g>
+        {#each [...($chips.get(chip.type)?.pinout.entries() || [])] as [pin, _]}
+          <ChipPin
+            pos={pinPos({ chip: chip.name, pin })}
+            on:wireout={() => (wireSource = { chip: chip.name, pin })}
+            on:wirein={() => {
+              if (wireSource) {
+                circuit.links = [
+                  ...circuit.links,
+                  { from: wireSource, to: { chip: chip.name, pin } },
+                ];
+              }
+            }}
+          />
+        {/each}
+      {/each}
+
       {#each circuit.links as link, i}
         <polyline
           on:mouseenter={(e) => {
@@ -174,26 +238,6 @@
         />
       {/each}
 
-      {#each circuit.chipsets as chip, i}
-        <g use:drag={posStore(i)}>
-          <ChipNode bind:this={chipNodes[chip.name]} bind:chip {grid} />
-        </g>
-        {#each [...($chips.get(chip.type)?.pinout.entries() || [])] as [pin, _]}
-          <ChipPin
-            pos={pinPos({ chip, pin })}
-            on:wireout={() => (wireSource = { chip, pin })}
-            on:wirein={() => {
-              if (wireSource) {
-                circuit.links = [
-                  ...circuit.links,
-                  { from: wireSource, to: { chip, pin } },
-                ];
-              }
-            }}
-          />
-        {/each}
-      {/each}
-
       {#if wireSource}
         <polyline
           class="link wire"
@@ -202,7 +246,11 @@
       {/if}
     </svg>
   </div>
-  <Button on:click={() => addChip("and")}>Add chip</Button>
+  <HStack stretch gaps={8}>
+    <Button on:click={() => addChip("input")}>Add input</Button>
+    <Button on:click={() => addChip("and")}>Add chip</Button>
+    <Button on:click={() => addChip("output")}>Add output</Button>
+  </HStack>
 </VStack>
 
 <style lang="scss">

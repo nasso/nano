@@ -9,8 +9,8 @@
 </script>
 
 <g
-  on:pointerdown={() => dispatch("wireout")}
-  on:pointerup={() => dispatch("wirein")}
+  on:pointerdown={(e) => e.button === 0 && dispatch("wireout")}
+  on:pointerup={(e) => e.button === 0 && dispatch("wirein")}
 >
   <circle class="pin" cx={pos.x} cy={pos.y} r="4" />
   <circle class="hotspot" cx={pos.x} cy={pos.y} r="8" />

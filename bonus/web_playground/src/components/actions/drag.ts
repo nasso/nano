@@ -5,11 +5,9 @@ export interface DragOffsetStore extends Readable<Point> {
   set(value: Point): void;
 }
 
-type MouseButtons = number | number[];
-
 export interface DragOptions {
   invert?: boolean;
-  button?: MouseButtons;
+  button?: number | number[];
   capture?: boolean;
   element?: HTMLElement | SVGElement;
   relative?: boolean;

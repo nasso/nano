@@ -12,6 +12,12 @@ export interface ChipInfo {
 }
 
 const chips: Writable<Map<string, ChipInfo>> = writable(new Map([
+  ["input", {
+    pinout: new Map([[1, PinMode.Output]]),
+  }],
+  ["output", {
+    pinout: new Map([[1, PinMode.Input]]),
+  }],
   ["and", {
     pinout: new Map([
       [1, PinMode.Input],

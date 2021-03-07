@@ -8,7 +8,7 @@ export interface Chipset {
 }
 
 export interface Pin {
-  chip?: Chipset,
+  chip?: string,
   pin: number,
 }
 

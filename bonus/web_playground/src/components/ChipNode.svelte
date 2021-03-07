@@ -24,13 +24,13 @@
   const pinWidth = grid || 16;
   const pinHeight = grid || 16;
 
-  let labelType: SVGTextElement;
-  $: labelTypeWidth = labelType?.getComputedTextLength() ?? 0;
+  let label: SVGTextElement;
+  $: labelWidth = label?.getComputedTextLength() ?? 0;
 
   let labelName: SVGTextElement;
   $: labelNameWidth = labelName?.getComputedTextLength() ?? 0;
 
-  $: width = gridCeil(Math.max(labelTypeWidth, labelNameWidth) + 32);
+  $: width = gridCeil(Math.max(labelWidth, labelNameWidth) + 32);
   $: height = gridCeil(
     pinHeight * Math.max(inputs.length, outputs.length) + grid
   );
@@ -84,13 +84,13 @@
   {/each}
 
   <text
-    bind:this={labelType}
+    bind:this={label}
     x={width / 2}
     y={height / 2 + 2}
     text-anchor="middle"
     dominant-baseline="middle"
   >
-    {chip.type}
+    {chip.name}
   </text>
 </g>
 
