@@ -2,9 +2,9 @@ name: C/C++ CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
@@ -13,6 +13,6 @@ jobs:
       image: epitechcontent/epitest-docker
 
     steps:
-    - uses: actions/checkout@v2
-    - name: build
-      run: mkdir build && cd build && cmake .. && make
+      - uses: actions/checkout@v2
+      - name: build
+        run: mkdir build && cd build && cmake .. && cmake --build .
