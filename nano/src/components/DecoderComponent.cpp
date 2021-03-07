@@ -9,11 +9,12 @@
 
 namespace nts {
 
-const PinId PINS_ADDR[] = { 21, 22, 3, 2 };
+const PinId PINS_ADDR[] = { 2, 3, 22, 21 };
 const PinId PINS_OUT[] = {
-    11, 10, 9, 8, 7, 6, 5, 4, 18, 17, 20, 19, 14, 13, 16, 15
+    11, 9, 10, 8, 7, 6, 5, 4, 18, 17, 20, 19, 14, 13, 16, 15
 };
 const PinId PIN_INHIB = 23;
+const PinId PIN_STROBE = 1;
 
 DecoderComponent::DecoderComponent()
 {
@@ -26,15 +27,16 @@ DecoderComponent::DecoderComponent()
     }
 
     pinMode(PIN_INHIB, PinMode::INPUT);
+    pinMode(PIN_STROBE, PinMode::INPUT);
 }
 
 void DecoderComponent::tick()
 {
-    for (PinId pin : PINS_OUT) {
-        write(pin, Tristate::UNDEFINED);
-    }
-
     if (read(PIN_INHIB) == Tristate::UNDEFINED) {
+        for (PinId pin : PINS_OUT) {
+            write(pin, Tristate::UNDEFINED);
+        }
+
         inputsClean();
         return;
     }
@@ -43,17 +45,22 @@ void DecoderComponent::tick()
         for (PinId pin : PINS_OUT) {
             write(pin, Tristate::FALSE);
         }
+
         inputsClean();
         return;
     }
 
-    short value = 0;
+    std::uint8_t value = 0;
     std::size_t bitIndex = 0;
 
     for (PinId pin : PINS_ADDR) {
         Tristate bit = read(pin);
 
         if (bit == Tristate::UNDEFINED) {
+            for (PinId pin : PINS_OUT) {
+                write(pin, Tristate::UNDEFINED);
+            }
+
             inputsClean();
             return;
         }
@@ -61,9 +68,11 @@ void DecoderComponent::tick()
         value |= (bit == Tristate::TRUE) << bitIndex;
         bitIndex++;
     }
+
     for (PinId pin : PINS_OUT) {
         write(pin, Tristate::FALSE);
     }
+
     write(PINS_OUT[value], Tristate::TRUE);
     inputsClean();
 }
