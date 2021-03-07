@@ -17,6 +17,15 @@ export function triml(
     .join("");
 }
 
+export function us(
+  strings: TemplateStringsArray,
+  ...values: Array<number | string>
+): string {
+  return strings
+    .reduce((text, str, i) => `${text}${str}${values[i] ?? ""}`, "")
+    .replace(/\s+/, "");
+}
+
 export interface Point {
   x: number;
   y: number;

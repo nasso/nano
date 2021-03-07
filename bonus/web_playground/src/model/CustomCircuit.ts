@@ -1,15 +1,14 @@
 import type { Point } from "@app/utils";
-import type { Writable } from "svelte/store";
 
 export interface Chipset {
   type: string;
   name: string;
 
-  pos: Writable<Point>;
+  pos: Point;
 }
 
 export interface Pin {
-  chip?: string,
+  chip?: Chipset,
   pin: number,
 }
 
