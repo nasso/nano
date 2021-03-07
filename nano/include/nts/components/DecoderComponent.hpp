@@ -20,6 +20,9 @@ public:
 
     void tick() override;
     virtual void display(std::ostream& os) const override;
+
+private:
+    std::uint8_t m_value = 0;
 };
 
 }

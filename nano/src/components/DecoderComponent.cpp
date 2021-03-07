@@ -50,30 +50,32 @@ void DecoderComponent::tick()
         return;
     }
 
-    std::uint8_t value = 0;
-    std::size_t bitIndex = 0;
+    if (read(PIN_STROBE) == Tristate::TRUE) {
+        m_value = 0;
+        std::size_t bitIndex = 0;
 
-    for (PinId pin : PINS_ADDR) {
-        Tristate bit = read(pin);
+        for (PinId pin : PINS_ADDR) {
+            Tristate bit = read(pin);
 
-        if (bit == Tristate::UNDEFINED) {
-            for (PinId pin : PINS_OUT) {
-                write(pin, Tristate::UNDEFINED);
+            if (bit == Tristate::UNDEFINED) {
+                for (PinId pin : PINS_OUT) {
+                    write(pin, Tristate::UNDEFINED);
+                }
+
+                inputsClean();
+                return;
             }
 
-            inputsClean();
-            return;
+            m_value |= (bit == Tristate::TRUE) << bitIndex;
+            bitIndex++;
         }
-
-        value |= (bit == Tristate::TRUE) << bitIndex;
-        bitIndex++;
     }
 
     for (PinId pin : PINS_OUT) {
         write(pin, Tristate::FALSE);
     }
 
-    write(PINS_OUT[value], Tristate::TRUE);
+    write(PINS_OUT[m_value], Tristate::TRUE);
     inputsClean();
 }
 
