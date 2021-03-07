@@ -5,7 +5,7 @@
 ** ConstComponent
 */
 
-#include "nts/ConstComponent.hpp"
+#include "nts/components/ConstComponent.hpp"
 #include <string>
 
 namespace nts {

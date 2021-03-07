@@ -15,7 +15,7 @@
 
 namespace mtl {
 
-namespace {
+namespace impl {
 
     template <typename T>
     class Base {
@@ -131,10 +131,10 @@ template <typename T>
 constexpr Option<T> none() noexcept;
 
 template <typename T>
-class Option : Base<T> {
+class Option : impl::Base<T> {
 public:
     constexpr Option() noexcept
-        : Base<T>()
+        : impl::Base<T>()
     {
     }
 
@@ -146,19 +146,19 @@ public:
     Option(Option<T>&& other)
     {
         if (other) {
-            Base<T>::emplace(std::forward<T>(other.unwrap()));
+            impl::Base<T>::emplace(std::forward<T>(other.unwrap()));
         }
     }
 
     Option(T&& value)
     {
-        Base<T>::emplace(std::forward<T>(value));
+        impl::Base<T>::emplace(std::forward<T>(value));
     }
 
     Option<T>& operator=(const Option<T>& other)
     {
         if (other) {
-            Base<T>::emplace(other.as_ref().unwrap());
+            impl::Base<T>::emplace(other.as_ref().unwrap());
         } else {
             take();
         }
@@ -182,7 +182,7 @@ public:
 
     bool is_some() const
     {
-        return Base<T>::is_some();
+        return impl::Base<T>::is_some();
     }
 
     bool is_none() const
@@ -196,9 +196,9 @@ public:
             throw std::runtime_error(msg);
         }
 
-        T val(std::forward<T>(*Base<T>::get()));
+        T val(std::forward<T>(*impl::Base<T>::get()));
 
-        Base<T>::clear();
+        impl::Base<T>::clear();
         return std::forward<T>(val);
     }
 
@@ -242,7 +242,7 @@ public:
     {
         if (*this) {
             Option<T> oldVal;
-            oldVal.Base<T>::emplace(std::forward<T>(unwrap()));
+            oldVal.impl::Base<T>::emplace(std::forward<T>(unwrap()));
             return oldVal;
         } else {
             return {};
@@ -254,7 +254,7 @@ public:
     {
         Option<T> oldVal = take();
 
-        Base<T>::emplace(std::forward<Args>(args)...);
+        impl::Base<T>::emplace(std::forward<Args>(args)...);
 
         return oldVal;
     }
@@ -272,7 +272,7 @@ public:
     Option<const T&> as_ref() const
     {
         if (*this) {
-            return mtl::some<const T&>(*Base<T>::get());
+            return mtl::some<const T&>(*impl::Base<T>::get());
         } else {
             return {};
         }
@@ -281,7 +281,7 @@ public:
     Option<T&> as_mut()
     {
         if (*this) {
-            return mtl::some<T&>(*Base<T>::get());
+            return mtl::some<T&>(*impl::Base<T>::get());
         } else {
             return {};
         }

@@ -5,7 +5,7 @@
 ** logger
 */
 
-#include "nts/LoggerComponent.hpp"
+#include "nts/components/LoggerComponent.hpp"
 #include "nts_utils.hpp"
 #include <criterion/criterion.h>
 #include <cstdint>

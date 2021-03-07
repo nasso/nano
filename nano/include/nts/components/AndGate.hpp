@@ -8,7 +8,7 @@
 #ifndef ANDGATE_HPP_
 #define ANDGATE_HPP_
 
-#include "AComponent.hpp"
+#include "../AComponent.hpp"
 #include <iostream>
 
 namespace nts {

@@ -8,7 +8,7 @@
 #ifndef CONSTCOMPONENT_HPP_
 #define CONSTCOMPONENT_HPP_
 
-#include "IComponent.hpp"
+#include "../IComponent.hpp"
 
 namespace nts {
 

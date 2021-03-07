@@ -9,6 +9,7 @@
 #include "nts/ComboComponentFactory.hpp"
 #include "nts/NtsCircuit.hpp"
 #include "nts/NtsComponentFactory.hpp"
+#include "nts/components/CounterComponent.hpp"
 #include "nts_utils.hpp"
 #include <criterion/criterion.h>
 #include <memory>

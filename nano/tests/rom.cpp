@@ -5,7 +5,7 @@
 ** rom
 */
 
-#include "nts/RomComponent.hpp"
+#include "nts/components/RomComponent.hpp"
 #include <criterion/criterion.h>
 #include <cstdint>
 #include <vector>

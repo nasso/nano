@@ -5,7 +5,7 @@
 ** LoggerComponent
 */
 
-#include "nts/LoggerComponent.hpp"
+#include "nts/components/LoggerComponent.hpp"
 
 namespace nts {
 

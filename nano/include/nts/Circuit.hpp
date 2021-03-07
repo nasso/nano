@@ -19,7 +19,7 @@
 #include <vector>
 
 namespace nts {
-namespace {
+namespace impl {
 
     template <typename K>
     using ChipMap = std::unordered_map<K, std::unique_ptr<IComponent>>;
@@ -105,7 +105,7 @@ namespace {
         return connected;
     }
 
-    Tristate propagate(Tristate a, Tristate b)
+    static Tristate propagate(Tristate a, Tristate b)
     {
         if ((a || b) == Tristate::TRUE) {
             return Tristate::TRUE;
@@ -121,8 +121,8 @@ namespace {
 namespace std {
 
 template <typename K>
-struct hash<nts::ChipPin<K>> {
-    using argument_type = nts::ChipPin<K>;
+struct hash<nts::impl::ChipPin<K>> {
+    using argument_type = nts::impl::ChipPin<K>;
     using result_type = std::size_t;
 
     result_type operator()(const argument_type& pin) const
@@ -292,7 +292,7 @@ public:
     }
 
 private:
-    using ChipPin = nts::ChipPin<K>;
+    using ChipPin = nts::impl::ChipPin<K>;
     using PinSet = std::unordered_set<ChipPin>;
     using PinAdjencyList = std::unordered_map<ChipPin, PinSet>;
 
@@ -319,7 +319,7 @@ private:
             const ChipPin& pin = adjency.first;
 
             if (visitedPins.find(pin) == visitedPins.end()) {
-                PinSet links = findConnected<PinSet>(pin, m_pinLinks);
+                PinSet links = impl::findConnected<PinSet>(pin, m_pinLinks);
                 Tristate linkValue = Tristate::UNDEFINED;
 
                 // compute the common link value
@@ -330,7 +330,7 @@ private:
                     if (pin.owner
                             ? mode == PinMode::OUTPUT
                             : mode == PinMode::INPUT) {
-                        linkValue = propagate(linkValue,
+                        linkValue = nts::impl::propagate(linkValue,
                             pin.read(*this, m_chipsets));
                     }
 

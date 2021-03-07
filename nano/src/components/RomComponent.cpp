@@ -5,7 +5,7 @@
 ** RomComponent
 */
 
-#include "nts/RomComponent.hpp"
+#include "nts/components/RomComponent.hpp"
 
 namespace nts {
 
@@ -42,6 +42,7 @@ void RomComponent::tick()
 
     if (read(PIN_ENABLE_N) != Tristate::FALSE
         || read(PIN_READ_N) != Tristate::FALSE) {
+        inputsClean();
         return;
     }
 
@@ -52,6 +53,7 @@ void RomComponent::tick()
         Tristate bit = read(pin);
 
         if (bit == Tristate::UNDEFINED) {
+            inputsClean();
             return;
         }
 
