@@ -29,6 +29,7 @@ set(sources
     "include/nts/components/DecoderComponent.hpp"
     "include/nts/components/CounterComponent.hpp"
     "include/nts/components/SelectorComponent.hpp"
+    "include/nts/components/ShiftRegisterComponent.hpp"
     "src/AComponent.cpp"
     "src/BuiltInComponentFactory.cpp"
     "src/Circuit.cpp"
@@ -48,6 +49,7 @@ set(sources
     "src/components/DecoderComponent.cpp"
     "src/components/CounterComponent.cpp"
     "src/components/SelectorComponent.cpp"
+    "src/components/ShiftRegisterComponent.cpp"
 )
 
 set(libs mtl)
