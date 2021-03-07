@@ -15,7 +15,7 @@ const auto T = nts::Tristate::TRUE;
 const auto F = nts::Tristate::FALSE;
 const auto U = nts::Tristate::UNDEFINED;
 
-Test(components_4017, timing_diagram)
+Test(components_4017, timing_diagram, .disabled = true)
 {
     const nts::PinId PIN_CP1 = 13;
     const nts::PinId PIN_CP0 = 14;
