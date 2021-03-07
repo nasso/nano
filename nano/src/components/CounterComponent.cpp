@@ -10,8 +10,8 @@
 namespace nts {
 
 const PinId PINS_OUT[] = { 9, 7, 6, 5, 3, 2, 4, 13, 12, 14, 15, 1 };
-const PinId PIN_RESET = 2;
-const PinId PIN_CLOCK = 3;
+const PinId PIN_RESET = 11;
+const PinId PIN_CLOCK = 10;
 
 CounterComponent::CounterComponent()
 {

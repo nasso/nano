@@ -10,7 +10,9 @@
 namespace nts {
 
 const PinId PINS_ADDR[] = { 21, 22, 3, 2 };
-const PinId PINS_OUT[] = { 11, 10, 9, 8, 7, 6, 5, 4, 18, 17, 20, 19, 14, 13, 16, 15 };
+const PinId PINS_OUT[] = {
+    11, 10, 9, 8, 7, 6, 5, 4, 18, 17, 20, 19, 14, 13, 16, 15
+};
 const PinId PIN_INHIB = 23;
 
 DecoderComponent::DecoderComponent()
@@ -68,7 +70,6 @@ void DecoderComponent::tick()
 
 void DecoderComponent::display(std::ostream& os) const
 {
-
 }
 
 }

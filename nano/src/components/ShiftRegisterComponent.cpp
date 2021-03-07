@@ -81,7 +81,7 @@ void ShiftRegisterComponent::tick()
             return;
         }
         if (read(PIN_STROBE) == Tristate::TRUE
-        && read(PIN_DATA) == Tristate::TRUE) {
+            && read(PIN_DATA) == Tristate::TRUE) {
             write(PIN_LAST_STAGE_PRIME, read(PINS_OUT[6]));
         }
     }

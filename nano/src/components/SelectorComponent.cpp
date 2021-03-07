@@ -9,8 +9,8 @@
 
 namespace nts {
 
-const PinId PINS_ADDR[] = {11, 12, 13};
-const PinId PINS_IN[] = { 1, 2, 3, 4, 5 , 6, 7, 9};
+const PinId PINS_ADDR[] = { 11, 12, 13 };
+const PinId PINS_IN[] = { 1, 2, 3, 4, 5, 6, 7, 9 };
 const PinId PIN_OUT = 14;
 const PinId PIN_OUTPUT_ENABLE = 15;
 const PinId PIN_INHIBIT = 10;
@@ -35,7 +35,7 @@ void SelectorComponent::tick()
         return;
     }
     if (read(PIN_OUTPUT_ENABLE) == Tristate::TRUE) {
-            write(PIN_OUT, Tristate::UNDEFINED);
+        write(PIN_OUT, Tristate::UNDEFINED);
         inputsClean();
         return;
     }
