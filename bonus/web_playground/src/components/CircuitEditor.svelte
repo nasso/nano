@@ -1,20 +1,18 @@
 <script lang="ts">
   import ChipPin from "./ChipPin.svelte";
 
-  import type CustomCircuit from "@app/model/CustomCircuit";
-  import type { Pin } from "@app/model/CustomCircuit";
+  import type CustomCircuit from "@app/model";
+  import type { Pin } from "@app/model";
   import type { Point } from "@app/utils";
   import type { Writable } from "svelte/store";
 
   import VStack from "@components/VStack.svelte";
-  import Button from "@components/Button.svelte";
   import { grow } from "@components/Stack.svelte";
   import ChipNode from "@components/ChipNode.svelte";
   import drag from "@components/actions/drag";
   import { writable } from "svelte/store";
   import chips from "@app/stores/chips";
-  import { tick } from "svelte";
-  import HStack from "@components/HStack.svelte";
+  import { createEventDispatcher, tick } from "svelte";
 
   export let circuit: CustomCircuit;
   export let grid: number = 16;
@@ -41,7 +39,7 @@
     return type + i;
   }
 
-  function addChip(type: string, name: string = makeUpChipName(type)) {
+  export function addChip(type: string, name: string = makeUpChipName(type)) {
     circuit.chipsets = [
       ...circuit.chipsets,
       {
@@ -52,7 +50,7 @@
     ];
   }
 
-  async function removeChip(id: number) {
+  export function removeChip(id: number) {
     const name = circuit.chipsets[id].name;
 
     circuit.chipsets.splice(id, 1);
@@ -63,7 +61,7 @@
     );
   }
 
-  function pinPos(pin: Pin): Point {
+  $: pinPos = (pin: Pin): Point => {
     if (pin.chip) {
       const chip = chipNodes[pin.chip];
 
@@ -73,7 +71,7 @@
     }
 
     return { x: 0, y: 0 };
-  }
+  };
 
   function pstr(p: Point): string {
     return `${p.x},${p.y}`;
@@ -121,45 +119,6 @@
 
   let wireSource: null | Pin = null;
   let pointerPos: Point = { x: 0, y: 0 };
-
-  {
-    const localSave = window.localStorage.getItem("circuit");
-
-    if (localSave) {
-      const save = JSON.parse(localSave);
-
-      circuit = save;
-    } else {
-      addChip("and", "and1");
-      addChip("not", "not1");
-
-      circuit.chipsets[0].pos = { x: grid * 10, y: grid * 10 };
-      circuit.chipsets[1].pos = { x: grid * 30, y: grid * 15 };
-      circuit.links = [
-        {
-          from: {
-            chip: circuit.chipsets[0].name,
-            pin: 3,
-          },
-          to: {
-            chip: circuit.chipsets[1].name,
-            pin: 1,
-          },
-        },
-      ];
-    }
-  }
-
-  let timeout: undefined | number = undefined;
-  $: {
-    if (timeout) {
-      clearTimeout(timeout);
-    }
-
-    timeout = setTimeout(() => {
-      window.localStorage.setItem("circuit", JSON.stringify(circuit));
-    }, 1000);
-  }
 </script>
 
 <VStack gaps={8}>
@@ -246,11 +205,6 @@
       {/if}
     </svg>
   </div>
-  <HStack stretch gaps={8}>
-    <Button on:click={() => addChip("input")}>Add input</Button>
-    <Button on:click={() => addChip("and")}>Add chip</Button>
-    <Button on:click={() => addChip("output")}>Add output</Button>
-  </HStack>
 </VStack>
 
 <style lang="scss">
@@ -262,7 +216,7 @@
 
   .link {
     stroke-width: 2;
-    stroke: var(--background-2);
+    stroke: var(--background-3);
   }
 
   .wire {

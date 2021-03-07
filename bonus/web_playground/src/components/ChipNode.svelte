@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type { Chipset } from "@app/model/CustomCircuit";
+  import type { Chipset } from "@app/model";
   import type { Point } from "@app/utils";
 
   import chips, { PinMode } from "@app/stores/chips";
+  import { onMount, tick } from "svelte";
 
   export let chip: Chipset;
   export let grid: number;
@@ -25,12 +26,16 @@
   const pinHeight = grid || 16;
 
   let label: SVGTextElement;
-  $: labelWidth = label?.getComputedTextLength() ?? 0;
+  let labelWidth: number = 0;
 
-  let labelName: SVGTextElement;
-  $: labelNameWidth = labelName?.getComputedTextLength() ?? 0;
+  $: {
+    chip.name;
+    tick().then(() => {
+      labelWidth = label?.getComputedTextLength() ?? 0;
+    });
+  }
 
-  $: width = gridCeil(Math.max(labelWidth, labelNameWidth) + 32);
+  $: width = gridCeil(labelWidth + 32);
   $: height = gridCeil(
     pinHeight * Math.max(inputs.length, outputs.length) + grid
   );
@@ -58,6 +63,10 @@
       y: chip.pos.y + pos.y,
     };
   }
+
+  onMount(() => {
+    labelWidth = label?.getComputedTextLength() ?? 0;
+  });
 </script>
 
 <g transform={`translate(${chip.pos.x} ${chip.pos.y})`}>
@@ -90,7 +99,7 @@
     text-anchor="middle"
     dominant-baseline="middle"
   >
-    {chip.name}
+    {chip.type}
   </text>
 </g>
 
@@ -101,11 +110,13 @@
 
   .body {
     fill: var(--background-2);
+    stroke: var(--background-3);
+    stroke-width: 2;
   }
 
   .pin {
     stroke-width: 2;
-    stroke: var(--background-2);
+    stroke: var(--background-3);
   }
 
   text {

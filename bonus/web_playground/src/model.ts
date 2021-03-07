@@ -17,7 +17,7 @@ export interface Link {
   to: Pin,
 }
 
-export default class CustomCircuit {
+export default class Circuit {
   chipsets: Chipset[] = [];
   links: Link[] = [];
 }
