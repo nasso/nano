@@ -1,9 +1,9 @@
 <script lang="ts">
   export let selected: boolean = false;
-  export let tight: boolean = false;
+  export let disabled: boolean = false;
 </script>
 
-<button class:selected class:tight on:click on:dblclick><slot /></button>
+<button class:selected {disabled} on:click on:dblclick><slot /></button>
 
 <style lang="scss">
   button {
@@ -18,7 +18,7 @@
     border-radius: 8px;
     outline: none;
 
-    transition: background-color 100ms;
+    transition: background-color 100ms, opacity 100ms;
 
     &:hover,
     &:focus-visible {
@@ -31,9 +31,10 @@
       --button-bg: var(--background-0);
       --button-fg: var(--foreground-0);
     }
-  }
 
-  button.tight {
-    padding: 4px 8px;
+    &[disabled] {
+      opacity: 0.5;
+      pointer-events: none;
+    }
   }
 </style>

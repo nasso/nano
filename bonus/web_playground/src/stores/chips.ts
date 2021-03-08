@@ -1,3 +1,4 @@
+import type { SvelteComponent } from "svelte";
 import { Writable, writable } from "svelte/store";
 
 export enum PinMode {
@@ -9,6 +10,7 @@ export enum PinMode {
 
 export interface ChipInfo {
   pinout: Map<number, PinMode>,
+  view?: SvelteComponent,
 }
 
 const chips: Writable<Map<string, ChipInfo>> = writable(new Map([

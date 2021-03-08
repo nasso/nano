@@ -1,56 +1,18 @@
 <script lang="ts">
-  import type { NtsModule } from "@app/nts";
   import type { ChipInfo } from "@app/stores/chips";
+  import type { SimulationState } from "@app/nano";
 
   import { PinMode } from "@app/stores/chips";
-  import Circuit from "@app/model";
+  import { Circuit } from "@app/model";
   import CircuitEditor from "@components/CircuitEditor.svelte";
-  import { onDestroy, setContext } from "svelte";
+  import { onDestroy } from "svelte";
   import VStack from "@components/VStack.svelte";
   import HStack from "@components/HStack.svelte";
   import Button from "@components/Button.svelte";
   import Grow from "@components/Grow.svelte";
   import ChipPicker from "@components/ChipPicker.svelte";
   import chips from "@app/stores/chips";
-
-  export let nts: NtsModule;
-  setContext("nts", nts);
-
-  const mainFactory = new nts.ComboComponentFactory();
-
-  {
-    const builtinFactory = new nts.BuiltInComponentFactory();
-    mainFactory.add(builtinFactory);
-  }
-
-  {
-    const creationStack = new Set<string>();
-
-    mainFactory.add(
-      nts.IComponentFactory.implement({
-        createComponent(name: string) {
-          if (creationStack.has(name)) {
-            console.log("circular dependency!");
-            return;
-          }
-
-          /*
-          let chip = chips.find((v) => name === v.name);
-
-          if (chip) {
-            creationStack.add(chip.name);
-            let circuit = null;
-            try {
-              circuit = new nts.NtsCircuit(chip.source, mainFactory);
-            } catch (_) {}
-            creationStack.delete(chip.name);
-            return circuit;
-          }
-          */
-        },
-      })
-    );
-  }
+  import { Simulator } from "@app/nano";
 
   interface UserCircuit {
     name: string;
@@ -169,8 +131,34 @@
     ...userCircuits.filter((_, i) => i !== currentCircuitId).map((e) => e.name),
   ];
 
+  let simulator: undefined | Simulator;
+  let simulationState: SimulationState = new Map();
+  async function compile() {
+    simulator?.delete();
+    simulator = undefined;
+
+    if (currentCircuit) {
+      simulator = await Simulator.create(currentCircuit.circuit);
+    }
+  }
+
+  function simulate() {}
+
+  function tick() {
+    if (simulator) {
+      simulator.tick();
+
+      if (currentCircuit) {
+        simulator.inspect(
+          simulationState,
+          currentCircuit.circuit.chipsets.map((chip) => chip.name)
+        );
+      }
+    }
+  }
+
   onDestroy(async () => {
-    mainFactory.delete();
+    simulator?.delete();
   });
 </script>
 
@@ -196,14 +184,20 @@
           <CircuitEditor
             bind:this={editor}
             bind:circuit={currentCircuit.circuit}
+            state={simulationState}
           />
         {/key}
       {/if}
     </Grow>
+
     <HStack stretch gaps={8}>
       <Button on:click={() => addInput()}>Add input</Button>
       <Button on:click={() => (showPicker = true)}>Add chip</Button>
       <Button on:click={() => addOutput()}>Add output</Button>
+      <Grow />
+      <Button on:click={compile}>Compile</Button>
+      <Button disabled={!simulator} on:click={simulate}>Simulate</Button>
+      <Button disabled={!simulator} on:click={tick}>Tick</Button>
     </HStack>
 
     <div class="picker" class:show={showPicker}>

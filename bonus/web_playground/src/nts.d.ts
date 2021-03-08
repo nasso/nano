@@ -41,36 +41,54 @@ declare class Map<K, V> implements Deletable {
   delete(): void;
 }
 
-declare type PinId = number;
-declare type PinMode = EnumClass;
-declare type Tristate = EnumClass;
+export declare type PinId = number;
+export declare type PinMode = EnumClass;
+export declare type Tristate = EnumClass;
 
-declare type Pinout = Map<PinId, PinMode>;
+export declare type Pinout = Map<PinId, PinMode>;
 
-declare type Option<T> = null | T;
+export declare type Option<T> = null | T;
 
-declare interface IComponent {
+export declare interface IComponent {
+  readonly stable: boolean;
+
   tick(): void;
-  stable(): boolean;
   pinout(): Ref<Pinout>;
   read(pin: PinId): Tristate;
   write(pin: PinId, value: Tristate): void;
 }
 
-declare abstract class AComponent implements IComponent, Deletable {
-  stable(): boolean;
+export declare abstract class AComponent implements IComponent, Deletable {
+  readonly stable: boolean;
+
   pinout(): Ref<Pinout>;
+  pinMode(pin: PinId, mode: PinMode): void;
+  read(pin: PinId): Tristate;
+  write(pin: PinId, value: Tristate): void;
   delete(): void;
 }
 
-declare class Circuit extends AComponent {
+export declare class Circuit extends AComponent {
+  readonly stable: boolean;
+
+  tick(): void;
+  insert(name: string, comp: IComponent): void;
+  remove(name: string): IComponent;
+  get(name: string): undefined | IComponent;
+  connect(chip1: string, pin1: PinId, chip2: string, pin2: PinId): void;
+  connect(pin: PinId, chip: string, chipPin: PinId): void;
+  connect(pin1: PinId, pin2: PinId): void;
+  disconnect(chip1: string, pin1: PinId, chip2: string, pin2: PinId): void;
+  disconnect(pin: PinId, chip: string, chipPin: PinId): void;
+  disconnect(pin1: PinId, pin2: PinId): void;
   delete(): void;
 }
 
-declare interface IComponentFactory {
+export declare interface IComponentFactory {
   createComponent(name: string): Option<IComponent>;
 }
 
+export
 declare class ComboComponentFactory implements IComponentFactory, Deletable {
   constructor();
 
@@ -79,6 +97,7 @@ declare class ComboComponentFactory implements IComponentFactory, Deletable {
   delete(): void;
 }
 
+export
 declare class BuiltInComponentFactory implements IComponentFactory, Deletable {
   constructor();
 
@@ -86,7 +105,7 @@ declare class BuiltInComponentFactory implements IComponentFactory, Deletable {
   delete(): void;
 }
 
-declare class NtsCircuit extends Circuit {
+export declare class NtsCircuit extends Circuit {
   constructor();
 }
 

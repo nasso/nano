@@ -1,10 +1,11 @@
 <script lang="ts">
   import ChipPin from "./ChipPin.svelte";
 
-  import type CustomCircuit from "@app/model";
+  import type { Circuit as CustomCircuit } from "@app/model";
   import type { Pin } from "@app/model";
   import type { Point } from "@app/utils";
   import type { Writable } from "svelte/store";
+  import type { SimulationState } from "@app/nano";
 
   import VStack from "@components/VStack.svelte";
   import { grow } from "@components/Stack.svelte";
@@ -12,10 +13,11 @@
   import drag from "@components/actions/drag";
   import { writable } from "svelte/store";
   import chips from "@app/stores/chips";
-  import { createEventDispatcher, tick } from "svelte";
+  import { tick } from "svelte";
 
   export let circuit: CustomCircuit;
   export let grid: number = 16;
+  export let state: undefined | SimulationState;
 
   let chipNodes: Record<string, undefined | ChipNode> = {};
 
@@ -171,6 +173,7 @@
         {#each [...($chips.get(chip.type)?.pinout.entries() || [])] as [pin, _]}
           <ChipPin
             pos={pinPos({ chip: chip.name, pin })}
+            state={state?.get(chip.name)?.get(pin)}
             on:wireout={() => (wireSource = { chip: chip.name, pin })}
             on:wirein={() => {
               if (wireSource) {

@@ -3,7 +3,7 @@
   import type { Point } from "@app/utils";
 
   import chips, { PinMode } from "@app/stores/chips";
-  import { onMount, tick } from "svelte";
+  import BasicNode from "@components/BasicNode.svelte";
 
   export let chip: Chipset;
   export let grid: number;
@@ -25,19 +25,15 @@
   const pinWidth = grid || 16;
   const pinHeight = grid || 16;
 
-  let label: SVGTextElement;
-  let labelWidth: number = 0;
+  let minWidth: undefined | number;
+  let minHeight: undefined | number;
 
-  $: {
-    chip.name;
-    tick().then(() => {
-      labelWidth = label?.getComputedTextLength() ?? 0;
-    });
-  }
-
-  $: width = gridCeil(labelWidth + 32);
+  $: width = gridCeil(minWidth ?? 0);
   $: height = gridCeil(
-    pinHeight * Math.max(inputs.length, outputs.length) + grid
+    Math.max(
+      minHeight ?? 0,
+      pinHeight * Math.max(inputs.length, outputs.length) + grid
+    )
   );
 
   export function pinPos(pin: number): Point {
@@ -63,10 +59,6 @@
       y: chip.pos.y + pos.y,
     };
   }
-
-  onMount(() => {
-    labelWidth = label?.getComputedTextLength() ?? 0;
-  });
 </script>
 
 <g transform={`translate(${chip.pos.x} ${chip.pos.y})`}>
@@ -92,18 +84,21 @@
     />
   {/each}
 
-  <text
-    bind:this={label}
-    x={width / 2}
-    y={height / 2 + 2}
-    text-anchor="middle"
-    dominant-baseline="middle"
-  >
-    {chip.type}
-  </text>
+  {#if $chips.get(chip.type)?.view}
+    <svelte:component
+      this={$chips.get(chip.type)?.view}
+      {chip}
+      {width}
+      {height}
+      bind:minWidth
+      bind:minHeight
+    />
+  {:else}
+    <BasicNode {chip} {width} {height} bind:minWidth bind:minHeight />
+  {/if}
 </g>
 
-<style lang="scss">
+<style>
   g {
     cursor: move;
   }
@@ -117,11 +112,5 @@
   .pin {
     stroke-width: 2;
     stroke: var(--background-3);
-  }
-
-  text {
-    fill: var(--foreground-2);
-    font-weight: bold;
-    text-transform: uppercase;
   }
 </style>

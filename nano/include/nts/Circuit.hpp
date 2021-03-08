@@ -177,6 +177,15 @@ public:
         return *m_chipsets.at(name);
     }
 
+    mtl::Option<IComponent&> get(const K& name)
+    {
+        if (m_chipsets.find(name) != m_chipsets.end()) {
+            return { *m_chipsets.at(name) };
+        } else {
+            return {};
+        }
+    }
+
     // Links
     void connect(const K& chip1, PinId pin1, const K& chip2, PinId pin2)
     {

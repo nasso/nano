@@ -1,14 +1,19 @@
 <script lang="ts">
+  import type { Tristate } from "@app/nts";
+
   import type { Point } from "@app/utils";
 
   import { createEventDispatcher } from "svelte";
 
   export let pos: Point;
+  export let state: undefined | boolean;
 
   const dispatch = createEventDispatcher();
 </script>
 
 <g
+  class:high={state === true}
+  class:low={state === false}
   on:pointerdown={(e) => e.button === 0 && dispatch("wireout")}
   on:pointerup={(e) => e.button === 0 && dispatch("wirein")}
 >

@@ -34,13 +34,24 @@ ComboComponentFactory::Output ComboComponentFactory::createComponent(
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 
+emscripten::val create(nts::ComboComponentFactory& self,
+    const std::string& name)
+{
+    auto comp = self.createComponent(name);
+
+    if (comp) {
+        return emscripten::val(comp.unwrap());
+    } else {
+        return emscripten::val::undefined();
+    }
+}
+
 EMSCRIPTEN_BINDINGS(nts_combocomponentfactory)
 {
     emscripten::class_<nts::ComboComponentFactory,
         emscripten::base<nts::IComponentFactory>>("ComboComponentFactory")
         .constructor<>()
-        .function("createComponent",
-            &nts::ComboComponentFactory::createComponent)
+        .function("createComponent", &create)
         .function("add", &nts::ComboComponentFactory::add);
 }
 #endif
