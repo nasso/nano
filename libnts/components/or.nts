@@ -1,0 +1,14 @@
+# OR gate
+
+.chipsets:
+input a
+input b
+output out
+nor nor
+not not
+
+.links:
+a:1 nor:1
+b:1 nor:2
+nor:3 not:1
+not:2 out:1

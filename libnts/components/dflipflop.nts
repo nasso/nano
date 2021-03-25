@@ -1,0 +1,19 @@
+# Rising-Edge Triggered Synchronous Data Flip-Flop
+
+.chipsets:
+input data
+input clock
+output q
+output q_
+true preset_
+true clear_
+
+adflipflop async
+
+.links:
+async:1 data:1
+async:2 clock:1
+async:3 q:1
+async:4 q_:1
+async:5 preset_:1
+async:6 clear_:1

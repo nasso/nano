@@ -1,0 +1,14 @@
+# NAND gate
+
+.chipsets:
+input a
+input b
+output out
+and and
+not not
+
+.links:
+a:1 and:1
+b:1 and:2
+and:3 not:1
+not:2 out:1
