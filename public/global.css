@@ -1,0 +1,44 @@
+:root {
+  --background-0: hsl(225, 6%, 98%);
+  --background-1: hsl(225, 6%, 93%);
+  --background-2: hsl(225, 6%, 86%);
+  --background-3: hsl(225, 6%, 75%);
+
+  --foreground-0: hsl(0, 0%, 25%);
+  --foreground-1: hsl(0, 0%, 20%);
+  --foreground-2: hsl(0, 0%, 15%);
+  --foreground-3: hsl(0, 0%, 5%);
+
+  --pin-value-true: hsl(120, 100%, 32%);
+  --pin-value-false: hsl(0, 100%, 46%);
+  --pin-value-undefined: var(--background-3);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-0: hsl(232, 20%, 22%);
+    --background-1: hsl(232, 20%, 17%);
+    --background-2: hsl(232, 20%, 13%);
+    --background-3: hsl(232, 20%, 9%);
+
+    --foreground-3: hsl(0, 0%, 85%);
+    --foreground-2: hsl(0, 0%, 90%);
+    --foreground-1: hsl(0, 0%, 92%);
+    --foreground-0: hsl(0, 0%, 95%);
+
+    --pin-value-true: hsl(120, 100%, 78%);
+    --pin-value-false: hsl(0, 100%, 74%);
+    --pin-value-undefined: var(--background-3);
+  }
+}
+
+body {
+  background: var(--background-1);
+  color: var(--foreground-1);
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+}

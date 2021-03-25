@@ -10,34 +10,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up Emscripten toolchain
-        uses: mymindstorm/setup-emsdk@v8
-
-      - name: Configure
-        run: |
-          mkdir build
-          cd build
-          emcmake cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$(pwd)"
-
-      - name: Build WASM module
-        working-directory: ./build
-        run: cmake --build . --config Release
-
-      - name: Copy WASM module files
-        run: |
-          cp ./build/nts.wasm ./bonus/web_playground/public/nts.wasm
-          cp ./build/nts.js ./bonus/web_playground/src/nts.js
-
       - name: Install node dependencies
-        working-directory: ./bonus/web_playground
         run: npm ci
 
       - name: Build static site
-        working-directory: ./bonus/web_playground
         run: npm run build
 
       - name: Publish
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./bonus/web_playground/public
+          publish_dir: ./public

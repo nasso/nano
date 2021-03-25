@@ -1,11 +1,7 @@
-.vs
 .vscode
-nanotekspice
-unit_tests
-build
-build_wasm
-log.bin
-rom.bin
+/node_modules/
+/public/build/
+/public/nts.wasm
+/src/nts.js
 
-# Visual Studio CMake configuration
-CMakeSettings.json
+.DS_Store

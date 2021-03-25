@@ -1,8 +1,0 @@
-# buffer
-
-.chipsets:
-input in
-output out
-
-.links:
-in:1 out:1

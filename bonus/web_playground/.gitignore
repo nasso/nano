@@ -1,6 +1,0 @@
-/node_modules/
-/public/build/
-/public/nts.wasm
-/src/nts.js
-
-.DS_Store

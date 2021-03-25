@@ -2,22 +2,16 @@
 .github/
 .vs/
 .vscode/
+node_modules/
+
 .gitignore
 .editorconfig
 .dockerignore
-CMakeSettings.json
 
 # build files
+build.js
+build.sh
 Dockerfile
-Dockerfile.web
-build_nts_wasm.ps1
-build
-build_wasm
-log.bin
-rom.bin
 
-# meta
+# docs
 README.md
-
-# unneeded for compilation
-docs/
